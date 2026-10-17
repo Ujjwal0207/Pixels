@@ -1,0 +1,1679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DesignPro - Free Professional Graphic Design Suite</title>
+  <meta name="description" content="Free modern graphic design suite with customizable templates, vector shapes, typography, image filters, multi-page carousels, QR code generator, and high-resolution export.">
+  
+  <!-- Modern Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel:wght@600;800&family=Inter:wght@400;500;600;700&family=Montserrat:wght@500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&family=Pacifico&family=Playfair+Display:ital,wght@0,600;0,700;1,600;1,700&family=Poppins:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  
+  <!-- Fabric.js HTML5 Canvas Engine -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+  
+  <!-- Client-side QR Code Generator -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <!-- PDF.js Engine & Worker (PDFCraft) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <!-- jsPDF Engine (High-res native PDF Export) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <!-- App Stylesheets -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/extra.css">
+</head>
+<body>
+  <div id="app-root">
+    
+    <!-- ====================================================================
+         Top App Header Bar
+         ==================================================================== -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="brand">
+          <div class="brand-icon">✦</div>
+          <span class="brand-name">DesignPro</span>
+          <span class="pro-badge">PRO FREE</span>
+        </div>
+
+        <div class="header-divider"></div>
+
+        <div class="doc-title-wrapper">
+          <input type="text" id="doc-title-input" class="doc-title-input" value="Untitled Design" title="Click to rename document" />
+          <span class="save-status saved" title="Auto-saved locally">● Saved</span>
+        </div>
+
+        <div class="header-divider"></div>
+
+        <!-- History Controls -->
+        <button id="btn-undo" class="icon-btn" title="Undo (Ctrl+Z)" disabled>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 7v6h6"></path><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path>
+          </svg>
+        </button>
+        <button id="btn-redo" class="icon-btn" title="Redo (Ctrl+Y)" disabled>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 7v6h-6"></path><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="header-right">
+        <!-- Canvas Operations -->
+        <button id="btn-clear-canvas" class="btn-secondary" title="Clear Canvas">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+          Clear
+        </button>
+
+        <button id="btn-open-resize" class="btn-secondary" title="Resize Artboard">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 3h6v6"></path><path d="M9 21H3v-6"></path><path d="M21 3l-7 7"></path><path d="M3 21l7-7"></path>
+          </svg>
+          Resize
+        </button>
+
+        <button id="btn-save-project" class="btn-secondary" title="Save Project File (.designpro)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+            <polyline points="7 3 7 8 15 8"></polyline>
+          </svg>
+          Save
+        </button>
+
+        <input type="file" id="project-file-input" accept=".designpro,.json" style="display: none;" />
+        <button id="btn-load-project" class="btn-secondary" title="Load Project File">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          Load
+        </button>
+
+        <button id="btn-print" class="icon-btn" title="Print Artboard">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 6 2 18 2 18 9"></polyline>
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+            <rect x="6" y="14" width="12" height="8"></rect>
+          </svg>
+        </button>
+
+        <!-- Color Eyedropper Tool -->
+        <button id="btn-eyedropper" class="icon-btn" title="Color Eyedropper (Sample color from screen or canvas)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m2 22 1-1h3l9-9"></path><path d="M3 21v-3l9-9"></path>
+            <path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z"></path>
+          </svg>
+        </button>
+
+        <!-- Shortcuts Help -->
+        <button id="btn-open-shortcuts" class="icon-btn" title="Keyboard Shortcuts (?)">
+          <span style="font-weight: 700; font-size: 0.95rem;">?</span>
+        </button>
+
+        <div class="header-divider"></div>
+
+        <!-- Fullscreen Presentation Mode -->
+        <button id="btn-present-mode" class="btn-secondary" title="Present Mode (Fullscreen Slide Deck)" style="font-weight: 600;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+          Present
+        </button>
+
+        <!-- Primary Export Button -->
+        <button id="btn-open-export" class="btn-primary" title="Export Design (PNG, JPG, SVG, PDF)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Export
+        </button>
+      </div>
+    </header>
+
+    <!-- ====================================================================
+         Main Workspace Layout (Rail + Sidebar + Viewport)
+         ==================================================================== -->
+    <main class="app-main">
+      
+      <!-- Far-Left Navigation Rail -->
+      <nav class="nav-rail">
+        <button class="nav-tab-btn active" data-tab="templates" data-title="Templates">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line>
+          </svg>
+          <span>Templates</span>
+        </button>
+
+        <button class="nav-tab-btn" data-tab="elements" data-title="Elements & Icons">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="6" cy="6" r="3"></circle><circle cx="6" cy="18" r="3"></circle><line x1="20" y1="4" x2="8.12" y2="15.88"></line><line x1="14.47" y1="14.48" x2="20" y2="20"></line><line x1="8.12" y1="8.12" x2="12" y2="12"></line>
+          </svg>
+          <span>Elements</span>
+        </button>
+
+        <button class="nav-tab-btn" data-tab="text" data-title="Typography & Text">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line>
+          </svg>
+          <span>Text</span>
+        </button>
+
+        <button class="nav-tab-btn" data-tab="qrcode" data-title="QR Code Generator">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect><path d="M14 14h3v3h-3z"></path><path d="M17 17h4v4h-4z"></path><path d="M14 20h3"></path><path d="M20 14v3"></path>
+          </svg>
+          <span>QR Code</span>
+        </button>
+
+        <button class="nav-tab-btn" data-tab="uploads" data-title="Uploads & Assets">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          <span>Uploads</span>
+        </button>
+
+        <button class="nav-tab-btn" data-tab="photos" data-title="Stock Photography">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline>
+          </svg>
+          <span>Photos</span>
+        </button>
+
+        <button class="nav-tab-btn" data-tab="draw" data-title="Freehand Drawing">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="M2 2l7.586 7.586"></path><circle cx="11" cy="11" r="2"></circle>
+          </svg>
+          <span>Draw</span>
+        </button>
+
+        <button class="nav-tab-btn" data-tab="background" data-title="Canvas Background">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+          </svg>
+          <span>Color</span>
+        </button>
+
+        <button class="nav-tab-btn" data-tab="layers" data-title="Layers Hierarchy">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+            <polyline points="2 17 12 22 22 17"></polyline>
+            <polyline points="2 12 12 17 22 12"></polyline>
+          </svg>
+          <span>Layers</span>
+        </button>
+
+        <button class="nav-tab-btn" data-tab="ai" data-title="AI Magic Generator">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
+          </svg>
+          <span>AI Magic</span>
+        </button>
+
+        <button class="nav-tab-btn" data-tab="pdfcraft" data-title="PDF & Proofing">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+          <span>PDF Tools</span>
+        </button>
+      </nav>
+
+      <!-- Expandable Secondary Sidebar Panel -->
+      <aside id="sidebar-panel" class="sidebar-panel">
+        <div class="sidebar-header">
+          <span id="sidebar-panel-title" class="sidebar-title">Templates</span>
+          <button id="btn-close-sidebar" class="sidebar-close-btn" title="Collapse panel">✕</button>
+        </div>
+
+        <div class="sidebar-content">
+          
+          <!-- TAB 1: TEMPLATES -->
+          <div class="sidebar-panel-content" data-panel="templates" style="display: flex; flex-direction: column; gap: 14px;">
+            
+            <!-- Category Filter Bar -->
+            <div class="category-filter-bar">
+              <button class="category-pill active" data-category="all">All</button>
+              <button class="category-pill" data-category="marketing">Marketing</button>
+              <button class="category-pill" data-category="social">Social Media</button>
+              <button class="category-pill" data-category="youtube">YouTube</button>
+              <button class="category-pill" data-category="business">Business</button>
+              <button class="category-pill" data-category="events">Events</button>
+            </div>
+
+            <div class="section-label">Designer Presets</div>
+            <div id="templates-grid" class="templates-grid">
+              
+              <!-- Template 1: Flash Sale -->
+              <div class="template-card" data-template="flash-sale" data-category="marketing">
+                <div class="template-thumb" style="background: linear-gradient(135deg, #faf5ff, #f3e8ff);">
+                  <div style="font-weight: 900; color: #7c3aed; font-size: 1.1rem; text-align: center; line-height: 1.1;">
+                    FLASH<br/><span style="color: #ec4899; font-size: 0.9rem;">70% OFF</span>
+                  </div>
+                </div>
+                <div class="template-info">
+                  <div class="template-name">Big Flash Sale</div>
+                  <div class="template-category">Marketing (1:1)</div>
+                </div>
+              </div>
+
+              <!-- Template 2: AI Summit -->
+              <div class="template-card" data-template="ai-summit" data-category="events">
+                <div class="template-thumb" style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe);">
+                  <div style="font-weight: 800; color: #0284c7; font-size: 0.95rem; text-align: center;">
+                    AI SUMMIT<br/><span style="color: #475569; font-size: 0.75rem;">CONFERENCE</span>
+                  </div>
+                </div>
+                <div class="template-info">
+                  <div class="template-name">AI & Tech Summit</div>
+                  <div class="template-category">Events (1:1)</div>
+                </div>
+              </div>
+
+              <!-- Template 3: Inspirational Quote -->
+              <div class="template-card" data-template="inspirational-quote" data-category="social">
+                <div class="template-thumb" style="background: #faf7f2; border: 1px solid #fed7aa;">
+                  <div style="font-family: 'Playfair Display', serif; font-style: italic; color: #b45309; font-size: 0.85rem; text-align: center; padding: 6px;">
+                    “Creativity having fun”
+                  </div>
+                </div>
+                <div class="template-info">
+                  <div class="template-name">Inspiring Quote</div>
+                  <div class="template-category">Social (1:1)</div>
+                </div>
+              </div>
+
+              <!-- Template 4: Summer Music Festival -->
+              <div class="template-card" data-template="summer-festival" data-category="events">
+                <div class="template-thumb" style="background: linear-gradient(135deg, #fdf4ff, #fae8ff);">
+                  <div style="font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; color: #9333ea; text-align: center;">
+                    NEON SUNSET<br/><span style="color: #db2777; font-size: 0.8rem;">MUSIC FEST</span>
+                  </div>
+                </div>
+                <div class="template-info">
+                  <div class="template-name">Music Festival</div>
+                  <div class="template-category">Events (1:1)</div>
+                </div>
+              </div>
+
+              <!-- Template 5: Artisan Coffee -->
+              <div class="template-card" data-template="artisan-coffee" data-category="business">
+                <div class="template-thumb" style="background: linear-gradient(135deg, #fffbeb, #fef3c7);">
+                  <div style="font-family: 'Cinzel', serif; font-size: 0.9rem; color: #78350f; text-align: center;">
+                    VELVET & ROAST<br/><span style="color: #b45309; font-size: 0.7rem;">COFFEE HOUSE</span>
+                  </div>
+                </div>
+                <div class="template-info">
+                  <div class="template-name">Artisan Coffee</div>
+                  <div class="template-category">Business (1:1)</div>
+                </div>
+              </div>
+
+              <!-- Template 6: Fitness Challenge -->
+              <div class="template-card" data-template="fitness-challenge" data-category="marketing">
+                <div class="template-thumb" style="background: linear-gradient(135deg, #ecfdf5, #d1fae5);">
+                  <div style="font-weight: 900; color: #059669; font-size: 0.95rem; text-align: center;">
+                    TRANSFORM<br/><span style="color: #0f172a; font-size: 0.75rem;">30-DAY HIIT</span>
+                  </div>
+                </div>
+                <div class="template-info">
+                  <div class="template-name">Fitness Challenge</div>
+                  <div class="template-category">Marketing (1:1)</div>
+                </div>
+              </div>
+
+              <!-- Template 7: YouTube Tech Review -->
+              <div class="template-card" data-template="youtube-review" data-category="youtube">
+                <div class="template-thumb" style="background: linear-gradient(135deg, #f1f5f9, #e2e8f0);">
+                  <div style="font-weight: 900; color: #ef4444; font-size: 0.95rem; text-align: center;">
+                    YOUTUBE<br/><span style="color: #0f172a; font-size: 0.8rem;">TECH REVIEW</span>
+                  </div>
+                </div>
+                <div class="template-info">
+                  <div class="template-name">Tech Review Cover</div>
+                  <div class="template-category">YouTube (16:9)</div>
+                </div>
+              </div>
+
+              <!-- Template 8: Luxury Business Card -->
+              <div class="template-card" data-template="business-card" data-category="business">
+                <div class="template-thumb" style="background: #ffffff; border: 1px solid #e2e8f0;">
+                  <div style="font-family: 'Playfair Display', serif; font-weight: bold; color: #7c3aed; font-size: 0.9rem; text-align: center;">
+                    SOPHIA AUSTIN<br/><span style="font-size: 0.65rem; color: #64748b;">DIRECTOR</span>
+                  </div>
+                </div>
+                <div class="template-info">
+                  <div class="template-name">Minimal Business Card</div>
+                  <div class="template-category">Business (Card)</div>
+                </div>
+              </div>
+
+              <!-- Template 9: Startup Pitch Slide -->
+              <div class="template-card" data-template="pitch-deck" data-category="business">
+                <div class="template-thumb" style="background: linear-gradient(135deg, #f8fafc, #f1f5f9);">
+                  <div style="font-weight: 800; color: #7c3aed; font-size: 0.9rem; text-align: center;">
+                    STARTUP DECK<br/><span style="color: #0284c7; font-size: 0.75rem;">142% GROWTH</span>
+                  </div>
+                </div>
+                <div class="template-info">
+                  <div class="template-name">Startup Pitch Slide</div>
+                  <div class="template-category">Business (16:9)</div>
+                </div>
+              </div>
+
+              <!-- Template 10: Travel Story / Reel -->
+              <div class="template-card" data-template="travel-story" data-category="social">
+                <div class="template-thumb" style="background: linear-gradient(135deg, #e0f2fe, #bae6fd);">
+                  <div style="font-family: 'Playfair Display', serif; font-style: italic; font-weight: bold; color: #0369a1; font-size: 0.85rem; text-align: center;">
+                    AMALFI COAST<br/><span style="font-size: 0.65rem; color: #0284c7;">TRAVEL REEL</span>
+                  </div>
+                </div>
+                <div class="template-info">
+                  <div class="template-name">Travel Story Reel</div>
+                  <div class="template-category">Social (9:16)</div>
+                </div>
+              </div>
+
+              <!-- Template 11: Creative Resume Header -->
+              <div class="template-card" data-template="creative-resume" data-category="business">
+                <div class="template-thumb" style="background: #ffffff; border: 1px solid #cbd5e1;">
+                  <div style="font-weight: 800; color: #0f172a; font-size: 0.85rem; text-align: center;">
+                    CURRICULUM<br/><span style="color: #38bdf8; font-size: 0.7rem;">VITAE / RESUME</span>
+                  </div>
+                </div>
+                <div class="template-info">
+                  <div class="template-name">Executive Resume</div>
+                  <div class="template-category">Business (A4)</div>
+                </div>
+              </div>
+
+              <!-- Template 12: Certificate of Excellence -->
+              <div class="template-card" data-template="award-certificate" data-category="events">
+                <div class="template-thumb" style="background: #fffdfa; border: 1px solid #fcd34d;">
+                  <div style="font-family: 'Cinzel', serif; font-weight: bold; color: #92400e; font-size: 0.8rem; text-align: center;">
+                    CERTIFICATE<br/><span style="font-size: 0.65rem; color: #d97706;">OF EXCELLENCE</span>
+                  </div>
+                </div>
+                <div class="template-info">
+                  <div class="template-name">Award Certificate</div>
+                  <div class="template-category">Events (16:9)</div>
+                </div>
+              </div>
+
+              <!-- Template 13: Tech Horizon Podcast -->
+              <div class="template-card" data-template="podcast-cover" data-category="social">
+                <div class="template-thumb" style="background: linear-gradient(135deg, #0b0f19, #1e293b);">
+                  <div style="font-weight: 900; color: #38bdf8; font-size: 0.85rem; text-align: center;">
+                    TECH HORIZON<br/><span style="color: #cbd5e1; font-size: 0.65rem;">PODCAST (1:1)</span>
+                  </div>
+                </div>
+                <div class="template-info">
+                  <div class="template-name">The Tech Horizon</div>
+                  <div class="template-category">Social Media (1:1)</div>
+                </div>
+              </div>
+
+              <!-- Template 14: Luxury Real Estate -->
+              <div class="template-card" data-template="real-estate" data-category="business">
+                <div class="template-thumb" style="background: #fcfbf9; border: 1px solid #e2e8f0;">
+                  <div style="font-family: 'Playfair Display', serif; font-weight: bold; color: #0f172a; font-size: 0.8rem; text-align: center;">
+                    AURA RESIDENCE<br/><span style="color: #b45309; font-size: 0.65rem;">LUXURY VILLA</span>
+                  </div>
+                </div>
+                <div class="template-info">
+                  <div class="template-name">Luxury Real Estate</div>
+                  <div class="template-category">Business (1:1)</div>
+                </div>
+              </div>
+
+              <!-- Template 15: Wedding & Gala Invitation -->
+              <div class="template-card" data-template="wedding-invitation" data-category="events">
+                <div class="template-thumb" style="background: #fdfcf9; border: 1px solid #fcd34d;">
+                  <div style="font-family: 'Playfair Display', serif; font-style: italic; color: #451a03; font-size: 0.8rem; text-align: center;">
+                    Eleanor & Julian<br/><span style="font-size: 0.65rem; color: #92400e; font-style: normal;">WEDDING GALA</span>
+                  </div>
+                </div>
+                <div class="template-info">
+                  <div class="template-name">Wedding & Gala Invite</div>
+                  <div class="template-category">Events (9:16)</div>
+                </div>
+              </div>
+
+              <!-- Template 16: Modern E-Book Cover -->
+              <div class="template-card" data-template="ebook-cover" data-category="marketing">
+                <div class="template-thumb" style="background: linear-gradient(135deg, #0f172a, #1e1b4b);">
+                  <div style="font-weight: 900; color: #38bdf8; font-size: 0.8rem; text-align: center;">
+                    SYSTEM ARCHITECT<br/><span style="color: #f59e0b; font-size: 0.65rem;">#1 BESTSELLER</span>
+                  </div>
+                </div>
+                <div class="template-info">
+                  <div class="template-name">Modern E-Book Cover</div>
+                  <div class="template-category">Marketing (Book)</div>
+                </div>
+              </div>
+
+              <!-- Template 17: Minimal Studio Invoice -->
+              <div class="template-card" data-template="brand-invoice" data-category="business">
+                <div class="template-thumb" style="background: #ffffff; border: 1px solid #cbd5e1;">
+                  <div style="font-weight: 800; color: #0f172a; font-size: 0.8rem; text-align: center;">
+                    ATELIER STUDIO<br/><span style="color: #2563eb; font-size: 0.65rem;">INVOICE TEMPLATE</span>
+                  </div>
+                </div>
+                <div class="template-info">
+                  <div class="template-name">Studio Invoice</div>
+                  <div class="template-category">Business (A4)</div>
+                </div>
+              </div>
+
+              <!-- Template 18: Product Launch 4.0 -->
+              <div class="template-card" data-template="product-launch" data-category="marketing">
+                <div class="template-thumb" style="background: linear-gradient(135deg, #f8fafc, #ede9fe);">
+                  <div style="font-weight: 900; color: #7c3aed; font-size: 0.8rem; text-align: center;">
+                    DESIGNPRO 4.0<br/><span style="color: #0f172a; font-size: 0.65rem;">NEXT-GEN SUITE</span>
+                  </div>
+                </div>
+                <div class="template-info">
+                  <div class="template-name">Product Launch 4.0</div>
+                  <div class="template-category">Marketing (16:9)</div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- TAB 2: ELEMENTS & ICONS -->
+          <div class="sidebar-panel-content" data-panel="elements" style="display: none; flex-direction: column; gap: 14px;">
+            <div class="section-label">Vector Shapes</div>
+            <div class="elements-grid">
+              <button id="btn-add-rect" class="element-item-btn" title="Rectangle">
+                <svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="4" width="18" height="16" rx="2"></rect></svg>
+              </button>
+              <button id="btn-add-round-rect" class="element-item-btn" title="Rounded Rectangle">
+                <svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="4" width="18" height="16" rx="6"></rect></svg>
+              </button>
+              <button id="btn-add-circle" class="element-item-btn" title="Circle">
+                <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"></circle></svg>
+              </button>
+              <button id="btn-add-triangle" class="element-item-btn" title="Triangle">
+                <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 3 22 21 2 21"></polygon></svg>
+              </button>
+              <button id="btn-add-star" class="element-item-btn" title="Star">
+                <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+              </button>
+              <button id="btn-add-heart" class="element-item-btn" title="Heart">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+              </button>
+              <button id="btn-add-hexagon" class="element-item-btn" title="Hexagon">
+                <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 21 7 21 17 12 22 3 17 3 7 12 2"></polygon></svg>
+              </button>
+              <button id="btn-add-sparkle" class="element-item-btn" title="Sparkle">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"></path></svg>
+              </button>
+              <button id="btn-add-blob-1" class="element-item-btn" title="Organic Blob A">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3c5 0 9 3 9 8s-4 10-9 10S3 16 3 11s4-8 9-8z"></path></svg>
+              </button>
+              <button id="btn-add-blob-2" class="element-item-btn" title="Organic Blob B">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 4c4 3 4 8 2 12s-8 5-12 3S3 12 5 7s7-5 12-3z"></path></svg>
+              </button>
+              <button id="btn-add-speech" class="element-item-btn" title="Speech Bubble">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"></path></svg>
+              </button>
+              <button id="btn-add-ribbon" class="element-item-btn" title="Ribbon Banner">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v16l9-4 9 4V5c0-1.1-.9-2-2-2z"></path></svg>
+              </button>
+              <button id="btn-add-shield" class="element-item-btn" title="Shield Crest">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"></path></svg>
+              </button>
+              <button id="btn-add-diamond" class="element-item-btn" title="Diamond">
+                <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 22 12 12 22 2 12"></polygon></svg>
+              </button>
+              <button id="btn-add-wave" class="element-item-btn" title="Wave Divider">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 12c3-4 6 4 9 0s6 4 9 0v4H2z"></path></svg>
+              </button>
+              <button id="btn-add-crown" class="element-item-btn" title="Crown">
+                <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="3 19 21 19 19 8 15 13 12 5 9 13 5 8"></polygon></svg>
+              </button>
+              <button id="btn-add-frame" class="element-item-btn" title="Photo Frame">
+                <svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="2" width="18" height="20" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="6" y="5" width="12" height="11" fill="currentColor"/></svg>
+              </button>
+            </div>
+
+            <div class="section-label" style="margin-top: 10px;">Photo Frames & Masks</div>
+            <div class="frames-grid">
+              <button class="frame-thumb-card btn-apply-frame" data-mask="circle" title="Circle Mask">
+                <span class="frame-icon">◯</span>
+                <span class="frame-label">Circle</span>
+              </button>
+              <button class="frame-thumb-card btn-apply-frame" data-mask="rounded" title="Rounded Mask">
+                <span class="frame-icon">▢</span>
+                <span class="frame-label">Rounded</span>
+              </button>
+              <button class="frame-thumb-card btn-apply-frame" data-mask="hexagon" title="Hexagon Mask">
+                <span class="frame-icon">⬡</span>
+                <span class="frame-label">Hexagon</span>
+              </button>
+              <button class="frame-thumb-card btn-apply-frame" data-mask="arch" title="Arch Window Mask">
+                <span class="frame-icon">☗</span>
+                <span class="frame-label">Arch</span>
+              </button>
+              <button class="frame-thumb-card btn-apply-frame" data-mask="heart" title="Heart Mask">
+                <span class="frame-icon">♥</span>
+                <span class="frame-label">Heart</span>
+              </button>
+              <button class="frame-thumb-card btn-apply-frame" data-mask="star" title="Star Mask">
+                <span class="frame-icon">★</span>
+                <span class="frame-label">Star</span>
+              </button>
+              <button class="frame-thumb-card btn-apply-frame" data-mask="diamond" title="Diamond Mask">
+                <span class="frame-icon">◆</span>
+                <span class="frame-label">Diamond</span>
+              </button>
+              <button class="frame-thumb-card btn-apply-frame" data-mask="none" title="Remove Mask">
+                <span class="frame-icon" style="color: var(--accent-rose);">✕</span>
+                <span class="frame-label">Reset</span>
+              </button>
+            </div>
+
+            <div class="section-label" style="margin-top: 10px;">Designer Stickers & Badges</div>
+            <div class="stickers-grid">
+              <button class="sticker-item-btn btn-add-sticker" data-sticker="sale" style="color: #ef4444; border-color: #fecaca; background: #fef2f2;">🔥 50% OFF</button>
+              <button class="sticker-item-btn btn-add-sticker" data-sticker="new" style="color: #059669; border-color: #a7f3d0; background: #ecfdf5;">★ NEW</button>
+              <button class="sticker-item-btn btn-add-sticker" data-sticker="bestseller" style="color: #d97706; border-color: #fde68a; background: #fffbeb;">🏆 BESTSELLER</button>
+              <button class="sticker-item-btn btn-add-sticker" data-sticker="verified" style="color: #2563eb; border-color: #bfdbfe; background: #eff6ff;">✓ VERIFIED</button>
+              <button class="sticker-item-btn btn-add-sticker" data-sticker="exclusive" style="color: #7c3aed; border-color: #ddd6fe; background: #faf5ff;">👑 LIMITED</button>
+            </div>
+
+            <div class="section-label" style="margin-top: 10px;">Social & Tech Icons</div>
+            <div class="social-icons-grid">
+              <button class="social-icon-btn btn-social-icon" data-icon="instagram" title="Instagram">
+                <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" fill="#E1306C"/><circle cx="12" cy="12" r="4" fill="none" stroke="#fff" stroke-width="2"/><circle cx="18" cy="6" r="1.2" fill="#fff"/></svg>
+              </button>
+              <button class="social-icon-btn btn-social-icon" data-icon="youtube" title="YouTube">
+                <svg viewBox="0 0 24 24"><path fill="#FF0000" d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814z"/><polygon fill="#fff" points="9.545 15.568 15.818 12 9.545 8.432"/></svg>
+              </button>
+              <button class="social-icon-btn btn-social-icon" data-icon="twitter" title="X / Twitter">
+                <svg viewBox="0 0 24 24"><rect width="24" height="24" rx="4" fill="#000"/><path fill="#fff" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+              </button>
+              <button class="social-icon-btn btn-social-icon" data-icon="linkedin" title="LinkedIn">
+                <svg viewBox="0 0 24 24"><rect width="24" height="24" rx="4" fill="#0A66C2"/><path fill="#fff" d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9h2.79v8.37H6.46v-8.37M7.86 6.3a1.63 1.63 0 0 0-1.63 1.63c0 .9.73 1.63 1.63 1.63a1.63 1.63 0 0 0 1.63-1.63c0-.9-.73-1.63-1.63-1.63z"/></svg>
+              </button>
+              <button class="social-icon-btn btn-social-icon" data-icon="facebook" title="Facebook">
+                <svg viewBox="0 0 24 24"><rect width="24" height="24" rx="4" fill="#1877F2"/><path fill="#fff" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+              </button>
+              <button class="social-icon-btn btn-social-icon" data-icon="globe" title="Website / Web">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#0ea5e9"/><path fill="none" stroke="#fff" stroke-width="1.8" d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1 4-10z"/></svg>
+              </button>
+              <button class="social-icon-btn btn-social-icon" data-icon="mail" title="Email">
+                <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2" fill="#8b5cf6"/><path d="M2 7l10 7 10-7" fill="none" stroke="#fff" stroke-width="2"/></svg>
+              </button>
+              <button class="social-icon-btn btn-social-icon" data-icon="phone" title="Phone">
+                <svg viewBox="0 0 24 24"><rect width="24" height="24" rx="12" fill="#10b981"/><path fill="#fff" d="M6.62 10.79a15.053 15.053 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.02-.24c1.12.37 2.33.57 3.57.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1.02l-2.2 2.2z"/></svg>
+              </button>
+              <button class="social-icon-btn btn-social-icon" data-icon="location" title="Location Pin">
+                <svg viewBox="0 0 24 24"><path fill="#ef4444" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
+              </button>
+              <button class="social-icon-btn btn-social-icon" data-icon="checkBadge" title="Verified Badge">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#3b82f6"/><path fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" d="M8 12.5l2.5 2.5L16 9.5"/></svg>
+              </button>
+            </div>
+
+            <div class="section-label" style="margin-top: 10px;">Lines & Indicators</div>
+            <div class="elements-grid">
+              <button id="btn-add-line" class="element-item-btn" title="Line">
+                <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><line x1="2" y1="12" x2="22" y2="12"></line></svg>
+              </button>
+              <button id="btn-add-dashed-line" class="element-item-btn" title="Dashed Line">
+                <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="3" stroke-dasharray="4 4"><line x1="2" y1="12" x2="22" y2="12"></line></svg>
+              </button>
+              <button id="btn-add-arrow" class="element-item-btn" title="Arrow">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+              </button>
+              <button id="btn-add-badge" class="element-item-btn" title="Sale Badge">
+                <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="9"></circle></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- TAB 3: TEXT -->
+          <div class="sidebar-panel-content" data-panel="text" style="display: none; flex-direction: column; gap: 14px;">
+            <div class="section-label">Add Plain Text</div>
+            <div class="text-presets">
+              <button id="btn-add-heading" class="text-preset-btn">
+                <span class="text-preset-heading">Add a heading</span>
+                <span style="color: var(--text-muted); font-size: 0.75rem;">56px</span>
+              </button>
+              <button id="btn-add-subheading" class="text-preset-btn">
+                <span class="text-preset-subheading">Add a subheading</span>
+                <span style="color: var(--text-muted); font-size: 0.75rem;">32px</span>
+              </button>
+              <button id="btn-add-body" class="text-preset-btn">
+                <span class="text-preset-body">Add a little bit of body text</span>
+                <span style="color: var(--text-muted); font-size: 0.75rem;">20px</span>
+              </button>
+            </div>
+
+            <!-- Google Fonts Live Search & Popular Typefaces -->
+            <div class="section-label" style="margin-top: 8px;">🔍 Search 1,500+ Google Fonts</div>
+            <div style="display: flex; gap: 6px;">
+              <input type="text" id="gfonts-search-input" placeholder="Type font name... e.g. Syne, Oswald" style="flex: 1; padding: 7px 10px; font-size: 0.8rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); background: var(--bg-surface); color: var(--text-primary);" />
+              <button id="btn-load-custom-font" class="btn-primary" style="padding: 0 10px; font-size: 0.76rem; height: 32px;">Load</button>
+            </div>
+
+            <div class="section-label" style="margin-top: 6px;">Trending Typefaces</div>
+            <div id="popular-gfonts-list" style="display: flex; flex-direction: column; gap: 5px; max-height: 160px; overflow-y: auto; padding-right: 4px;"></div>
+
+            <div class="section-label" style="margin-top: 8px;">Curated Font Combos</div>
+            <div class="font-combinations-grid">
+              
+              <div class="font-combo-card" data-combo="luxury-serif">
+                <div style="font-family: 'Playfair Display', serif; font-size: 1.15rem; font-weight: bold; font-style: italic;">
+                  EXCLUSIVE COLLECTION
+                </div>
+                <div style="font-family: 'Montserrat', sans-serif; font-size: 0.7rem; color: var(--accent-purple); letter-spacing: 0.1em; margin-top: 2px;">
+                  AUTUMN / WINTER 2026
+                </div>
+              </div>
+
+              <div class="font-combo-card" data-combo="cyber-neon">
+                <div style="font-family: 'Space Grotesk', sans-serif; font-size: 1.25rem; font-weight: bold; color: #0284c7;">
+                  NEO FUTURE
+                </div>
+                <div style="font-family: 'Outfit', sans-serif; font-size: 0.75rem; color: #e11d48; letter-spacing: 0.08em; margin-top: 2px;">
+                  VIRTUAL REALITY SUMMIT
+                </div>
+              </div>
+
+              <div class="font-combo-card" data-combo="vintage-script">
+                <div style="font-family: 'Pacifico', cursive; font-size: 1.2rem; color: #e11d48;">
+                  Sweet Moments
+                </div>
+                <div style="font-family: 'Poppins', sans-serif; font-size: 0.7rem; color: var(--text-muted); letter-spacing: 0.1em; margin-top: 2px;">
+                  HANDCRAFTED WITH LOVE
+                </div>
+              </div>
+
+              <div class="font-combo-card" data-combo="bold-impact">
+                <div style="font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; color: #0f172a; letter-spacing: 0.05em;">
+                  LIMITED EDITION
+                </div>
+                <div style="font-family: 'Inter', sans-serif; font-size: 0.7rem; color: #ef4444; font-weight: bold;">
+                  THIS WEEKEND ONLY
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- TAB 4: QR CODE GENERATOR -->
+          <div class="sidebar-panel-content" data-panel="qrcode" style="display: none; flex-direction: column; gap: 14px;">
+            <div class="section-label">Generate QR Code</div>
+            
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+              <label style="font-size: 0.78rem; color: var(--text-secondary); font-weight: 600;">URL or Text</label>
+              <input type="text" id="qr-input-text" placeholder="https://yourwebsite.com" style="padding: 10px; font-size: 0.85rem;" />
+            </div>
+
+            <div style="display: flex; gap: 12px;">
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: 0.75rem; color: var(--text-secondary); font-weight: 600;">QR Color</label>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <div id="qr-color-preview" class="toolbar-color-btn" style="background: #000000;">
+                    <input type="color" id="qr-color-picker" class="color-input-hidden" value="#000000" />
+                  </div>
+                  <span style="font-size: 0.75rem; color: var(--text-muted);">Dark</span>
+                </div>
+              </div>
+
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: 0.75rem; color: var(--text-secondary); font-weight: 600;">Background</label>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <div id="qr-bg-preview" class="toolbar-color-btn" style="background: #ffffff;">
+                    <input type="color" id="qr-bg-picker" class="color-input-hidden" value="#ffffff" />
+                  </div>
+                  <span style="font-size: 0.75rem; color: var(--text-muted);">Light</span>
+                </div>
+              </div>
+            </div>
+
+            <button id="btn-generate-qr" class="btn-primary" style="margin-top: 10px; width: 100%;">
+              Add QR to Artboard
+            </button>
+          </div>
+
+          <!-- TAB 5: UPLOADS -->
+          <div class="sidebar-panel-content" data-panel="uploads" style="display: none; flex-direction: column; gap: 14px;">
+            <input type="file" id="image-file-input" accept="image/*" multiple style="display: none;" />
+            <div id="upload-dropzone" class="upload-dropzone">
+              <div class="upload-icon-circle">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+              </div>
+              <div style="font-size: 0.85rem; font-weight: 700;">Click or drag images here</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">Supports PNG, JPG, WebP, SVG</div>
+            </div>
+
+            <div class="section-label">Uploaded Files</div>
+            <div id="upload-thumbs-grid" class="upload-thumbs-grid"></div>
+          </div>
+
+          <!-- TAB 6: PHOTOS -->
+          <div class="sidebar-panel-content" data-panel="photos" style="display: none; flex-direction: column; gap: 14px;">
+            <div class="section-label">Curated Free Stock Photos</div>
+            <div id="photos-grid" class="photos-grid"></div>
+          </div>
+
+          <!-- TAB 7: DRAW -->
+          <div class="sidebar-panel-content" data-panel="draw" style="display: none; flex-direction: column; gap: 14px;">
+            <div class="section-label">Brush Settings</div>
+            
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+              <label style="font-size: 0.78rem; color: var(--text-secondary); font-weight: 600;">Brush Type</label>
+              <select id="draw-brush-type" style="padding: 8px; font-size: 0.85rem;">
+                <option value="Pencil">Pencil (Smooth)</option>
+                <option value="Circle">Circle Brush</option>
+                <option value="Spray">Spray Paint</option>
+              </select>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+              <div style="display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--text-secondary); font-weight: 600;">
+                <span>Brush Size</span>
+                <span id="draw-brush-size-label">5px</span>
+              </div>
+              <input type="range" id="draw-brush-size" min="1" max="50" value="5" />
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+              <label style="font-size: 0.78rem; color: var(--text-secondary); font-weight: 600;">Brush Color</label>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div id="draw-brush-color-preview" class="toolbar-color-btn" style="background: #7c3aed;">
+                  <input type="color" id="draw-brush-color" class="color-input-hidden" value="#7c3aed" />
+                </div>
+                <span style="font-size: 0.82rem; color: var(--text-secondary); font-weight: 500;">Pick custom color</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 8: BACKGROUND -->
+          <div class="sidebar-panel-content" data-panel="background" style="display: none; flex-direction: column; gap: 14px;">
+            <div class="section-label">Solid Colors</div>
+            <div class="color-swatches-grid">
+              <div class="color-swatch-btn bg-color-swatch" style="background: #ffffff;" data-color="#ffffff"></div>
+              <div class="color-swatch-btn bg-color-swatch" style="background: #f8fafc;" data-color="#f8fafc"></div>
+              <div class="color-swatch-btn bg-color-swatch" style="background: #faf5ff;" data-color="#faf5ff"></div>
+              <div class="color-swatch-btn bg-color-swatch" style="background: #f0fdf4;" data-color="#f0fdf4"></div>
+              <div class="color-swatch-btn bg-color-swatch" style="background: #fdf2f8;" data-color="#fdf2f8"></div>
+              <div class="color-swatch-btn bg-color-swatch" style="background: #f0f9ff;" data-color="#f0f9ff"></div>
+              <div class="color-swatch-btn bg-color-swatch" style="background: #fefce8;" data-color="#fefce8"></div>
+              <div class="color-swatch-btn bg-color-swatch" style="background: #0f172a;" data-color="#0f172a"></div>
+              <div class="color-swatch-btn bg-color-swatch" style="background: #1e1b4b;" data-color="#1e1b4b"></div>
+              <div class="color-swatch-btn bg-color-swatch" style="background: #312e81;" data-color="#312e81"></div>
+              <div class="color-swatch-btn bg-color-swatch" style="background: #78350f;" data-color="#78350f"></div>
+              <div class="color-swatch-btn bg-color-swatch" style="background: #064e3b;" data-color="#064e3b"></div>
+            </div>
+
+            <div class="section-label" style="margin-top: 10px;">Classy Gradients</div>
+            <div class="gradient-swatches-grid">
+              <div class="gradient-swatch-btn bg-gradient-swatch" title="Soft Lilac" style="background: linear-gradient(135deg, #faf5ff, #f3e8ff);" data-c1="#faf5ff" data-c2="#f3e8ff"></div>
+              <div class="gradient-swatch-btn bg-gradient-swatch" title="Sky Breeze" style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe);" data-c1="#f0f9ff" data-c2="#e0f2fe"></div>
+              <div class="gradient-swatch-btn bg-gradient-swatch" title="Warm Amber" style="background: linear-gradient(135deg, #fff7ed, #ffedd5);" data-c1="#fff7ed" data-c2="#ffedd5"></div>
+              <div class="gradient-swatch-btn bg-gradient-swatch" title="Fresh Mint" style="background: linear-gradient(135deg, #f0fdf4, #dcfce7);" data-c1="#f0fdf4" data-c2="#dcfce7"></div>
+              <div class="gradient-swatch-btn bg-gradient-swatch" title="Rose Gold" style="background: linear-gradient(135deg, #fff1f2, #ffe4e6);" data-c1="#fff1f2" data-c2="#ffe4e6"></div>
+              <div class="gradient-swatch-btn bg-gradient-swatch" title="Lavender Mist" style="background: linear-gradient(135deg, #fdf4ff, #fae8ff);" data-c1="#fdf4ff" data-c2="#fae8ff"></div>
+              <div class="gradient-swatch-btn bg-gradient-swatch" title="Solar Sun" style="background: linear-gradient(135deg, #fefce8, #fef08a);" data-c1="#fefce8" data-c2="#fef08a"></div>
+              <div class="gradient-swatch-btn bg-gradient-swatch" title="Electric Violet" style="background: linear-gradient(135deg, #7c3aed, #ec4899);" data-c1="#7c3aed" data-c2="#ec4899"></div>
+              <div class="gradient-swatch-btn bg-gradient-swatch" title="Deep Midnight" style="background: linear-gradient(135deg, #0f172a, #1e1b4b);" data-c1="#0f172a" data-c2="#1e1b4b"></div>
+              <div class="gradient-swatch-btn bg-gradient-swatch" title="Ocean Horizon" style="background: linear-gradient(135deg, #0f172a, #0369a1);" data-c1="#0f172a" data-c2="#0369a1"></div>
+              <div class="gradient-swatch-btn bg-gradient-swatch" title="Aurora Forest" style="background: linear-gradient(135deg, #064e3b, #0284c7);" data-c1="#064e3b" data-c2="#0284c7"></div>
+              <div class="gradient-swatch-btn bg-gradient-swatch" title="Sunset Coral" style="background: linear-gradient(135deg, #f43f5e, #fb923c);" data-c1="#f43f5e" data-c2="#fb923c"></div>
+            </div>
+
+            <div class="section-label" style="margin-top: 14px;">Curated Theme Palettes</div>
+            <div class="palette-themes-grid">
+              <div class="palette-theme-card" data-name="Nordic Minimalist" data-p1="#f8fafc" data-p2="#e2e8f0" data-p3="#64748b" data-p4="#0f172a">
+                <span class="palette-theme-name">Nordic Slate</span>
+                <div class="palette-chips">
+                  <div class="palette-chip" style="background: #f8fafc;"></div>
+                  <div class="palette-chip" style="background: #e2e8f0;"></div>
+                  <div class="palette-chip" style="background: #64748b;"></div>
+                  <div class="palette-chip" style="background: #0f172a;"></div>
+                </div>
+              </div>
+              <div class="palette-theme-card" data-name="Pastel Blossom" data-p1="#fff1f2" data-p2="#fce7f3" data-p3="#f472b6" data-p4="#9d174d">
+                <span class="palette-theme-name">Pastel Blossom</span>
+                <div class="palette-chips">
+                  <div class="palette-chip" style="background: #fff1f2;"></div>
+                  <div class="palette-chip" style="background: #fce7f3;"></div>
+                  <div class="palette-chip" style="background: #f472b6;"></div>
+                  <div class="palette-chip" style="background: #9d174d;"></div>
+                </div>
+              </div>
+              <div class="palette-theme-card" data-name="Sunset Terracotta" data-p1="#fff7ed" data-p2="#fed7aa" data-p3="#f97316" data-p4="#9a3412">
+                <span class="palette-theme-name">Warm Terracotta</span>
+                <div class="palette-chips">
+                  <div class="palette-chip" style="background: #fff7ed;"></div>
+                  <div class="palette-chip" style="background: #fed7aa;"></div>
+                  <div class="palette-chip" style="background: #f97316;"></div>
+                  <div class="palette-chip" style="background: #9a3412;"></div>
+                </div>
+              </div>
+              <div class="palette-theme-card" data-name="Cyber Neon" data-p1="#0f172a" data-p2="#1e293b" data-p3="#06b6d4" data-p4="#ec4899">
+                <span class="palette-theme-name">Cyber Neon</span>
+                <div class="palette-chips">
+                  <div class="palette-chip" style="background: #0f172a;"></div>
+                  <div class="palette-chip" style="background: #1e293b;"></div>
+                  <div class="palette-chip" style="background: #06b6d4;"></div>
+                  <div class="palette-chip" style="background: #ec4899;"></div>
+                </div>
+              </div>
+              <div class="palette-theme-card" data-name="Royal Emerald & Gold" data-p1="#f0fdf4" data-p2="#bbf7d0" data-p3="#10b981" data-p4="#064e3b">
+                <span class="palette-theme-name">Royal Emerald</span>
+                <div class="palette-chips">
+                  <div class="palette-chip" style="background: #f0fdf4;"></div>
+                  <div class="palette-chip" style="background: #bbf7d0;"></div>
+                  <div class="palette-chip" style="background: #10b981;"></div>
+                  <div class="palette-chip" style="background: #064e3b;"></div>
+                </div>
+              </div>
+              <div class="palette-theme-card" data-name="Amethyst Luxury" data-p1="#faf5ff" data-p2="#e9d5ff" data-p3="#a855f7" data-p4="#581c87">
+                <span class="palette-theme-name">Amethyst Luxury</span>
+                <div class="palette-chips">
+                  <div class="palette-chip" style="background: #faf5ff;"></div>
+                  <div class="palette-chip" style="background: #e9d5ff;"></div>
+                  <div class="palette-chip" style="background: #a855f7;"></div>
+                  <div class="palette-chip" style="background: #581c87;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 9: LAYERS -->
+          <div class="sidebar-panel-content" data-panel="layers" style="display: none; flex-direction: column; gap: 14px;">
+            <div class="section-label">Canvas Elements (Top to Bottom)</div>
+            <div id="layers-list" class="layers-list"></div>
+          </div>
+
+          <!-- TAB 10: AI MAGIC GENERATOR -->
+          <div class="sidebar-panel-content" data-panel="ai" style="display: none; flex-direction: column; gap: 12px;">
+            <div class="section-label">AI Prompt & Scene Description</div>
+            <textarea id="ai-prompt-input" class="ai-prompt-box" placeholder="Describe the image you want to generate... e.g. Minimalist luxury perfume bottle on marble podium with soft shadow, golden hour"></textarea>
+
+            <div class="section-label">Inspiration Presets</div>
+            <div class="ai-chip-group">
+              <span class="ai-preset-chip" data-prompt="Futuristic cyberpunk neon city skyline at night, glowing blue reflections, 8k">🌃 Cyberpunk City</span>
+              <span class="ai-preset-chip" data-prompt="Minimalist pastel studio product podium with soft shadows, organic shapes">🏺 Studio Podium</span>
+              <span class="ai-preset-chip" data-prompt="Artisan coffee latte art on rustic wooden table, cozy warm cafe aesthetic">☕ Artisan Coffee</span>
+              <span class="ai-preset-chip" data-prompt="Vibrant 3D abstract geometric shapes floating in pastel space">🪐 3D Abstract</span>
+            </div>
+
+            <div style="display: flex; gap: 8px;">
+              <div style="flex: 1;">
+                <label class="section-label" style="display: block; margin-bottom: 4px;">Style</label>
+                <select id="ai-style-select" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--border-subtle); font-size: 0.8rem; background: var(--bg-surface);">
+                  <option value="photorealistic">Photorealistic Studio</option>
+                  <option value="3d-render">3D Clay / Pastel</option>
+                  <option value="cyberpunk">Cyberpunk Neon</option>
+                  <option value="watercolor">Artistic Watercolor</option>
+                  <option value="vector-flat">Flat Vector Art</option>
+                </select>
+              </div>
+              <div style="width: 100px;">
+                <label class="section-label" style="display: block; margin-bottom: 4px;">Aspect</label>
+                <select id="ai-aspect-select" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--border-subtle); font-size: 0.8rem; background: var(--bg-surface);">
+                  <option value="1:1">1:1 Square</option>
+                  <option value="16:9">16:9 Slide</option>
+                  <option value="9:16">9:16 Reel</option>
+                </select>
+              </div>
+            </div>
+
+            <button id="btn-generate-ai-img" class="btn-primary" style="width: 100%; height: 38px; font-weight: 700;">
+              ✦ Generate AI Artwork
+            </button>
+
+            <!-- AI Preview Card Container -->
+            <div id="ai-result-container" style="display: none; flex-direction: column; gap: 8px; margin-top: 6px;">
+              <div class="ai-result-card">
+                <img id="ai-preview-img" class="ai-result-img" alt="AI Generated Preview" />
+                <div class="ai-result-actions">
+                  <button id="btn-ai-add-canvas" class="btn-primary" style="flex: 1; font-size: 0.75rem; height: 32px;">✦ Add to Canvas</button>
+                  <button id="btn-ai-set-bg" class="btn-secondary" style="flex: 1; font-size: 0.75rem; height: 32px;">🖼️ Set as BG</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 11: PDF & PROOFING (Inspired by PDFCraft & EffectCraft) -->
+          <div class="sidebar-panel-content" data-panel="pdfcraft" style="display: none; flex-direction: column; gap: 14px;">
+            <div class="section-label">Import PDF Document</div>
+            <div class="pdf-upload-dropzone" id="pdf-dropzone">
+              <input type="file" id="pdf-file-input" accept=".pdf" style="display: none;" />
+              <button id="btn-browse-pdf" class="btn-secondary" style="width: 100%; gap: 8px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+                Import PDF to Artboard
+              </button>
+              <div style="font-size: 0.72rem; color: var(--text-muted); text-align: center; margin-top: 5px;">
+                Renders document pages as editable artboard layers
+              </div>
+            </div>
+
+            <div class="section-label">Official Verification & Status Stamps</div>
+            <div class="stamps-grid">
+              <button class="stamp-chip stamp-approved" data-stamp="approved">
+                <span class="stamp-dot"></span> APPROVED
+              </button>
+              <button class="stamp-chip stamp-confidential" data-stamp="confidential">
+                <span class="stamp-dot"></span> CONFIDENTIAL
+              </button>
+              <button class="stamp-chip stamp-draft" data-stamp="draft">
+                <span class="stamp-dot"></span> DRAFT
+              </button>
+              <button class="stamp-chip stamp-paid" data-stamp="paid">
+                <span class="stamp-dot"></span> PAID & VERIFIED
+              </button>
+              <button class="stamp-chip stamp-final" data-stamp="final">
+                <span class="stamp-dot"></span> FINAL COPY
+              </button>
+              <button class="stamp-chip stamp-priority" data-stamp="priority">
+                <span class="stamp-dot"></span> URGENT
+              </button>
+            </div>
+
+            <div class="section-label">Client Proof Watermarking</div>
+            <div class="watermark-card">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.8rem; font-weight: 600;">Watermark Layer</span>
+                <button id="btn-toggle-watermark" class="btn-secondary" style="padding: 4px 10px; font-size: 0.75rem;">
+                  🔒 Apply Watermark
+                </button>
+              </div>
+              <input type="text" id="watermark-text-input" class="search-input" value="CLIENT PROOF - DO NOT COPY" placeholder="Watermark text..." style="margin-top: 8px; font-size: 0.78rem;" />
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                <span style="font-size: 0.72rem; color: var(--text-muted);">Opacity:</span>
+                <input type="range" id="watermark-opacity-slider" min="0.05" max="0.5" step="0.01" value="0.16" style="width: 110px;" />
+                <span id="watermark-opacity-label" style="font-size: 0.72rem; color: var(--text-muted); width: 28px;">16%</span>
+              </div>
+            </div>
+
+            <div class="section-label">EffectCraft Texture Overlays</div>
+            <div class="vfx-overlay-grid">
+              <button class="vfx-btn" id="btn-fx-grain" title="Add 35mm film grain texture">
+                <span>🎞</span> 35mm Film Grain
+              </button>
+              <button class="vfx-btn" id="btn-fx-lightleak" title="Add warm cinematic light leak">
+                <span>☀️</span> Sun Light Leak
+              </button>
+              <button class="vfx-btn" id="btn-fx-sparkle" title="Add luxury star sparkle glimmer">
+                <span>🌟</span> Star Sparkle
+              </button>
+              <button class="vfx-btn" id="btn-fx-halftone" title="Add vintage pop-art halftone dots">
+                <span>📰</span> Vintage Halftone
+              </button>
+              <button class="vfx-btn" id="btn-fx-glitch" title="Add prism RGB glitch aberration">
+                <span>⚡</span> Prism Glitch
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </aside>
+
+      <!-- Center Artboard Viewport Area -->
+      <section class="canvas-viewport">
+        
+        <!-- Contextual Top Floating Toolbar (Adapts dynamically to selection) -->
+        <div id="context-toolbar" class="context-toolbar">
+          
+          <!-- Default Toolbar (when nothing is selected) -->
+          <div id="toolbar-default-controls" class="toolbar-group">
+            <span style="font-size: 0.8rem; color: var(--text-muted); margin-right: 4px; font-weight: 500;">Canvas Background:</span>
+            <div id="canvas-bg-preview" class="toolbar-color-btn" style="background: #ffffff;" title="Artboard Background Color">
+              <input type="color" id="canvas-bg-picker" class="color-input-hidden" value="#ffffff" />
+            </div>
+          </div>
+
+          <!-- Text Controls -->
+          <div id="toolbar-text-controls" class="toolbar-group" style="display: none;">
+            <select id="text-font-family" class="font-select">
+              <option value="Outfit">Outfit</option>
+              <option value="Inter">Inter</option>
+              <option value="Playfair Display">Playfair Display</option>
+              <option value="Montserrat">Montserrat</option>
+              <option value="Poppins">Poppins</option>
+              <option value="Bebas Neue">Bebas Neue</option>
+              <option value="Space Grotesk">Space Grotesk</option>
+              <option value="Pacifico">Pacifico</option>
+              <option value="Cinzel">Cinzel</option>
+            </select>
+
+            <div class="font-size-stepper">
+              <button id="btn-font-size-dec">-</button>
+              <input type="number" id="text-font-size" value="40" />
+              <button id="btn-font-size-inc">+</button>
+            </div>
+
+            <div id="text-color-preview" class="toolbar-color-btn" style="background: #0f172a;" title="Text Color">
+              <input type="color" id="text-color-picker" class="color-input-hidden" value="#0f172a" />
+            </div>
+
+            <div class="toolbar-divider"></div>
+
+            <button id="btn-text-bold" class="toolbar-item" title="Bold (Ctrl+B)"><b>B</b></button>
+            <button id="btn-text-italic" class="toolbar-item" title="Italic (Ctrl+I)"><i>I</i></button>
+            <button id="btn-text-underline" class="toolbar-item" title="Underline (Ctrl+U)"><u>U</u></button>
+
+            <div class="toolbar-divider"></div>
+
+            <button id="btn-align-left" class="toolbar-item" title="Align Left">⇤</button>
+            <button id="btn-align-center" class="toolbar-item" title="Align Center">≡</button>
+            <button id="btn-align-right" class="toolbar-item" title="Align Right">⇥</button>
+
+            <div class="toolbar-divider"></div>
+
+            <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">Curve:</span>
+            <input type="range" id="text-curve-slider" min="-100" max="100" value="0" style="width: 75px;" title="Text Curvature" />
+            <span id="text-curve-label" style="font-size: 0.72rem; color: var(--text-muted); width: 28px;">0%</span>
+
+            <div class="toolbar-divider"></div>
+
+            <select id="text-shadow-select" class="toolbar-item" style="cursor: pointer;">
+              <option value="none">Shadow: None</option>
+              <option value="soft">Shadow: Soft Drop</option>
+              <option value="neon">Shadow: Neon Glow</option>
+              <option value="retro">Shadow: Retro 3D</option>
+            </select>
+          </div>
+
+          <!-- Shape Controls -->
+          <div id="toolbar-shape-controls" class="toolbar-group" style="display: none;">
+            <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;">Fill:</span>
+            <div id="shape-fill-preview" class="toolbar-color-btn" style="background: #7c3aed;" title="Fill Color">
+              <input type="color" id="shape-fill-picker" class="color-input-hidden" value="#7c3aed" />
+            </div>
+
+            <span style="font-size: 0.8rem; color: var(--text-muted); margin-left: 6px; font-weight: 500;">Stroke:</span>
+            <div id="shape-stroke-preview" class="toolbar-color-btn" style="background: transparent; border: 1px dashed #cbd5e1;" title="Stroke Color">
+              <input type="color" id="shape-stroke-picker" class="color-input-hidden" value="#000000" />
+            </div>
+
+            <input type="number" id="shape-stroke-width" class="toolbar-item" style="width: 50px; text-align: center;" value="0" min="0" max="40" title="Stroke Width" />
+
+            <div class="toolbar-divider"></div>
+            <button id="btn-open-gradient-modal" class="toolbar-item" title="Element Gradient Fill">🌈 Gradient</button>
+            <button id="btn-open-pattern-modal" class="toolbar-item" title="Element Texture Pattern">▦ Pattern</button>
+          </div>
+
+          <!-- Image Controls -->
+          <div id="toolbar-image-controls" class="toolbar-group" style="display: none;">
+            <button class="toolbar-item btn-img-filter" data-filter="none">Original</button>
+            <button class="toolbar-item btn-img-filter" data-filter="grayscale">B&W</button>
+            <button class="toolbar-item btn-img-filter" data-filter="sepia">Sepia</button>
+            <button class="toolbar-item btn-img-filter" data-filter="invert">Invert</button>
+            <button class="toolbar-item btn-img-filter" data-filter="blur">Blur</button>
+
+            <div class="toolbar-divider"></div>
+            <!-- Duotone grading presets -->
+            <button class="btn-duotone-pill" data-duotone="cyberpunk" title="Cyberpunk Duotone (Cyan/Pink)">Cyberpunk</button>
+            <button class="btn-duotone-pill" data-duotone="sunset" title="Sunset Duotone (Amber/Orange)">Sunset</button>
+            <button class="btn-duotone-pill" data-duotone="mint" title="Mint Duotone (Forest/Mint)">Mint</button>
+            <button class="btn-duotone-pill" data-duotone="sepiaLuxe" title="Sepia Luxe Duotone (Bronze/Cream)">Luxe</button>
+            <button class="btn-duotone-pill" data-duotone="obsidian" title="Obsidian Silver Duotone">Obsidian</button>
+
+            <div class="toolbar-divider"></div>
+            <!-- PhotoCraft Pro Adjust & FilmCraft Cinematic LUTs -->
+            <button id="btn-open-photo-adjust" class="toolbar-item" style="color: var(--accent-purple); font-weight: 700;" title="PhotoCraft Pro Adjust (Vibrance, Exposure, Warmth)">🎛 Pro Adjust</button>
+
+            <select id="img-lut-select" class="toolbar-item" style="cursor: pointer; font-size: 0.78rem;" title="FilmCraft Cinematic Color LUTs">
+              <option value="none">🎬 LUT: Natural</option>
+              <option value="teal-orange">Teal & Orange</option>
+              <option value="portra-400">Kodak Portra 400</option>
+              <option value="fuji-velvia">Fuji Velvia Chrome</option>
+              <option value="bleach-bypass">Bleach Bypass</option>
+              <option value="nordic-noir">Nordic Noir</option>
+              <option value="golden-hour">Golden Hour</option>
+            </select>
+
+            <div class="toolbar-divider"></div>
+            <button id="btn-action-remove-bg" class="toolbar-item" style="color: var(--accent-purple); font-weight: 700;" title="1-Click Background Knockout">✂ Remove BG</button>
+          </div>
+
+          <!-- Universal Controls (Always visible when any object is selected) -->
+          <div id="toolbar-universal-controls" class="toolbar-group" style="display: none; margin-left: auto;">
+            <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;">Opacity:</span>
+            <input type="range" id="universal-opacity-slider" min="0.05" max="1" step="0.05" value="1" style="width: 70px;" />
+
+            <div class="toolbar-divider"></div>
+
+            <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;">Blend:</span>
+            <select id="universal-blend-mode" class="toolbar-item" style="cursor: pointer; font-size: 0.78rem;" title="Layer Blend Mode">
+              <option value="source-over">Normal</option>
+              <option value="multiply">Multiply</option>
+              <option value="screen">Screen</option>
+              <option value="overlay">Overlay</option>
+              <option value="darken">Darken</option>
+              <option value="lighten">Lighten</option>
+              <option value="color-dodge">Color Dodge</option>
+              <option value="difference">Difference</option>
+            </select>
+
+            <div class="toolbar-divider"></div>
+
+            <!-- Alignment & Arrange Engine -->
+            <button class="toolbar-item btn-align-obj" data-align="left" title="Align Left">⇤</button>
+            <button class="toolbar-item btn-align-obj" data-align="center" title="Align Center (H)">≡</button>
+            <button class="toolbar-item btn-align-obj" data-align="right" title="Align Right">⇥</button>
+            <button class="toolbar-item btn-align-obj" data-align="top" title="Align Top">⤒</button>
+            <button class="toolbar-item btn-align-obj" data-align="middle" title="Align Middle (V)">☵</button>
+            <button class="toolbar-item btn-align-obj" data-align="bottom" title="Align Bottom">⤓</button>
+            <button class="toolbar-item btn-distribute-obj" data-axis="horizontal" title="Distribute Horizontally (3+ items)">↔</button>
+            <button class="toolbar-item btn-distribute-obj" data-axis="vertical" title="Distribute Vertically (3+ items)">↕</button>
+
+            <div class="toolbar-divider"></div>
+
+            <button id="btn-group-selected" class="toolbar-item" title="Group (Ctrl+G)">⊞ Group</button>
+            <button id="btn-ungroup-selected" class="toolbar-item" title="Ungroup (Ctrl+Shift+G)">⧉ Ungroup</button>
+
+            <div class="toolbar-divider"></div>
+
+            <button id="btn-flip-h" class="toolbar-item" title="Flip Horizontal">⇄ Flip H</button>
+            <button id="btn-flip-v" class="toolbar-item" title="Flip Vertical">⇅ Flip V</button>
+
+            <div class="toolbar-divider"></div>
+
+            <button id="btn-open-shadow-modal" class="toolbar-item" title="Shadow & Glow">✨ Glow & Shadow</button>
+            <button id="btn-toggle-lock" class="toolbar-item" title="Lock / Unlock Object">🔓 Lock</button>
+
+            <div class="toolbar-divider"></div>
+
+            <button id="btn-layer-forward" class="toolbar-item" title="Bring Forward">▲ Up</button>
+            <button id="btn-layer-backward" class="toolbar-item" title="Send Backward">▼ Down</button>
+
+            <div class="toolbar-divider"></div>
+
+            <button id="btn-duplicate-selected" class="toolbar-item" title="Duplicate (Ctrl+D)">⧉ Copy</button>
+            <button id="btn-delete-selected" class="toolbar-item" style="color: var(--accent-rose);" title="Delete (Del)">✕ Delete</button>
+          </div>
+
+        </div>
+
+        <!-- Canvas Artboard Container -->
+        <div id="canvas-scroll-container" class="canvas-scroll-container">
+          <div id="artboard-container" class="artboard-container" style="width: 1080px; height: 1080px;">
+            <canvas id="canvas-element"></canvas>
+          </div>
+        </div>
+
+        <!-- Floating Bottom Status Bar (Zoom & Dimension Info) -->
+        <div class="canvas-status-bar">
+          <div id="canvas-dimensions-badge" class="status-dimension-badge">1080 × 1080 px</div>
+          
+          <div class="toolbar-divider"></div>
+
+          <button id="btn-toggle-snapping" class="status-btn active" title="Smart Magnetic Snapping">🧲 Snapping: ON</button>
+          <button id="btn-toggle-grid" class="status-btn" title="Technical Millimeter Alignment Grid">📏 Grid: OFF</button>
+
+          <div class="toolbar-divider"></div>
+
+          <div class="zoom-controls">
+            <button id="btn-zoom-out" class="zoom-btn" title="Zoom Out">-</button>
+            <span id="zoom-percentage-text" class="zoom-level-text">100%</span>
+            <button id="btn-zoom-in" class="zoom-btn" title="Zoom In">+</button>
+            <button id="btn-fit-screen" class="btn-secondary" style="height: 26px; padding: 0 8px; font-size: 0.72rem;">Fit</button>
+          </div>
+        </div>
+
+        <!-- Multi-Page Bottom Strip -->
+        <footer id="pages-bottom-bar" class="pages-bottom-bar">
+          <div class="pages-bar-left">
+            <span id="pages-count-badge" class="status-dimension-badge">Page 1 of 1</span>
+            <button id="btn-add-page" class="btn-secondary" style="height: 30px; font-size: 0.76rem;">
+              + Add Page
+            </button>
+          </div>
+          <div id="pages-bar-list" class="pages-bar-list"></div>
+          <div class="pages-bar-right">
+            <button id="btn-duplicate-page" class="btn-secondary" style="height: 30px; font-size: 0.76rem;" title="Duplicate Page">
+              ⧉ Duplicate Page
+            </button>
+          </div>
+        </footer>
+
+      </section>
+
+    </main>
+
+    <!-- ====================================================================
+         Modal Dialogs: Resize, Export & Shortcuts
+         ==================================================================== -->
+    
+    <!-- Resize Canvas Modal -->
+    <dialog id="resize-modal" class="modal-dialog">
+      <div class="modal-box">
+        <div class="modal-header">
+          <h2 class="modal-title">Resize Artboard</h2>
+          <button id="btn-close-resize" class="icon-btn">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="section-label">Popular Dimensions</div>
+          <div class="presets-grid">
+            <div class="preset-card active" data-w="1080" data-h="1080">
+              <div class="preset-name">Instagram Square Post</div>
+              <div class="preset-dims">1080 × 1080 px (1:1)</div>
+            </div>
+            <div class="preset-card" data-w="1080" data-h="1920">
+              <div class="preset-name">Instagram Story / Reel</div>
+              <div class="preset-dims">1080 × 1920 px (9:16)</div>
+            </div>
+            <div class="preset-card" data-w="1280" data-h="720">
+              <div class="preset-name">YouTube Thumbnail</div>
+              <div class="preset-dims">1280 × 720 px (16:9)</div>
+            </div>
+            <div class="preset-card" data-w="1920" data-h="1080">
+              <div class="preset-name">Full HD Presentation</div>
+              <div class="preset-dims">1920 × 1080 px (16:9)</div>
+            </div>
+            <div class="preset-card" data-w="800" data-h="1200">
+              <div class="preset-name">Poster / Flyer</div>
+              <div class="preset-dims">800 × 1200 px (2:3)</div>
+            </div>
+            <div class="preset-card" data-w="1050" data-h="600">
+              <div class="preset-name">Business Card</div>
+              <div class="preset-dims">1050 × 600 px (3.5:2)</div>
+            </div>
+          </div>
+
+          <div class="section-label" style="margin-top: 8px;">Custom Size</div>
+          <div class="custom-dims-row">
+            <div class="dim-input-group">
+              <label>Width (px)</label>
+              <input type="number" id="custom-width-input" value="1080" min="100" max="4000" />
+            </div>
+            <span style="margin-top: 18px; color: var(--text-muted);">×</span>
+            <div class="dim-input-group">
+              <label>Height (px)</label>
+              <input type="number" id="custom-height-input" value="1080" min="100" max="4000" />
+            </div>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 8px; margin-top: 12px; background: var(--bg-surface); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+            <input type="checkbox" id="resize-scale-content" checked style="width: 16px; height: 16px; accent-color: var(--accent-purple);" />
+            <label for="resize-scale-content" style="font-size: 0.78rem; font-weight: 600; color: var(--text-primary); cursor: pointer;">
+              Proportionally scale & re-center existing artwork
+            </label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-apply-resize" class="btn-primary" style="width: 100%;">Apply New Dimensions</button>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Export Modal -->
+    <dialog id="export-modal" class="modal-dialog">
+      <div class="modal-box">
+        <div class="modal-header">
+          <h2 class="modal-title">Download & Export</h2>
+          <button id="btn-close-export" class="icon-btn">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="section-label">Select File Format</div>
+          <div class="export-format-options">
+            <div class="export-format-btn active" data-format="png">
+              <span class="format-ext">PNG</span>
+              <span class="format-desc">High Quality</span>
+            </div>
+            <div class="export-format-btn" data-format="jpg">
+              <span class="format-ext">JPG</span>
+              <span class="format-desc">Compact</span>
+            </div>
+            <div class="export-format-btn" data-format="svg">
+              <span class="format-ext">SVG</span>
+              <span class="format-desc">Vector Graphics</span>
+            </div>
+            <div class="export-format-btn" data-format="pdf">
+              <span class="format-ext">PDF</span>
+              <span class="format-desc">Print Ready</span>
+            </div>
+            <div class="export-format-btn" data-format="webm">
+              <span class="format-ext">WEBM</span>
+              <span class="format-desc">Video Clip</span>
+            </div>
+          </div>
+
+          <div id="export-transparent-row" class="export-checkbox-row" style="margin-top: 10px;">
+            <input type="checkbox" id="export-transparent-check" />
+            <label for="export-transparent-check">Transparent Background (PNG only)</label>
+          </div>
+
+          <div id="export-motion-row" style="display: none; flex-direction: column; gap: 8px; margin-top: 10px; background: var(--bg-surface); padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 0.78rem; font-weight: 600;">Animation Motion:</span>
+              <select id="video-motion-style" style="padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); font-size: 0.78rem; background: #ffffff;">
+                <option value="zoom">Ken Burns Zoom</option>
+                <option value="pulse">Rhythmic Pulse</option>
+                <option value="sway">Cinematic Sway</option>
+                <option value="static">Static Loop</option>
+              </select>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 0.78rem; font-weight: 600;">Clip Duration:</span>
+              <select id="video-duration-select" style="padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); font-size: 0.78rem; background: #ffffff;">
+                <option value="3000">3 Seconds</option>
+                <option value="5000">5 Seconds</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-download-export" class="btn-primary" style="width: 100%;">Download Now</button>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Keyboard Shortcuts Modal -->
+    <dialog id="shortcuts-modal" class="modal-dialog">
+      <div class="modal-box">
+        <div class="modal-header">
+          <h2 class="modal-title">Keyboard Shortcuts</h2>
+          <button id="btn-close-shortcuts" class="icon-btn">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="shortcuts-grid">
+            <div class="shortcut-item">
+              <span class="shortcut-label">Undo</span>
+              <kbd class="kbd-key">Ctrl / ⌘ + Z</kbd>
+            </div>
+            <div class="shortcut-item">
+              <span class="shortcut-label">Redo</span>
+              <kbd class="kbd-key">Ctrl / ⌘ + Y</kbd>
+            </div>
+            <div class="shortcut-item">
+              <span class="shortcut-label">Copy Object</span>
+              <kbd class="kbd-key">Ctrl / ⌘ + C</kbd>
+            </div>
+            <div class="shortcut-item">
+              <span class="shortcut-label">Paste Object</span>
+              <kbd class="kbd-key">Ctrl / ⌘ + V</kbd>
+            </div>
+            <div class="shortcut-item">
+              <span class="shortcut-label">Duplicate Object</span>
+              <kbd class="kbd-key">Ctrl / ⌘ + D</kbd>
+            </div>
+            <div class="shortcut-item">
+              <span class="shortcut-label">Delete Object</span>
+              <kbd class="kbd-key">Del / Backspace</kbd>
+            </div>
+            <div class="shortcut-item">
+              <span class="shortcut-label">Select All</span>
+              <kbd class="kbd-key">Ctrl / ⌘ + A</kbd>
+            </div>
+            <div class="shortcut-item">
+              <span class="shortcut-label">Nudge 1px</span>
+              <kbd class="kbd-key">Arrow Keys</kbd>
+            </div>
+            <div class="shortcut-item">
+              <span class="shortcut-label">Nudge 10px</span>
+              <kbd class="kbd-key">Shift + Arrows</kbd>
+            </div>
+            <div class="shortcut-item">
+              <span class="shortcut-label">Multi-Select</span>
+              <kbd class="kbd-key">Shift + Click</kbd>
+            </div>
+          </div>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Gradient Fill Modal -->
+    <dialog id="gradient-modal" class="modal-dialog">
+      <div class="modal-box" style="width: 380px;">
+        <div class="modal-header">
+          <h2 class="modal-title">🌈 Gradient Fill</h2>
+          <button id="btn-close-gradient" class="icon-btn">✕</button>
+        </div>
+        <div class="modal-body" style="gap: 12px;">
+          <div style="display: flex; gap: 12px;">
+            <div style="flex: 1;">
+              <label class="section-label" style="display: block; margin-bottom: 4px;">Color 1</label>
+              <input type="color" id="gradient-c1" value="#7c3aed" style="width: 100%; height: 38px; border-radius: 6px; border: 1px solid var(--border-subtle); cursor: pointer;" />
+            </div>
+            <div style="flex: 1;">
+              <label class="section-label" style="display: block; margin-bottom: 4px;">Color 2</label>
+              <input type="color" id="gradient-c2" value="#ec4899" style="width: 100%; height: 38px; border-radius: 6px; border: 1px solid var(--border-subtle); cursor: pointer;" />
+            </div>
+          </div>
+          <div>
+            <label class="section-label" style="display: block; margin-bottom: 4px;">Direction</label>
+            <select id="gradient-direction" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--border-subtle); font-size: 0.85rem;">
+              <option value="horizontal">Horizontal (Left to Right)</option>
+              <option value="vertical">Vertical (Top to Bottom)</option>
+              <option value="diagonal">Diagonal (Corner to Corner)</option>
+              <option value="radial">Radial (Center Out)</option>
+            </select>
+          </div>
+          <div class="section-label" style="margin-top: 4px;">Designer Presets</div>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;">
+            <button class="btn-grad-preset" data-c1="#ff5e62" data-c2="#ff9966" style="height: 32px; border-radius: 4px; border: 1px solid var(--border-subtle); background: linear-gradient(135deg, #ff5e62, #ff9966); cursor: pointer;" title="Sunset"></button>
+            <button class="btn-grad-preset" data-c1="#7c3aed" data-c2="#ec4899" style="height: 32px; border-radius: 4px; border: 1px solid var(--border-subtle); background: linear-gradient(135deg, #7c3aed, #ec4899); cursor: pointer;" title="Neon Violet"></button>
+            <button class="btn-grad-preset" data-c1="#06b6d4" data-c2="#3b82f6" style="height: 32px; border-radius: 4px; border: 1px solid var(--border-subtle); background: linear-gradient(135deg, #06b6d4, #3b82f6); cursor: pointer;" title="Ocean Sky"></button>
+            <button class="btn-grad-preset" data-c1="#10b981" data-c2="#047857" style="height: 32px; border-radius: 4px; border: 1px solid var(--border-subtle); background: linear-gradient(135deg, #10b981, #047857); cursor: pointer;" title="Emerald"></button>
+            <button class="btn-grad-preset" data-c1="#f59e0b" data-c2="#ef4444" style="height: 32px; border-radius: 4px; border: 1px solid var(--border-subtle); background: linear-gradient(135deg, #f59e0b, #ef4444); cursor: pointer;" title="Fire Amber"></button>
+            <button class="btn-grad-preset" data-c1="#0f172a" data-c2="#334155" style="height: 32px; border-radius: 4px; border: 1px solid var(--border-subtle); background: linear-gradient(135deg, #0f172a, #334155); cursor: pointer;" title="Obsidian"></button>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-apply-gradient" class="btn-primary" style="width: 100%;">Apply Gradient to Object</button>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Texture Pattern Modal -->
+    <dialog id="pattern-modal" class="modal-dialog">
+      <div class="modal-box" style="width: 360px;">
+        <div class="modal-header">
+          <h2 class="modal-title">▦ Texture Pattern</h2>
+          <button id="btn-close-pattern" class="icon-btn">✕</button>
+        </div>
+        <div class="modal-body" style="gap: 10px;">
+          <div class="section-label">Select Pattern Tile</div>
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+            <button class="btn-pattern-opt resize-preset-card active" data-pattern="dots">
+              <span class="resize-preset-title">• Dot Grid</span>
+              <span class="resize-preset-dims">Architectural points</span>
+            </button>
+            <button class="btn-pattern-opt resize-preset-card" data-pattern="grid">
+              <span class="resize-preset-title">⊞ Graph Paper</span>
+              <span class="resize-preset-dims">Technical grid lines</span>
+            </button>
+            <button class="btn-pattern-opt resize-preset-card" data-pattern="stripes">
+              <span class="resize-preset-title">▨ Diagonal</span>
+              <span class="resize-preset-dims">Hatched 45° stripes</span>
+            </button>
+            <button class="btn-pattern-opt resize-preset-card" data-pattern="noise">
+              <span class="resize-preset-title">░ Film Noise</span>
+              <span class="resize-preset-dims">Fine grain paper</span>
+            </button>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-apply-pattern" class="btn-primary" style="width: 100%;">Apply Pattern Fill</button>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Advanced Shadow & Neon Glow Modal -->
+    <dialog id="shadow-modal" class="modal-dialog">
+      <div class="modal-box" style="width: 380px;">
+        <div class="modal-header">
+          <h2 class="modal-title">✨ Shadow & Neon Glow</h2>
+          <button id="btn-close-shadow" class="icon-btn">✕</button>
+        </div>
+        <div class="modal-body" style="gap: 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 0.8rem; font-weight: 600;">Blur Radius: <span id="shadow-blur-label">16px</span></span>
+            <input type="range" id="shadow-blur-input" min="0" max="60" value="16" style="width: 150px;" />
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 0.8rem; font-weight: 600;">Offset X: <span id="shadow-x-label">0px</span></span>
+            <input type="range" id="shadow-x-input" min="-40" max="40" value="0" style="width: 150px;" />
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 0.8rem; font-weight: 600;">Offset Y: <span id="shadow-y-label">8px</span></span>
+            <input type="range" id="shadow-y-input" min="-40" max="40" value="8" style="width: 150px;" />
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 0.8rem; font-weight: 600;">Shadow / Glow Color:</span>
+            <input type="color" id="shadow-color-input" value="#0f172a" style="width: 48px; height: 32px; border-radius: 4px; border: 1px solid var(--border-subtle); cursor: pointer;" />
+          </div>
+
+          <div class="section-label" style="margin-top: 4px;">Quick Style Presets</div>
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px;">
+            <button class="btn-secondary btn-shadow-preset" data-preset="soft">Soft Elevation</button>
+            <button class="btn-secondary btn-shadow-preset" data-preset="floating">Floating Card</button>
+            <button class="btn-secondary btn-shadow-preset" data-preset="neon-cyan" style="color: #06b6d4; border-color: #67e8f9;">Neon Cyan</button>
+            <button class="btn-secondary btn-shadow-preset" data-preset="neon-magenta" style="color: #d946ef; border-color: #f0abfc;">Neon Magenta</button>
+            <button class="btn-secondary btn-shadow-preset" data-preset="retro-3d">Retro 3D Solid</button>
+            <button class="btn-secondary btn-shadow-preset" data-preset="none" style="color: var(--accent-rose);">✕ No Shadow</button>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-apply-shadow" class="btn-primary" style="width: 100%;">Apply Shadow Effect</button>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- 1-Click Background Remover Modal -->
+    <dialog id="bg-remover-modal" class="modal-dialog">
+      <div class="modal-box" style="width: 400px;">
+        <div class="modal-header">
+          <h2 class="modal-title">✂ Background Knockout</h2>
+          <button id="btn-close-bg-remover" class="icon-btn">✕</button>
+        </div>
+        <div class="modal-body" style="gap: 12px;">
+          <p style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.4;">
+            Removes solid or studio background colors from your selected photo with client-side pixel knockout and smooth edge feathering.
+          </p>
+          <div style="display: flex; align-items: center; justify-content: space-between; background: var(--bg-surface); padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+            <div>
+              <div style="font-size: 0.8rem; font-weight: 700;">Target Color</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">Auto-samples from photo corners</div>
+            </div>
+            <input type="color" id="bg-knockout-color" value="#ffffff" style="width: 44px; height: 32px; border-radius: 4px; border: 1px solid var(--border-subtle); cursor: pointer;" />
+          </div>
+          <div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 600; margin-bottom: 4px;">
+              <span>Color Tolerance / Threshold</span>
+              <span id="bg-tolerance-val">24</span>
+            </div>
+            <input type="range" id="bg-tolerance-slider" min="5" max="60" value="24" style="width: 100%;" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-execute-bg-knockout" class="btn-primary" style="width: 100%;">⚡ Remove Background Now</button>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- PhotoCraft Pro Photo Adjust Dialog -->
+    <dialog id="photo-adjust-modal" class="modal-dialog">
+      <div class="modal-box" style="width: 440px;">
+        <div class="modal-header">
+          <h2 class="modal-title">🎛 PhotoCraft Pro Image Tuning</h2>
+          <button id="btn-close-photo-adjust" class="icon-btn">✕</button>
+        </div>
+        <div class="modal-body" style="gap: 12px;">
+          <!-- Adjustments sliders -->
+          <div class="photo-adjust-slider-row">
+            <span class="adjust-label">Brightness</span>
+            <input type="range" class="photo-adjust-slider" data-param="brightness" min="-0.8" max="0.8" step="0.02" value="0" />
+            <span class="adjust-val" id="val-brightness">0.00</span>
+          </div>
+          <div class="photo-adjust-slider-row">
+            <span class="adjust-label">Contrast</span>
+            <input type="range" class="photo-adjust-slider" data-param="contrast" min="-0.8" max="0.8" step="0.02" value="0" />
+            <span class="adjust-val" id="val-contrast">0.00</span>
+          </div>
+          <div class="photo-adjust-slider-row">
+            <span class="adjust-label">Vibrance</span>
+            <input type="range" class="photo-adjust-slider" data-param="vibrance" min="-1" max="1" step="0.05" value="0" />
+            <span class="adjust-val" id="val-vibrance">0.00</span>
+          </div>
+          <div class="photo-adjust-slider-row">
+            <span class="adjust-label">Saturation</span>
+            <input type="range" class="photo-adjust-slider" data-param="saturation" min="-1" max="1" step="0.05" value="0" />
+            <span class="adjust-val" id="val-saturation">0.00</span>
+          </div>
+          <div class="photo-adjust-slider-row">
+            <span class="adjust-label">Exposure</span>
+            <input type="range" class="photo-adjust-slider" data-param="exposure" min="-0.8" max="0.8" step="0.02" value="0" />
+            <span class="adjust-val" id="val-exposure">0.00</span>
+          </div>
+          <div class="photo-adjust-slider-row">
+            <span class="adjust-label">Warmth</span>
+            <input type="range" class="photo-adjust-slider" data-param="warmth" min="-1" max="1" step="0.05" value="0" />
+            <span class="adjust-val" id="val-warmth">0.00</span>
+          </div>
+          <div class="photo-adjust-slider-row">
+            <span class="adjust-label">Tint</span>
+            <input type="range" class="photo-adjust-slider" data-param="tint" min="-1" max="1" step="0.05" value="0" />
+            <span class="adjust-val" id="val-tint">0.00</span>
+          </div>
+          <div class="photo-adjust-slider-row">
+            <span class="adjust-label">Soft Blur</span>
+            <input type="range" class="photo-adjust-slider" data-param="blur" min="0" max="1" step="0.05" value="0" />
+            <span class="adjust-val" id="val-blur">0.00</span>
+          </div>
+        </div>
+        <div class="modal-footer" style="justify-content: space-between;">
+          <button id="btn-reset-photo-adjust" class="btn-secondary">↺ Reset Adjustments</button>
+          <button id="btn-apply-photo-adjust" class="btn-primary">Done</button>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+  </div>
+
+  <!-- App Modular Scripts -->
+  <script src="js/canvas-manager.js"></script>
+  <script src="js/text-tool.js"></script>
+  <script src="js/elements.js"></script>
+  <script src="js/images.js"></script>
+  <script src="js/drawing.js"></script>
+  <script src="js/layers.js"></script>
+  <script src="js/templates.js"></script>
+  <script src="js/pages.js"></script>
+  <script src="js/qrcode-tool.js"></script>
+  <script src="js/export.js"></script>
+  <script src="js/snapping.js"></script>
+  <script src="js/advanced-effects.js"></script>
+  <script src="js/studio-pro.js"></script>
+  <script src="js/frames-engine.js"></script>
+  <script src="js/video-export.js"></script>
+  <script src="js/fonts-loader.js"></script>
+  <script src="js/ai-generator.js"></script>
+  <script src="js/photocraft-studio.js"></script>
+  <script src="js/effectcraft-overlays.js"></script>
+  <script src="js/pdfcraft-tools.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
