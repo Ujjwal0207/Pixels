@@ -1,0 +1,8 @@
+# Dependencies & OS
+node_modules/
+.DS_Store
+*.log
+
+# Comparison & Architecture Strategy Documents (User Excluded)
+CANVA_PRO_COMPARISON_AND_ROADMAP.md
+TECHNICAL_SOLUTIONS_REA_SKILLS.md

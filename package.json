@@ -1,0 +1,21 @@
+{
+  "name": "designpro-canva-free",
+  "version": "1.0.0",
+  "description": "Free, open-source graphic design suite inspired by Canva Pro with rich templates, typography, shapes, and high-res export.",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve . -l 3000",
+    "dev": "npx serve . -l 3000"
+  },
+  "keywords": [
+    "canva",
+    "canva-pro",
+    "graphic-design",
+    "editor",
+    "vector",
+    "fabricjs",
+    "templates"
+  ],
+  "author": "",
+  "license": "MIT"
+}
