@@ -1,0 +1,206 @@
+/**
+ * Image Tool for DesignPro
+ * Manages image uploads, curated stock photos, image filters and adjustments
+ */
+
+class ImagesTool {
+  constructor(canvasManager) {
+    this.canvasManager = canvasManager;
+    this.canvas = canvasManager.canvas;
+  }
+
+  setCanvas(canvas) {
+    this.canvas = canvas;
+  }
+
+  // Handle local file uploads
+  handleFileUpload(files) {
+    if (!files || files.length === 0) return;
+
+    Array.from(files).forEach((file) => {
+      if (!file.type.match('image.*')) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUrl = e.target.result;
+        this.addImageToCanvas(dataUrl, file.name);
+        this.addUploadThumbnail(dataUrl);
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // Add Upload Thumbnail to sidebar
+  addUploadThumbnail(src) {
+    const grid = document.getElementById('upload-thumbs-grid');
+    if (!grid) return;
+
+    const item = document.createElement('div');
+    item.className = 'upload-thumb-item';
+    item.innerHTML = `<img src="${src}" alt="Uploaded image" />`;
+    item.addEventListener('click', () => {
+      this.addImageToCanvas(src, 'Uploaded Image');
+    });
+
+    grid.prepend(item);
+  }
+
+  // Add Image to Canvas with smart scaling
+  addImageToCanvas(url, name = 'Image') {
+    fabric.Image.fromURL(
+      url,
+      (img) => {
+        if (!img) return;
+
+        // Scale image to fit within max 60% of artboard dimensions
+        const maxW = this.canvas.width * 0.6;
+        const maxH = this.canvas.height * 0.6;
+        let scale = 1;
+
+        if (img.width > maxW || img.height > maxH) {
+          scale = Math.min(maxW / img.width, maxH / img.height);
+        }
+
+        img.set({
+          left: this.canvas.width / 2,
+          top: this.canvas.height / 2,
+          originX: 'center',
+          originY: 'center',
+          scaleX: scale,
+          scaleY: scale,
+          name: name,
+        });
+
+        this.canvas.add(img);
+        this.canvas.setActiveObject(img);
+        this.canvas.renderAll();
+        this.canvasManager.recordState();
+      },
+      { crossOrigin: 'anonymous' }
+    );
+  }
+
+  // Set as Canvas Background
+  setBackgroundImage(url) {
+    fabric.Image.fromURL(
+      url,
+      (img) => {
+        if (!img) return;
+
+        // Scale to cover entire canvas
+        const scaleX = this.canvas.width / img.width;
+        const scaleY = this.canvas.height / img.height;
+        const scale = Math.max(scaleX, scaleY);
+
+        this.canvas.setBackgroundImage(
+          img,
+          () => {
+            this.canvas.renderAll();
+            this.canvasManager.recordState();
+          },
+          {
+            originX: 'center',
+            originY: 'center',
+            left: this.canvas.width / 2,
+            top: this.canvas.height / 2,
+            scaleX: scale,
+            scaleY: scale,
+          }
+        );
+      },
+      { crossOrigin: 'anonymous' }
+    );
+  }
+
+  // Apply Filter to selected image
+  applyFilter(filterType, value = 0) {
+    const active = this.canvas.getActiveObject();
+    if (!active || active.type !== 'image') return;
+
+    let filterInstance = null;
+
+    switch (filterType) {
+      case 'grayscale':
+        filterInstance = new fabric.Image.filters.Grayscale();
+        break;
+      case 'sepia':
+        filterInstance = new fabric.Image.filters.Sepia();
+        break;
+      case 'invert':
+        filterInstance = new fabric.Image.filters.Invert();
+        break;
+      case 'brightness':
+        filterInstance = new fabric.Image.filters.Brightness({
+          brightness: parseFloat(value),
+        });
+        break;
+      case 'contrast':
+        filterInstance = new fabric.Image.filters.Contrast({
+          contrast: parseFloat(value),
+        });
+        break;
+      case 'saturation':
+        filterInstance = new fabric.Image.filters.Saturation({
+          saturation: parseFloat(value),
+        });
+        break;
+      case 'blur':
+        filterInstance = new fabric.Image.filters.Blur({
+          blur: parseFloat(value),
+        });
+        break;
+      default:
+        break;
+    }
+
+    if (filterInstance) {
+      active.filters = [filterInstance];
+    } else {
+      active.filters = [];
+    }
+
+    active.applyFilters();
+    this.canvas.renderAll();
+    this.canvasManager.recordState();
+  }
+
+  // Preset stock images
+  getCuratedPhotos() {
+    return [
+      {
+        name: 'Neon Cyber City',
+        url: 'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?auto=format&fit=crop&w=800&q=80',
+      },
+      {
+        name: 'Minimal Architecture',
+        url: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80',
+      },
+      {
+        name: 'Vibrant Gradient Waves',
+        url: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=800&q=80',
+      },
+      {
+        name: 'Creative Portrait',
+        url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80',
+      },
+      {
+        name: 'Modern Workspace',
+        url: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80',
+      },
+      {
+        name: 'Fresh Coffee & Bakery',
+        url: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=800&q=80',
+      },
+      {
+        name: 'Mountain Sunrise',
+        url: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80',
+      },
+      {
+        name: 'Abstract Fluid 3D',
+        url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
+      },
+    ];
+  }
+}
+
+window.ImagesTool = ImagesTool;
