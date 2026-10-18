@@ -102,7 +102,55 @@ class SnappingEngine {
       }
     }
 
-    // 4. Snap to other objects on canvas
+    // 4. Snap to User Rulers & Magnetic Guides
+    if (window.app && window.app.rulers && typeof window.app.rulers.getActiveGuidePositions === 'function') {
+      const { horizontals, verticals } = window.app.rulers.getActiveGuidePositions();
+
+      if (!snappedX) {
+        for (const gx of verticals) {
+          // Snap center or edges to vertical guide
+          if (Math.abs(targetCenter.x - gx) <= this.snapThreshold) {
+            newCenterX = gx;
+            this.activeGuidelines.push({ type: 'vertical', x: gx, isCenter: false });
+            snappedX = true;
+            break;
+          } else if (Math.abs(bound.left - gx) <= this.snapThreshold) {
+            newCenterX = targetCenter.x + (gx - bound.left);
+            this.activeGuidelines.push({ type: 'vertical', x: gx, isCenter: false });
+            snappedX = true;
+            break;
+          } else if (Math.abs(bound.left + bound.width - gx) <= this.snapThreshold) {
+            newCenterX = targetCenter.x + (gx - (bound.left + bound.width));
+            this.activeGuidelines.push({ type: 'vertical', x: gx, isCenter: false });
+            snappedX = true;
+            break;
+          }
+        }
+      }
+
+      if (!snappedY) {
+        for (const gy of horizontals) {
+          if (Math.abs(targetCenter.y - gy) <= this.snapThreshold) {
+            newCenterY = gy;
+            this.activeGuidelines.push({ type: 'horizontal', y: gy, isCenter: false });
+            snappedY = true;
+            break;
+          } else if (Math.abs(bound.top - gy) <= this.snapThreshold) {
+            newCenterY = targetCenter.y + (gy - bound.top);
+            this.activeGuidelines.push({ type: 'horizontal', y: gy, isCenter: false });
+            snappedY = true;
+            break;
+          } else if (Math.abs(bound.top + bound.height - gy) <= this.snapThreshold) {
+            newCenterY = targetCenter.y + (gy - (bound.top + bound.height));
+            this.activeGuidelines.push({ type: 'horizontal', y: gy, isCenter: false });
+            snappedY = true;
+            break;
+          }
+        }
+      }
+    }
+
+    // 5. Snap to other objects on canvas
     if (!snappedX || !snappedY) {
       this.canvas.forEachObject((obj) => {
         if (obj === target || !obj.visible || (target.contains && target.contains(obj)) || obj.isGuide) return;
