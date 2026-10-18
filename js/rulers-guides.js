@@ -330,8 +330,8 @@ class RulersAndGuides {
 
   addGuide(orientation, position) {
     const isHorizontal = orientation === 'horizontal';
-    const canvasW = this.canvas.width;
-    const canvasH = this.canvas.height;
+    const canvasW = this.canvasManager ? this.canvasManager.artboardWidth : (this.canvas.width / (this.canvas.getZoom() || 1));
+    const canvasH = this.canvasManager ? this.canvasManager.artboardHeight : (this.canvas.height / (this.canvas.getZoom() || 1));
 
     const points = isHorizontal
       ? [0, position, canvasW, position]
