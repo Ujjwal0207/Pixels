@@ -52,9 +52,12 @@ class ImagesTool {
       (img) => {
         if (!img) return;
 
+        const artboardW = this.canvasManager ? this.canvasManager.artboardWidth : (this.canvas.width / (this.canvas.getZoom() || 1));
+        const artboardH = this.canvasManager ? this.canvasManager.artboardHeight : (this.canvas.height / (this.canvas.getZoom() || 1));
+
         // Scale image to fit within max 60% of artboard dimensions
-        const maxW = this.canvas.width * 0.6;
-        const maxH = this.canvas.height * 0.6;
+        const maxW = artboardW * 0.6;
+        const maxH = artboardH * 0.6;
         let scale = 1;
 
         if (img.width > maxW || img.height > maxH) {
@@ -62,8 +65,8 @@ class ImagesTool {
         }
 
         img.set({
-          left: this.canvas.width / 2,
-          top: this.canvas.height / 2,
+          left: artboardW / 2,
+          top: artboardH / 2,
           originX: 'center',
           originY: 'center',
           scaleX: scale,
@@ -87,9 +90,12 @@ class ImagesTool {
       (img) => {
         if (!img) return;
 
-        // Scale to cover entire canvas
-        const scaleX = this.canvas.width / img.width;
-        const scaleY = this.canvas.height / img.height;
+        const artboardW = this.canvasManager ? this.canvasManager.artboardWidth : (this.canvas.width / (this.canvas.getZoom() || 1));
+        const artboardH = this.canvasManager ? this.canvasManager.artboardHeight : (this.canvas.height / (this.canvas.getZoom() || 1));
+
+        // Scale to cover entire artboard
+        const scaleX = artboardW / img.width;
+        const scaleY = artboardH / img.height;
         const scale = Math.max(scaleX, scaleY);
 
         this.canvas.setBackgroundImage(
@@ -101,8 +107,8 @@ class ImagesTool {
           {
             originX: 'center',
             originY: 'center',
-            left: this.canvas.width / 2,
-            top: this.canvas.height / 2,
+            left: artboardW / 2,
+            top: artboardH / 2,
             scaleX: scale,
             scaleY: scale,
           }
