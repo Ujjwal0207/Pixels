@@ -116,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (draft.artboardWidth && draft.artboardHeight) {
         canvasManager.setArtboardSize(draft.artboardWidth, draft.artboardHeight);
       }
-      pagesManager.switchPage(pagesManager.currentPageIndex);
+      pagesManager.switchPage(pagesManager.currentPageIndex, true);
       pagesManager.renderPagesBar();
       showToast('Restored your previous design from local storage!', 'success');
     } else {
