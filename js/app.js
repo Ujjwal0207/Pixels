@@ -103,6 +103,8 @@ document.addEventListener('DOMContentLoaded', () => {
   setupContentHubTab();
   setupBrandKitTab();
   setupClippingMaskEvents();
+  setupCanvasDragAndDrop();
+  setupGlobalPaste();
 
   // Auto-Restore Draft from IndexedDB if exists, else load default template
   storageEngine.loadDraft().then((draft) => {
@@ -555,6 +557,21 @@ function setupContextToolbarEvents() {
         return;
       }
       document.getElementById('bg-remover-modal').showModal();
+    });
+  }
+
+  // Set image as Artboard Background trigger
+  const btnSetAsBg = document.getElementById('btn-set-as-bg');
+  if (btnSetAsBg) {
+    btnSetAsBg.addEventListener('click', () => {
+      const active = window.app.canvas.getActiveObject();
+      if (!active || active.type !== 'image') {
+        showToast('Please select a photo on the artboard first', 'error');
+        return;
+      }
+      if (window.app && window.app.imagesTool) {
+        window.app.imagesTool.setImageAsBackground(active);
+      }
     });
   }
 
@@ -1060,6 +1077,17 @@ function setupModals() {
     exportModal.close();
     showToast(`Exported ${filename} successfully!`, 'success');
   });
+
+  const btnCopyClipboard = document.getElementById('btn-copy-clipboard');
+  if (btnCopyClipboard) {
+    btnCopyClipboard.addEventListener('click', async () => {
+      const transparent = document.getElementById('export-transparent-check').checked;
+      if (window.app && window.app.export) {
+        await window.app.export.copyImageToClipboard({ transparent, multiplier: 2 });
+      }
+      exportModal.close();
+    });
+  }
 
   // Shortcuts Modal
   const shortcutsModal = document.getElementById('shortcuts-modal');
@@ -1707,6 +1735,262 @@ function setupClippingMaskEvents() {
       }
     });
   }
+}
+
+// ===========================================================================
+// Direct Canvas Drag & Drop and Global Clipboard Paste
+// ===========================================================================
+function setupCanvasDragAndDrop() {
+  const container = document.getElementById('canvas-scroll-container');
+  if (!container) return;
+
+  ['dragenter', 'dragover'].forEach((eventName) => {
+    container.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      container.classList.add('canvas-drag-active');
+    }, false);
+  });
+
+  ['dragleave', 'dragend'].forEach((eventName) => {
+    container.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (!container.contains(e.relatedTarget)) {
+        container.classList.remove('canvas-drag-active');
+      }
+    }, false);
+  });
+
+  container.addEventListener('drop', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    container.classList.remove('canvas-drag-active');
+
+    const files = e.dataTransfer ? e.dataTransfer.files : null;
+    if (!files || files.length === 0) return;
+
+    const fabricCanvas = window.app && window.app.canvas;
+    const canvasMgr = window.app && window.app.canvasManager;
+    let dropLeft = canvasMgr ? canvasMgr.artboardWidth / 2 : 540;
+    let dropTop = canvasMgr ? canvasMgr.artboardHeight / 2 : 540;
+
+    if (fabricCanvas && fabricCanvas.getElement()) {
+      const rect = fabricCanvas.getElement().getBoundingClientRect();
+      const zoom = fabricCanvas.getZoom() || 1;
+      const x = (e.clientX - rect.left) / zoom;
+      const y = (e.clientY - rect.top) / zoom;
+      const maxW = canvasMgr ? canvasMgr.artboardWidth : 1080;
+      const maxH = canvasMgr ? canvasMgr.artboardHeight : 1080;
+      if (x >= 0 && x <= maxW && y >= 0 && y <= maxH) {
+        dropLeft = x;
+        dropTop = y;
+      }
+    }
+
+    Array.from(files).forEach((file) => {
+      const name = file.name.toLowerCase();
+
+      // 1. Project file (.designpro / .json)
+      if (name.endsWith('.designpro') || (name.endsWith('.json') && file.type === 'application/json')) {
+        if (window.app && window.app.export) {
+          window.app.export.importProject(file);
+          showToast(`Importing project "${file.name}"...`, 'info');
+        }
+        return;
+      }
+
+      // 2. Vector SVG
+      if (file.type === 'image/svg+xml' || name.endsWith('.svg')) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const svgString = event.target.result;
+          if (window.app && window.app.imagesTool) {
+            window.app.imagesTool.addSVGToCanvas(svgString, file.name);
+            showToast(`Added vector SVG: ${file.name}`, 'success');
+          }
+        };
+        reader.readAsText(file);
+        return;
+      }
+
+      // 3. Raster Image (PNG, JPG, WebP, GIF)
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const dataUrl = event.target.result;
+          if (fabricCanvas) {
+            fabric.Image.fromURL(dataUrl, (img) => {
+              const maxDim = 500;
+              const scale = Math.min(maxDim / img.width, maxDim / img.height, 1);
+              img.set({
+                scaleX: scale,
+                scaleY: scale,
+                left: dropLeft,
+                top: dropTop,
+                originX: 'center',
+                originY: 'center',
+                cornerColor: '#0ea5e9',
+                cornerStyle: 'circle',
+                borderColor: '#0ea5e9',
+                transparentCorners: false,
+              });
+              fabricCanvas.add(img);
+              fabricCanvas.setActiveObject(img);
+              fabricCanvas.renderAll();
+              if (canvasMgr) canvasMgr.recordState();
+              showToast(`Added image: ${file.name}`, 'success');
+            });
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }, false);
+}
+
+function setupGlobalPaste() {
+  window.addEventListener('paste', (e) => {
+    // If user is focused on an input/textarea/editable, let native paste handle it
+    const activeEl = document.activeElement;
+    if (activeEl) {
+      const tag = activeEl.tagName.toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || tag === 'select' || activeEl.isContentEditable) {
+        return;
+      }
+    }
+
+    const fabricCanvas = window.app && window.app.canvas;
+    const canvasMgr = window.app && window.app.canvasManager;
+    const activeObj = fabricCanvas ? fabricCanvas.getActiveObject() : null;
+
+    // If currently editing text on canvas, let Fabric text editing handle it
+    if (activeObj && activeObj.isEditing) {
+      return;
+    }
+
+    // If canvas manager has an internal copied element, internal paste handles it
+    if (canvasMgr && canvasMgr.clipboard) {
+      return;
+    }
+
+    const clipboardData = e.clipboardData;
+    if (!clipboardData) return;
+
+    // Check for images in clipboard (e.g. OS screenshot or copied image from browser)
+    const items = clipboardData.items;
+    let imageItem = null;
+
+    if (items) {
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type && items[i].type.startsWith('image/')) {
+          imageItem = items[i];
+          break;
+        }
+      }
+    }
+
+    if (imageItem) {
+      e.preventDefault();
+      const blob = imageItem.getAsFile();
+      if (!blob) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const dataUrl = event.target.result;
+        if (fabricCanvas) {
+          fabric.Image.fromURL(dataUrl, (img) => {
+            const artW = canvasMgr ? canvasMgr.artboardWidth : 1080;
+            const artH = canvasMgr ? canvasMgr.artboardHeight : 1080;
+            const maxDim = Math.min(artW * 0.6, artH * 0.6, 600);
+            const scale = Math.min(maxDim / img.width, maxDim / img.height, 1);
+            img.set({
+              scaleX: scale,
+              scaleY: scale,
+              left: artW / 2,
+              top: artH / 2,
+              originX: 'center',
+              originY: 'center',
+              cornerColor: '#0ea5e9',
+              cornerStyle: 'circle',
+              borderColor: '#0ea5e9',
+              transparentCorners: false,
+            });
+            fabricCanvas.add(img);
+            fabricCanvas.setActiveObject(img);
+            fabricCanvas.renderAll();
+            if (canvasMgr) canvasMgr.recordState();
+            showToast('Pasted image from clipboard onto canvas!', 'success');
+          });
+        }
+      };
+      reader.readAsDataURL(blob);
+      return;
+    }
+
+    // Check for plain text or SVG string in clipboard
+    const pastedText = clipboardData.getData('text/plain');
+    if (pastedText && pastedText.trim()) {
+      const trimmed = pastedText.trim();
+      // If SVG markup
+      if (trimmed.startsWith('<svg') && trimmed.endsWith('</svg>')) {
+        e.preventDefault();
+        if (window.app && window.app.imagesTool) {
+          window.app.imagesTool.addSVGToCanvas(trimmed, 'Clipboard SVG');
+          showToast('Pasted vector SVG from clipboard!', 'success');
+        }
+        return;
+      }
+
+      // If URL to image
+      if (/^https?:\/\/.*\.(png|jpg|jpeg|webp|gif|svg)(\?.*)?$/i.test(trimmed)) {
+        e.preventDefault();
+        if (trimmed.toLowerCase().includes('.svg')) {
+          fetch(trimmed)
+            .then(res => res.text())
+            .then(svgText => {
+              if (window.app && window.app.imagesTool) {
+                window.app.imagesTool.addSVGToCanvas(svgText, 'Pasted Web SVG');
+              }
+            })
+            .catch(() => {
+              if (window.app && window.app.imagesTool) {
+                window.app.imagesTool.addImageToCanvas(trimmed, 'Pasted Web Image');
+              }
+            });
+        } else if (window.app && window.app.imagesTool) {
+          window.app.imagesTool.addImageToCanvas(trimmed, 'Pasted Web Image');
+        }
+        showToast('Pasted web image onto canvas!', 'success');
+        return;
+      }
+
+      // Plain text paste onto canvas if no text input is focused
+      e.preventDefault();
+      if (fabricCanvas) {
+        const artW = canvasMgr ? canvasMgr.artboardWidth : 1080;
+        const artH = canvasMgr ? canvasMgr.artboardHeight : 1080;
+        const iText = new fabric.IText(trimmed, {
+          left: artW / 2,
+          top: artH / 2,
+          originX: 'center',
+          originY: 'center',
+          fontFamily: 'Inter',
+          fontSize: 32,
+          fill: '#1e293b',
+          cornerColor: '#0ea5e9',
+          cornerStyle: 'circle',
+          borderColor: '#0ea5e9',
+          transparentCorners: false,
+        });
+        fabricCanvas.add(iText);
+        fabricCanvas.setActiveObject(iText);
+        fabricCanvas.renderAll();
+        if (canvasMgr) canvasMgr.recordState();
+        showToast('Pasted text onto canvas!', 'success');
+      }
+    }
+  });
 }
 
 
