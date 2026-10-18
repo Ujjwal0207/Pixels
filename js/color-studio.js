@@ -25,27 +25,89 @@
      * Native Eyedropper API
      */
     async pickScreenColor() {
-      if (typeof window.EyeDropper === 'undefined') {
-        if (window.showToast) {
-          window.showToast('EyeDropper is supported in Chrome, Edge, and Opera.', 'info');
+      if (typeof window.EyeDropper !== 'undefined') {
+        try {
+          const eyeDropper = new window.EyeDropper();
+          const result = await eyeDropper.open();
+          if (result && result.sRGBHex) {
+            this.applyColorToSelected(result.sRGBHex);
+            if (window.showToast) {
+              window.showToast(`Picked color: ${result.sRGBHex}`, 'success');
+            }
+            return result.sRGBHex;
+          }
+          return null;
+        } catch (e) {
+          // User canceled native eyedropper
+          return null;
         }
-        return null;
       }
 
-      try {
-        const eyeDropper = new window.EyeDropper();
-        const result = await eyeDropper.open();
-        if (result && result.sRGBHex) {
-          this.applyColorToSelected(result.sRGBHex);
-          if (window.showToast) {
-            window.showToast(`Picked color: ${result.sRGBHex}`, 'success');
-          }
-          return result.sRGBHex;
-        }
-      } catch (e) {
-        // User canceled eyedropper
-        return null;
+      // Universal In-Canvas Eyedropper Fallback (Safari, Firefox, Mobile)
+      return this.activateCanvasColorSampler();
+    }
+
+    /**
+     * Cross-Browser Canvas Color Sampler Fallback
+     */
+    activateCanvasColorSampler() {
+      if (!this.canvas) return null;
+      const upperCanvas = this.canvas.upperCanvasEl;
+      const lowerCanvas = this.canvas.lowerCanvasEl;
+      if (!upperCanvas || !lowerCanvas) return null;
+
+      const originalCursor = upperCanvas.style.cursor;
+      upperCanvas.style.cursor = 'crosshair';
+
+      if (window.showToast) {
+        window.showToast('Click any element or photo on canvas to sample color (Esc to cancel)', 'info');
       }
+
+      return new Promise((resolve) => {
+        const cleanup = () => {
+          upperCanvas.style.cursor = originalCursor;
+          upperCanvas.removeEventListener('click', onClick, true);
+          window.removeEventListener('keydown', onKeyDown, true);
+        };
+
+        const onKeyDown = (e) => {
+          if (e.key === 'Escape') {
+            cleanup();
+            if (window.showToast) window.showToast('Color sampler canceled', 'info');
+            resolve(null);
+          }
+        };
+
+        const onClick = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+
+          const rect = lowerCanvas.getBoundingClientRect();
+          const scaleX = lowerCanvas.width / (rect.width || 1);
+          const scaleY = lowerCanvas.height / (rect.height || 1);
+          const x = Math.min(lowerCanvas.width - 1, Math.max(0, Math.round((e.clientX - rect.left) * scaleX)));
+          const y = Math.min(lowerCanvas.height - 1, Math.max(0, Math.round((e.clientY - rect.top) * scaleY)));
+
+          try {
+            const ctx = lowerCanvas.getContext('2d');
+            const pixel = ctx.getImageData(x, y, 1, 1).data;
+            const hex = `#${pixel[0].toString(16).padStart(2, '0')}${pixel[1].toString(16).padStart(2, '0')}${pixel[2].toString(16).padStart(2, '0')}`;
+
+            cleanup();
+            this.applyColorToSelected(hex);
+            if (window.showToast) {
+              window.showToast(`Sampled color: ${hex}`, 'success');
+            }
+            resolve(hex);
+          } catch (err) {
+            cleanup();
+            resolve(null);
+          }
+        };
+
+        upperCanvas.addEventListener('click', onClick, { once: true, capture: true });
+        window.addEventListener('keydown', onKeyDown, { once: true, capture: true });
+      });
     }
 
     applyColorToSelected(hex) {
