@@ -60,12 +60,23 @@ class StudioProSuite {
         if (picker) picker.value = hexColor;
         const preview = document.getElementById('text-color-preview');
         if (preview) preview.style.background = hexColor;
-      } else if (active.type === 'group') {
+      } else if (active.type === 'group' || active.type === 'activeSelection') {
         active.forEachObject((obj) => {
-          if (obj.type !== 'text') obj.set('fill', hexColor);
+          if (obj.type === 'line') {
+            obj.set('stroke', hexColor);
+          } else if (obj.type !== 'text') {
+            obj.set('fill', hexColor);
+          }
+          obj.dirty = true;
         });
+        active.dirty = true;
+        const picker = document.getElementById('shape-fill-picker');
+        if (picker) picker.value = hexColor;
+        const preview = document.getElementById('shape-fill-preview');
+        if (preview) preview.style.background = hexColor;
       } else {
         active.set('fill', hexColor);
+        active.dirty = true;
         const picker = document.getElementById('shape-fill-picker');
         if (picker) picker.value = hexColor;
         const preview = document.getElementById('shape-fill-preview');
