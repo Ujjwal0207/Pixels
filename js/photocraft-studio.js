@@ -52,7 +52,10 @@ class PhotoCraftStudio {
     if (!img) return;
 
     const adj = this.ensureAdjustments(img);
-    adj[key] = parseFloat(value);
+    const fallback = this.defaultAdjustments[key] !== undefined ? this.defaultAdjustments[key] : 0;
+    adj[key] = (window.AppUtils && window.AppUtils.safeParseFloat)
+      ? window.AppUtils.safeParseFloat(value, fallback)
+      : (Number.isFinite(parseFloat(value)) ? parseFloat(value) : fallback);
     this.applyAllAdjustments(img);
   }
 
@@ -256,7 +259,9 @@ class PhotoCraftStudio {
 
     active.set({
       stroke: color,
-      strokeWidth: parseInt(width, 10) || 0
+      strokeWidth: (window.AppUtils && window.AppUtils.safeParseInt)
+        ? window.AppUtils.safeParseInt(width, 0)
+        : (Number.isFinite(parseInt(width, 10)) ? parseInt(width, 10) : 0)
     });
 
     this.canvas.renderAll();
