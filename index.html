@@ -22,6 +22,9 @@
   <!-- jsPDF Engine (High-res native PDF Export) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
+  <!-- PeerJS WebRTC P2P DataChannels Engine -->
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+
   <!-- App Stylesheets -->
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/extra.css">
@@ -157,6 +160,13 @@
           Present
         </button>
 
+        <!-- Real-Time Multiplayer Collaboration -->
+        <button id="btn-open-collab" class="btn-secondary" title="Real-Time Multiplayer Collaboration" style="font-weight: 600; display: inline-flex; align-items: center; gap: 6px; border-color: rgba(124, 58, 237, 0.3); background: rgba(124, 58, 237, 0.05); color: var(--accent-purple);">
+          <span id="collab-status-dot" style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10b981;"></span>
+          <span>👥 Collaborate</span>
+          <span id="collab-peer-count" class="badge" style="background: var(--accent-purple); color: white; border-radius: 10px; padding: 1px 6px; font-size: 0.68rem; display: none;">1</span>
+        </button>
+
         <!-- Primary Export Button -->
         <button id="btn-open-export" class="btn-primary" title="Export Design (PNG, JPG, SVG, PDF)">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -288,6 +298,31 @@
           <!-- TAB 1: TEMPLATES -->
           <div class="sidebar-panel-content" data-panel="templates" style="display: flex; flex-direction: column; gap: 14px;">
             
+            <!-- Template Action Bar: Save to My Templates & Smart Layouts -->
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <button id="btn-save-as-custom-template" class="btn-primary" style="width: 100%; font-size: 0.82rem; font-weight: 700; justify-content: center; gap: 6px;">
+                <span>⭐</span>
+                <span>Save Design to My Templates</span>
+              </button>
+              
+              <div style="display: flex; gap: 6px;">
+                <button id="btn-open-smart-layout" class="btn-secondary" style="flex: 1; font-size: 0.76rem; font-weight: 600; justify-content: center; gap: 4px;">
+                  <span>✨</span>
+                  <span>Smart Layouts</span>
+                </button>
+                <button id="btn-export-template-pack" class="btn-secondary" style="font-size: 0.74rem; padding: 0 8px;" title="Export all custom templates as .designpro-pack">
+                  📦 Pack
+                </button>
+                <input type="file" id="input-import-template-pack" accept=".designpro-pack,.json" style="display: none;" />
+                <button id="btn-import-template-pack" class="btn-secondary" style="font-size: 0.74rem; padding: 0 8px;" title="Import .designpro-pack">
+                  📥 Import
+                </button>
+              </div>
+            </div>
+
+            <!-- Search Bar -->
+            <input type="text" id="template-search-input" class="sidebar-search-input" placeholder="🔍 Search templates & categories..." />
+
             <!-- Category Filter Bar -->
             <div class="category-filter-bar">
               <button class="category-pill active" data-category="all">All</button>
@@ -298,7 +333,14 @@
               <button class="category-pill" data-category="events">Events</button>
             </div>
 
-            <div class="section-label">Designer Presets</div>
+            <!-- My Saved Templates Vault -->
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <span class="section-label" style="margin: 0;">⭐ My Saved Templates</span>
+              <span id="my-templates-count" class="badge" style="background: var(--accent-purple); color: white; border-radius: 10px; padding: 2px 7px; font-size: 0.7rem;">0</span>
+            </div>
+            <div id="my-templates-grid" class="templates-grid" style="min-height: 40px;"></div>
+
+            <div class="section-label">🎨 Community & Designer Presets</div>
             <div id="templates-grid" class="templates-grid">
               
               <!-- Template 1: Flash Sale -->
@@ -1816,6 +1858,98 @@
       </div>
     </dialog>
 
+    <!-- Real-Time Multiplayer Collaboration Modal -->
+    <dialog id="collaboration-modal" class="modal">
+      <div class="modal-content" style="max-width: 480px;">
+        <div class="modal-header">
+          <h3 style="display: flex; align-items: center; gap: 8px;">
+            <span>👥</span>
+            <span>Real-Time Collaboration</span>
+          </h3>
+          <button id="btn-close-collab-modal" class="btn-close-modal">✕</button>
+        </div>
+        <div class="modal-body" style="display: flex; flex-direction: column; gap: 16px;">
+          <!-- Profile Customization -->
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <div style="flex: 1;">
+              <label style="font-size: 12px; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 4px;">Your Display Name</label>
+              <input type="text" id="collab-name-input" class="sidebar-search-input" style="width: 100%;" placeholder="Enter your name" />
+            </div>
+            <button id="btn-save-collab-name" class="btn-secondary" style="height: 38px; margin-top: 18px; font-size: 12px;">Save</button>
+          </div>
+
+          <!-- Room Link Sharing -->
+          <div>
+            <label style="font-size: 12px; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 4px;">Invite Teammates</label>
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="collab-room-link-input" readonly class="sidebar-search-input" style="flex: 1; font-family: monospace; font-size: 11px; color: var(--text-muted);" />
+              <button id="btn-copy-collab-link" class="btn-primary" style="white-space: nowrap; font-size: 12px;">📋 Copy Link</button>
+            </div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Anyone with this link can join your artboard, see live cursors, and edit together in real-time.</div>
+          </div>
+
+          <!-- Room Switcher -->
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <input type="text" id="collab-room-input" class="sidebar-search-input" style="flex: 1;" placeholder="Enter Room ID" />
+            <button id="btn-switch-room" class="btn-secondary" style="font-size: 12px;">Join Room</button>
+            <button id="btn-disconnect-collab" class="btn-secondary" style="font-size: 12px; color: var(--accent-rose);">Leave</button>
+          </div>
+
+          <!-- Active Participants List -->
+          <div>
+            <div style="font-size: 12px; font-weight: 700; margin-bottom: 6px;">Active Collaborators in Room</div>
+            <div id="collab-peers-list" style="max-height: 140px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 12px; background: rgba(0,0,0,0.02);">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-done-collab" class="btn-secondary" style="width: 100%;">Done</button>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Procedural Smart Layout Generator Modal -->
+    <dialog id="smart-layout-modal" class="modal">
+      <div class="modal-content" style="max-width: 680px;">
+        <div class="modal-header">
+          <h3 style="display: flex; align-items: center; gap: 8px;">
+            <span>✨</span>
+            <span>Procedural Smart Layout Generator</span>
+          </h3>
+          <button id="btn-close-smart-layout-modal" class="btn-close-modal">✕</button>
+        </div>
+        <div class="modal-body" style="display: flex; flex-direction: column; gap: 16px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div>
+              <label style="font-size: 12px; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 4px;">Headline</label>
+              <input type="text" id="smart-headline-input" class="sidebar-search-input" value="SUMMER DISCOUNT" style="width: 100%;" />
+            </div>
+            <div>
+              <label style="font-size: 12px; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 4px;">Badge / Category Tag</label>
+              <input type="text" id="smart-tag-input" class="sidebar-search-input" value="FLASH SALE 50%" style="width: 100%;" />
+            </div>
+            <div>
+              <label style="font-size: 12px; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 4px;">Subheadline / Body</label>
+              <input type="text" id="smart-subhead-input" class="sidebar-search-input" value="Explore the limited edition collection before midnight." style="width: 100%;" />
+            </div>
+            <div>
+              <label style="font-size: 12px; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 4px;">Call to Action Button</label>
+              <input type="text" id="smart-cta-input" class="sidebar-search-input" value="SHOP NOW →" style="width: 100%;" />
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <button id="btn-generate-smart-layouts" class="btn-primary" style="flex: 1; height: 38px; font-weight: 700;">✨ Generate 6 Layout Variations</button>
+          </div>
+
+          <div>
+            <div style="font-size: 12px; font-weight: 700; margin-bottom: 8px;">Click any layout to apply instantly to artboard:</div>
+            <div id="smart-layout-variations-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-height: 320px; overflow-y: auto;"></div>
+          </div>
+        </div>
+      </div>
+    </dialog>
+
     <!-- Toast Notifications Container -->
     <div id="toast-container" class="toast-container"></div>
 
@@ -1851,6 +1985,8 @@
   <script src="js/mockup-3d.js"></script>
   <script src="js/video-timeline.js"></script>
   <script src="js/color-studio.js"></script>
+  <script src="js/smart-layout.js"></script>
+  <script src="js/collaboration.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
