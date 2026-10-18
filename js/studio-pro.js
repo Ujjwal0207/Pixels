@@ -148,38 +148,44 @@ class StudioProSuite {
       return;
     }
 
-    const artboardW = this.canvas.width;
-    const artboardH = this.canvas.height;
+    const artboardW = this.canvasManager ? this.canvasManager.artboardWidth : (this.canvas.width / (this.canvas.getZoom() || 1));
+    const artboardH = this.canvasManager ? this.canvasManager.artboardHeight : (this.canvas.height / (this.canvas.getZoom() || 1));
 
     // Check if multiple objects selected via ActiveSelection
     if (active.type === 'activeSelection') {
       const objects = active.getObjects();
 
       objects.forEach((obj) => {
+        const objW = (obj.width || 0) * (obj.scaleX || 1);
+        const objH = (obj.height || 0) * (obj.scaleY || 1);
+
         switch (direction) {
           case 'left':
-            obj.set('left', -active.width / 2 + (obj.width * obj.scaleX) / 2);
+            obj.set('left', -active.width / 2 + objW / 2);
             break;
           case 'center':
             obj.set('left', 0);
             break;
           case 'right':
-            obj.set('left', active.width / 2 - (obj.width * obj.scaleX) / 2);
+            obj.set('left', active.width / 2 - objW / 2);
             break;
           case 'top':
-            obj.set('top', -active.height / 2 + (obj.height * obj.scaleY) / 2);
+            obj.set('top', -active.height / 2 + objH / 2);
             break;
           case 'middle':
             obj.set('top', 0);
             break;
           case 'bottom':
-            obj.set('top', active.height / 2 - (obj.height * obj.scaleY) / 2);
+            obj.set('top', active.height / 2 - objH / 2);
             break;
         }
         obj.setCoords();
       });
+
+      active.setCoords();
+      active.dirty = true;
     } else {
-      // Single object relative to Artboard
+      // Single object relative to canonical Artboard dimensions
       switch (direction) {
         case 'left':
           active.setPositionByOrigin(new fabric.Point(0, active.top), 'left', active.originY || 'top');
@@ -208,6 +214,7 @@ class StudioProSuite {
     if (window.showToast) window.showToast(`Aligned ${direction}`, 'success');
   }
 
+  // Equal-Gap Spacing Distribution (Canva Pro / Figma standard)
   distribute(axis) {
     const active = this.canvas.getActiveObject();
     if (!active || active.type !== 'activeSelection') {
@@ -224,26 +231,46 @@ class StudioProSuite {
     if (axis === 'horizontal') {
       objects.sort((a, b) => a.left - b.left);
       const minLeft = objects[0].left;
-      const maxLeft = objects[objects.length - 1].left;
-      const step = (maxLeft - minLeft) / (objects.length - 1);
-      objects.forEach((obj, idx) => {
-        obj.set('left', minLeft + step * idx);
+      const lastObj = objects[objects.length - 1];
+      const lastObjW = (lastObj.width || 0) * (lastObj.scaleX || 1);
+      const maxRight = lastObj.left + lastObjW;
+      const totalObjWidth = objects.reduce((sum, o) => sum + ((o.width || 0) * (o.scaleX || 1)), 0);
+      const totalSpan = maxRight - minLeft;
+      const availableSpace = totalSpan - totalObjWidth;
+      const gap = availableSpace / (objects.length - 1);
+
+      let currentX = minLeft;
+      objects.forEach((obj) => {
+        const objW = (obj.width || 0) * (obj.scaleX || 1);
+        obj.set('left', currentX);
         obj.setCoords();
+        currentX += objW + gap;
       });
     } else if (axis === 'vertical') {
       objects.sort((a, b) => a.top - b.top);
       const minTop = objects[0].top;
-      const maxTop = objects[objects.length - 1].top;
-      const step = (maxTop - minTop) / (objects.length - 1);
-      objects.forEach((obj, idx) => {
-        obj.set('top', minTop + step * idx);
+      const lastObj = objects[objects.length - 1];
+      const lastObjH = (lastObj.height || 0) * (lastObj.scaleY || 1);
+      const maxBottom = lastObj.top + lastObjH;
+      const totalObjHeight = objects.reduce((sum, o) => sum + ((o.height || 0) * (o.scaleY || 1)), 0);
+      const totalSpan = maxBottom - minTop;
+      const availableSpace = totalSpan - totalObjHeight;
+      const gap = availableSpace / (objects.length - 1);
+
+      let currentY = minTop;
+      objects.forEach((obj) => {
+        const objH = (obj.height || 0) * (obj.scaleY || 1);
+        obj.set('top', currentY);
         obj.setCoords();
+        currentY += objH + gap;
       });
     }
 
+    active.setCoords();
+    active.dirty = true;
     this.canvas.renderAll();
     this.canvasManager.recordState();
-    if (window.showToast) window.showToast(`Distributed ${axis}ly`, 'success');
+    if (window.showToast) window.showToast(`Distributed ${axis}ly with equal spacing`, 'success');
   }
 
   groupSelected() {
@@ -422,6 +449,7 @@ class StudioProSuite {
 
     fabric.Image.fromURL(dataUrl, (newImg) => {
       newImg.set({
+        id: active.id,
         left: active.left,
         top: active.top,
         originX: active.originX,
@@ -429,6 +457,17 @@ class StudioProSuite {
         scaleX: active.scaleX,
         scaleY: active.scaleY,
         angle: active.angle,
+        opacity: active.opacity !== undefined ? active.opacity : 1,
+        globalCompositeOperation: active.globalCompositeOperation || 'source-over',
+        clipPath: active.clipPath || null,
+        shadow: active.shadow || null,
+        selectable: active.selectable !== undefined ? active.selectable : true,
+        evented: active.evented !== undefined ? active.evented : true,
+        lockMovementX: !!active.lockMovementX,
+        lockMovementY: !!active.lockMovementY,
+        lockRotation: !!active.lockRotation,
+        lockScalingX: !!active.lockScalingX,
+        lockScalingY: !!active.lockScalingY,
         name: `${active.name || 'Photo'} (${duotoneStyle})`,
       });
 
