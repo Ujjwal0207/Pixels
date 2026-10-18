@@ -17,8 +17,8 @@ class TemplatesEngine {
   loadTemplate(templateKey) {
     if (this.canvasManager) this.canvasManager.isBatchLoading = true;
     this.canvas.clear();
-    const w = this.canvas.width;
-    const h = this.canvas.height;
+    const w = this.canvasManager ? this.canvasManager.artboardWidth : (this.canvas.width / (this.canvas.getZoom() || 1));
+    const h = this.canvasManager ? this.canvasManager.artboardHeight : (this.canvas.height / (this.canvas.getZoom() || 1));
     const cx = w / 2;
     const cy = h / 2;
 
