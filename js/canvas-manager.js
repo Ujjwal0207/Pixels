@@ -193,6 +193,77 @@ class CanvasManager {
     window.addEventListener('resize', () => {
       this.fitToScreen();
     });
+
+    // Wheel zoom & pan handling (Ctrl/Cmd + Wheel to zoom, Trackpad pinch)
+    const scrollContainer = document.getElementById('canvas-scroll-container');
+    if (scrollContainer) {
+      scrollContainer.addEventListener('wheel', (e) => {
+        if (e.ctrlKey || e.metaKey) {
+          e.preventDefault();
+          const delta = e.deltaY;
+          const zoomDelta = delta > 0 ? -0.05 : 0.05;
+          this.setZoom(this.zoomLevel + zoomDelta);
+        }
+      }, { passive: false });
+
+      // Spacebar + Drag Panning (Figma/Canva Pro style)
+      let isSpaceDown = false;
+      let isPanning = false;
+      let startX = 0;
+      let startY = 0;
+      let startScrollLeft = 0;
+      let startScrollTop = 0;
+
+      window.addEventListener('keydown', (e) => {
+        if (e.code === 'Space' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) {
+          if (!isSpaceDown) {
+            isSpaceDown = true;
+            scrollContainer.style.cursor = 'grab';
+          }
+        }
+      });
+
+      window.addEventListener('keyup', (e) => {
+        if (e.code === 'Space') {
+          isSpaceDown = false;
+          isPanning = false;
+          scrollContainer.style.cursor = 'default';
+        }
+      });
+
+      scrollContainer.addEventListener('mousedown', (e) => {
+        if (isSpaceDown) {
+          isPanning = true;
+          startX = e.clientX;
+          startY = e.clientY;
+          startScrollLeft = scrollContainer.scrollLeft;
+          startScrollTop = scrollContainer.scrollTop;
+          scrollContainer.style.cursor = 'grabbing';
+          e.preventDefault();
+        }
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (isPanning && scrollContainer) {
+          const dx = e.clientX - startX;
+          const dy = e.clientY - startY;
+          scrollContainer.scrollLeft = startScrollLeft - dx;
+          scrollContainer.scrollTop = startScrollTop - dy;
+          if (window.app && window.app.rulersGuides) {
+            window.app.rulersGuides.renderRulers();
+          }
+        }
+      });
+
+      window.addEventListener('mouseup', () => {
+        if (isPanning) {
+          isPanning = false;
+          if (scrollContainer) {
+            scrollContainer.style.cursor = isSpaceDown ? 'grab' : 'default';
+          }
+        }
+      });
+    }
   }
 
   onSelectionChange(e) {
@@ -222,8 +293,10 @@ class CanvasManager {
 
   // Resize Artboard
   setArtboardSize(width, height) {
-    this.artboardWidth = parseInt(width, 10);
-    this.artboardHeight = parseInt(height, 10);
+    const safeW = (window.AppUtils ? window.AppUtils.safeParseInt(width, 1080, 10, 10000) : parseInt(width, 10)) || 1080;
+    const safeH = (window.AppUtils ? window.AppUtils.safeParseInt(height, 1080, 10, 10000) : parseInt(height, 10)) || 1080;
+    this.artboardWidth = safeW;
+    this.artboardHeight = safeH;
 
     const artboardContainer = document.getElementById('artboard-container');
     if (artboardContainer) {
@@ -231,9 +304,11 @@ class CanvasManager {
       artboardContainer.style.height = `${this.artboardHeight}px`;
     }
 
-    this.canvas.setWidth(this.artboardWidth);
-    this.canvas.setHeight(this.artboardHeight);
-    this.canvas.renderAll();
+    if (this.canvas) {
+      this.canvas.setWidth(this.artboardWidth);
+      this.canvas.setHeight(this.artboardHeight);
+      this.canvas.renderAll();
+    }
 
     // Update status badge
     const badge = document.getElementById('canvas-dimensions-badge');
@@ -245,22 +320,35 @@ class CanvasManager {
     this.recordState();
   }
 
-  // Zoom Handling
+  // Zoom Handling (True Sub-Pixel Vector Resolution without CSS Blur)
   setZoom(level) {
-    this.zoomLevel = Math.min(Math.max(level, this.minZoom), this.maxZoom);
+    const rawZoom = (window.AppUtils ? window.AppUtils.clamp(level, this.minZoom, this.maxZoom) : Math.min(Math.max(level, this.minZoom), this.maxZoom));
+    this.zoomLevel = Math.round(rawZoom * 100) / 100;
+
+    const targetW = Math.round(this.artboardWidth * this.zoomLevel);
+    const targetH = Math.round(this.artboardHeight * this.zoomLevel);
+
     const artboardContainer = document.getElementById('artboard-container');
     if (artboardContainer) {
-      artboardContainer.style.transform = `scale(${this.zoomLevel})`;
-      artboardContainer.style.transformOrigin = 'center center';
+      artboardContainer.style.width = `${targetW}px`;
+      artboardContainer.style.height = `${targetH}px`;
+      artboardContainer.style.transform = 'none'; // Sub-pixel sharp rendering
     }
 
     if (this.canvas) {
+      this.canvas.setDimensions({ width: targetW, height: targetH });
+      this.canvas.setZoom(this.zoomLevel);
       this.canvas.calcOffset();
+      this.canvas.requestRenderAll();
     }
 
     const zoomText = document.getElementById('zoom-percentage-text');
     if (zoomText) {
       zoomText.textContent = `${Math.round(this.zoomLevel * 100)}%`;
+    }
+
+    if (window.app && window.app.rulersGuides) {
+      window.app.rulersGuides.renderRulers();
     }
   }
 
