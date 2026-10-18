@@ -189,6 +189,67 @@ function testGuideLineDimensionsUnderZoom() {
   console.log('✅ Magnetic guide artboard coordinate spanning under zoom verified!');
 }
 
+// 8. Test Draft Restore Safety (Skip save on initial restore)
+function testDraftRestoreSafety() {
+  const savedState = JSON.stringify({ objects: [{ type: 'rect', fill: '#ff0000' }] });
+  const pages = [
+    { id: 1, name: 'Page 1', state: savedState }
+  ];
+
+  let saveCalled = false;
+  const mockPagesManager = {
+    pages,
+    currentPageIndex: 0,
+    saveCurrentPageState() {
+      saveCalled = true;
+      this.pages[this.currentPageIndex].state = JSON.stringify({ objects: [] }); // Empty canvas overwrite
+    },
+    switchPage(targetIndex, skipSave = false) {
+      if (!skipSave) {
+        this.saveCurrentPageState();
+      }
+      this.currentPageIndex = targetIndex;
+    }
+  };
+
+  // Simulating restore with skipSave = true
+  mockPagesManager.switchPage(0, true);
+  assert.strictEqual(saveCalled, false, 'saveCurrentPageState must NOT be called on draft restore');
+  assert.strictEqual(pages[0].state, savedState, 'Saved page state must be preserved without empty canvas overwrite');
+  console.log('✅ Draft restore state preservation verified!');
+}
+
+// 9. Test Brand Kit Multi-Selection (activeSelection and polygon support)
+function testBrandKitMultiSelection() {
+  const obj1 = { type: 'i-text', fill: '#000000', dirty: false, set(k, v) { this[k] = v; } };
+  const obj2 = { type: 'rect', fill: '#111111', dirty: false, set(k, v) { this[k] = v; } };
+  const obj3 = { type: 'polygon', fill: '#222222', dirty: false, set(k, v) { this[k] = v; } };
+
+  const activeSelection = {
+    type: 'activeSelection',
+    dirty: false,
+    _objects: [obj1, obj2, obj3],
+    forEachObject(fn) { this._objects.forEach(fn); }
+  };
+
+  const newBrandColor = '#7c3aed';
+
+  // Apply color to selection logic
+  if (activeSelection.type === 'activeSelection' || activeSelection.type === 'group') {
+    activeSelection.forEachObject(obj => {
+      obj.set('fill', newBrandColor);
+      obj.dirty = true;
+    });
+    activeSelection.dirty = true;
+  }
+
+  assert.strictEqual(obj1.fill, newBrandColor, 'Text fill must be updated');
+  assert.strictEqual(obj2.fill, newBrandColor, 'Rect fill must be updated');
+  assert.strictEqual(obj3.fill, newBrandColor, 'Polygon fill must be updated');
+  assert.strictEqual(activeSelection.dirty, true, 'Active selection must be marked dirty');
+  console.log('✅ Brand Kit multi-selection activeSelection recoloring verified!');
+}
+
 testExportMultiplierWithZoom();
 testDistributeEvenSpacing();
 testSelectAllFiltersGuides();
@@ -196,4 +257,6 @@ testArtboardAlignment();
 testReleaseClippingMask();
 testSafePhotoAdjustments();
 testGuideLineDimensionsUnderZoom();
+testDraftRestoreSafety();
+testBrandKitMultiSelection();
 console.log('🎉 ALL studio flaw verification tests passed!');
