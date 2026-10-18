@@ -402,6 +402,7 @@ window.app.updateContextToolbar = function (selected) {
     const fontSelect = document.getElementById('text-font-family');
     const sizeInput = document.getElementById('text-font-size');
     const colorPicker = document.getElementById('text-color-picker');
+    const colorPreview = document.getElementById('text-color-preview');
     const boldBtn = document.getElementById('btn-text-bold');
     const italicBtn = document.getElementById('btn-text-italic');
     const underlineBtn = document.getElementById('btn-text-underline');
@@ -410,7 +411,9 @@ window.app.updateContextToolbar = function (selected) {
 
     if (fontSelect) fontSelect.value = obj.fontFamily || 'Outfit';
     if (sizeInput) sizeInput.value = Math.round(obj.fontSize) || 40;
-    if (colorPicker) colorPicker.value = obj.fill || '#000000';
+    const textFillHex = window.AppUtils ? window.AppUtils.colorToHex(obj.fill, '#0f172a') : '#0f172a';
+    if (colorPicker) colorPicker.value = textFillHex;
+    if (colorPreview) colorPreview.style.background = typeof obj.fill === 'string' ? obj.fill : textFillHex;
     if (boldBtn) boldBtn.classList.toggle('active', obj.fontWeight === 'bold');
     if (italicBtn) italicBtn.classList.toggle('active', obj.fontStyle === 'italic');
     if (underlineBtn) underlineBtn.classList.toggle('active', !!obj.underline);
@@ -419,14 +422,31 @@ window.app.updateContextToolbar = function (selected) {
   } else if (obj.type === 'image') {
     imageControls.style.display = 'flex';
   } else {
-    // Shapes, Lines, Polygons
+    // Shapes, Lines, Polygons, Groups
     shapeControls.style.display = 'flex';
     const shapeFillPicker = document.getElementById('shape-fill-picker');
+    const shapeFillPreview = document.getElementById('shape-fill-preview');
     const shapeStrokePicker = document.getElementById('shape-stroke-picker');
+    const shapeStrokePreview = document.getElementById('shape-stroke-preview');
     const strokeWidthInput = document.getElementById('shape-stroke-width');
 
-    if (shapeFillPicker && obj.fill) shapeFillPicker.value = typeof obj.fill === 'string' ? obj.fill : '#7c3aed';
-    if (shapeStrokePicker && obj.stroke) shapeStrokePicker.value = obj.stroke;
+    let currentFill = obj.fill;
+    if ((!currentFill || currentFill === 'none') && (obj.type === 'group' || obj.type === 'activeSelection') && obj.getObjects) {
+      const childWithFill = obj.getObjects().find(o => o.fill && o.fill !== 'none');
+      if (childWithFill) currentFill = childWithFill.fill;
+    }
+    const fillHex = window.AppUtils ? window.AppUtils.colorToHex(currentFill, '#7c3aed') : '#7c3aed';
+    if (shapeFillPicker) shapeFillPicker.value = fillHex;
+    if (shapeFillPreview) shapeFillPreview.style.background = typeof currentFill === 'string' ? currentFill : fillHex;
+
+    let currentStroke = obj.stroke;
+    if (!currentStroke && (obj.type === 'group' || obj.type === 'activeSelection') && obj.getObjects) {
+      const childWithStroke = obj.getObjects().find(o => o.stroke);
+      if (childWithStroke) currentStroke = childWithStroke.stroke;
+    }
+    const strokeHex = window.AppUtils ? window.AppUtils.colorToHex(currentStroke, '#000000') : '#000000';
+    if (shapeStrokePicker && currentStroke) shapeStrokePicker.value = strokeHex;
+    if (shapeStrokePreview && currentStroke) shapeStrokePreview.style.background = strokeHex;
     if (strokeWidthInput) strokeWidthInput.value = obj.strokeWidth || 0;
   }
 
@@ -466,10 +486,21 @@ function setupContextToolbarEvents() {
     input.value = Math.min(500, current + 2);
     window.app.textTool.setFontSize(input.value);
   });
-  document.getElementById('text-color-picker').addEventListener('input', (e) => {
-    window.app.textTool.setTextColor(e.target.value);
-    document.getElementById('text-color-preview').style.background = e.target.value;
-  });
+  // Text Color with preview click and dual event handling
+  const textColorPicker = document.getElementById('text-color-picker');
+  const textColorPreview = document.getElementById('text-color-preview');
+  const handleTextColor = (val) => {
+    window.app.textTool.setTextColor(val);
+    if (textColorPreview) textColorPreview.style.background = val;
+  };
+  if (textColorPicker) {
+    textColorPicker.addEventListener('input', (e) => handleTextColor(e.target.value));
+    textColorPicker.addEventListener('change', (e) => handleTextColor(e.target.value));
+  }
+  if (textColorPreview && textColorPicker) {
+    textColorPreview.addEventListener('click', () => textColorPicker.click());
+  }
+
   document.getElementById('btn-text-bold').addEventListener('click', function () {
     const isBold = window.app.textTool.toggleBold();
     this.classList.toggle('active', isBold);
@@ -500,15 +531,41 @@ function setupContextToolbarEvents() {
     });
   }
 
-  // Shape Actions
-  document.getElementById('shape-fill-picker').addEventListener('input', (e) => {
-    window.app.elementsTool.setFillColor(e.target.value);
-    document.getElementById('shape-fill-preview').style.background = e.target.value;
-  });
-  document.getElementById('shape-stroke-picker').addEventListener('input', (e) => {
-    window.app.elementsTool.setStrokeColor(e.target.value);
-    document.getElementById('shape-stroke-preview').style.background = e.target.value;
-  });
+  // Shape Actions (Fill & Stroke with preview click and dual event handling)
+  const shapeFillPicker = document.getElementById('shape-fill-picker');
+  const shapeFillPreview = document.getElementById('shape-fill-preview');
+  const handleShapeFill = (val) => {
+    window.app.elementsTool.setFillColor(val);
+    if (shapeFillPreview) shapeFillPreview.style.background = val;
+  };
+  if (shapeFillPicker) {
+    shapeFillPicker.addEventListener('input', (e) => handleShapeFill(e.target.value));
+    shapeFillPicker.addEventListener('change', (e) => handleShapeFill(e.target.value));
+  }
+  if (shapeFillPreview && shapeFillPicker) {
+    shapeFillPreview.addEventListener('click', () => shapeFillPicker.click());
+  }
+
+  const shapeStrokePicker = document.getElementById('shape-stroke-picker');
+  const shapeStrokePreview = document.getElementById('shape-stroke-preview');
+  const handleShapeStroke = (val) => {
+    window.app.elementsTool.setStrokeColor(val);
+    if (shapeStrokePreview) shapeStrokePreview.style.background = val;
+  };
+  if (shapeStrokePicker) {
+    shapeStrokePicker.addEventListener('input', (e) => handleShapeStroke(e.target.value));
+    shapeStrokePicker.addEventListener('change', (e) => handleShapeStroke(e.target.value));
+  }
+  if (shapeStrokePreview && shapeStrokePicker) {
+    shapeStrokePreview.addEventListener('click', () => shapeStrokePicker.click());
+  }
+
+  const canvasBgPicker = document.getElementById('canvas-bg-picker');
+  const canvasBgPreview = document.getElementById('canvas-bg-preview');
+  if (canvasBgPreview && canvasBgPicker) {
+    canvasBgPreview.addEventListener('click', () => canvasBgPicker.click());
+  }
+
   document.getElementById('shape-stroke-width').addEventListener('input', (e) => {
     window.app.elementsTool.setStrokeWidth(e.target.value);
   });
@@ -1001,39 +1058,75 @@ function setupDrawTab() {
 
 // Background Tab
 function setupBackgroundTab() {
-  // Solid color swatches
+  // Solid color swatches (Recolors active element if one is selected, else canvas background)
   document.querySelectorAll('.bg-color-swatch').forEach((swatch) => {
     swatch.addEventListener('click', () => {
       const color = swatch.getAttribute('data-color');
-      window.app.canvas.setBackgroundColor(color, () => {
-        window.app.canvas.renderAll();
-        window.app.canvasManager.recordState();
-      });
-      showToast('Canvas background updated', 'info');
+      const active = window.app.canvas ? window.app.canvas.getActiveObject() : null;
+      if (active) {
+        if (active.isType('i-text') || active.isType('text') || active.isType('textbox')) {
+          window.app.textTool.setTextColor(color);
+        } else {
+          window.app.elementsTool.setFillColor(color);
+        }
+        if (window.app.updateContextToolbar) {
+          window.app.updateContextToolbar([active]);
+        }
+        showToast('Element color updated', 'success');
+      } else {
+        window.app.canvas.setBackgroundColor(color, () => {
+          window.app.canvas.renderAll();
+          window.app.canvasManager.recordState();
+        });
+        const bgPicker = document.getElementById('canvas-bg-picker');
+        if (bgPicker) bgPicker.value = window.AppUtils ? window.AppUtils.colorToHex(color, '#ffffff') : color;
+        const bgPreview = document.getElementById('canvas-bg-preview');
+        if (bgPreview) bgPreview.style.background = color;
+        showToast('Canvas background updated', 'info');
+      }
     });
   });
 
-  // Gradient presets
+  // Gradient presets (Applies to active shape if selected, else canvas background)
   document.querySelectorAll('.bg-gradient-swatch').forEach((swatch) => {
     swatch.addEventListener('click', () => {
       const c1 = swatch.getAttribute('data-c1');
       const c2 = swatch.getAttribute('data-c2');
-      const artW = window.app.canvasManager ? window.app.canvasManager.artboardWidth : (window.app.canvas.width / (window.app.canvas.getZoom() || 1));
-      const artH = window.app.canvasManager ? window.app.canvasManager.artboardHeight : (window.app.canvas.height / (window.app.canvas.getZoom() || 1));
-      const grad = new fabric.Gradient({
-        type: 'linear',
-        gradientUnits: 'pixels',
-        coords: { x1: 0, y1: 0, x2: artW, y2: artH },
-        colorStops: [
-          { offset: 0, color: c1 },
-          { offset: 1, color: c2 },
-        ],
-      });
-      window.app.canvas.setBackgroundColor(grad, () => {
+      const active = window.app.canvas ? window.app.canvas.getActiveObject() : null;
+      if (active && (active.type === 'rect' || active.type === 'circle' || active.type === 'polygon' || active.type === 'path')) {
+        const bound = active.getBoundingRect(true);
+        const grad = new fabric.Gradient({
+          type: 'linear',
+          gradientUnits: 'pixels',
+          coords: { x1: -bound.width / 2, y1: -bound.height / 2, x2: bound.width / 2, y2: bound.height / 2 },
+          colorStops: [
+            { offset: 0, color: c1 },
+            { offset: 1, color: c2 },
+          ],
+        });
+        active.set('fill', grad);
+        active.dirty = true;
         window.app.canvas.renderAll();
         window.app.canvasManager.recordState();
-      });
-      showToast('Canvas gradient applied', 'info');
+        showToast('Element gradient applied', 'success');
+      } else {
+        const artW = window.app.canvasManager ? window.app.canvasManager.artboardWidth : (window.app.canvas.width / (window.app.canvas.getZoom() || 1));
+        const artH = window.app.canvasManager ? window.app.canvasManager.artboardHeight : (window.app.canvas.height / (window.app.canvas.getZoom() || 1));
+        const grad = new fabric.Gradient({
+          type: 'linear',
+          gradientUnits: 'pixels',
+          coords: { x1: 0, y1: 0, x2: artW, y2: artH },
+          colorStops: [
+            { offset: 0, color: c1 },
+            { offset: 1, color: c2 },
+          ],
+        });
+        window.app.canvas.setBackgroundColor(grad, () => {
+          window.app.canvas.renderAll();
+          window.app.canvasManager.recordState();
+        });
+        showToast('Canvas gradient applied', 'info');
+      }
     });
   });
 
