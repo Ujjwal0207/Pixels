@@ -1183,6 +1183,90 @@ body.brand-rules-enforced .brand-enforce-notice {
   display: block;
 }
 
+/* ==========================================================================
+   Multiplayer Real-Time Collaboration & Remote Cursors
+   ========================================================================== */
+.collab-cursor-overlay {
+  pointer-events: none;
+  overflow: visible !important;
+}
+
+.remote-collab-cursor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 10000;
+  transition: transform 60ms linear, opacity 150ms ease;
+  will-change: transform;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.25));
+}
+
+.remote-collab-cursor svg {
+  transform: rotate(-15deg);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+}
+
+.remote-collab-cursor .cursor-name-badge {
+  display: inline-block;
+  color: #ffffff;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 12px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
+  margin-left: 14px;
+  margin-top: -6px;
+  letter-spacing: 0.2px;
+}
+
+.collab-peer-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  padding: 6px 4px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.collab-peer-row:last-child {
+  border-bottom: none;
+}
+
+/* Template Hub & Custom Vault Enhancements */
+.my-custom-template-card {
+  position: relative;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.my-custom-template-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.my-custom-template-card .btn-delete-template {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.my-custom-template-card:hover .btn-delete-template {
+  opacity: 1;
+}
+
+/* Smart Layout Variations Grid */
+#smart-layout-variations-grid .template-card {
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+#smart-layout-variations-grid .template-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--accent-purple);
+  box-shadow: 0 6px 16px rgba(124, 58, 237, 0.15);
+}
+
+
 
 
 
