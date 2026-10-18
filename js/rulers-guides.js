@@ -54,8 +54,12 @@ class RulersAndGuides {
     this.renderRulers();
   }
 
+  getWrapper() {
+    return document.getElementById('canvas-scroll-container') || document.getElementById('canvas-wrapper') || document.querySelector('.canvas-viewport');
+  }
+
   setupDOM() {
-    const wrapper = document.getElementById('canvas-wrapper');
+    const wrapper = this.getWrapper();
     if (!wrapper) return;
 
     // Remove any existing ruler elements
@@ -81,10 +85,11 @@ class RulersAndGuides {
 
     this.resizeRulers();
     window.addEventListener('resize', () => this.resizeRulers());
+    wrapper.addEventListener('scroll', () => this.renderRulers());
   }
 
   resizeRulers() {
-    const wrapper = document.getElementById('canvas-wrapper');
+    const wrapper = this.getWrapper();
     if (!wrapper || !this.horizontalRuler || !this.verticalRuler) return;
 
     const w = wrapper.clientWidth;
@@ -105,6 +110,14 @@ class RulersAndGuides {
     }
     if (this.verticalRuler) {
       this.verticalRuler.addEventListener('mousedown', (e) => this.startGuideDrag(e, 'vertical'));
+    }
+
+    if (this.canvas) {
+      this.canvas.on('object:removed', (e) => {
+        if (e.target && e.target.isGuide) {
+          this.guides = this.guides.filter(g => g !== e.target);
+        }
+      });
     }
 
     window.addEventListener('mousemove', (e) => this.handleWindowMouseMove(e));
@@ -134,11 +147,22 @@ class RulersAndGuides {
 
     // Compute artboard container relative offset inside wrapper
     const upperCanvas = this.canvas.upperCanvasEl;
-    const wrapper = document.getElementById('canvas-wrapper');
+    const wrapper = this.getWrapper();
     if (!upperCanvas || !wrapper) return;
 
     const rectWrapper = wrapper.getBoundingClientRect();
     const rectCanvas = upperCanvas.getBoundingClientRect();
+
+    // Pin rulers to the visible scroll window
+    const sTop = wrapper.scrollTop || 0;
+    const sLeft = wrapper.scrollLeft || 0;
+    if (this.horizontalRuler) this.horizontalRuler.style.top = `${sTop}px`;
+    if (this.verticalRuler) this.verticalRuler.style.left = `${sLeft}px`;
+    const corner = document.querySelector('.ruler-corner');
+    if (corner) {
+      corner.style.top = `${sTop}px`;
+      corner.style.left = `${sLeft}px`;
+    }
 
     const canvasOriginX = rectCanvas.left - rectWrapper.left;
     const canvasOriginY = rectCanvas.top - rectWrapper.top;
@@ -263,7 +287,8 @@ class RulersAndGuides {
     this.draggedGuideOrientation = orientation;
 
     // Create a temporary visual guide element
-    const wrapper = document.getElementById('canvas-wrapper');
+    const wrapper = this.getWrapper();
+    if (!wrapper) return;
     const preview = document.createElement('div');
     preview.id = 'guide-drag-preview';
     preview.className = `guide-drag-preview guide-${orientation}`;
@@ -280,7 +305,8 @@ class RulersAndGuides {
 
   updateGuidePreview(e) {
     if (!this.previewGuideLine) return;
-    const wrapper = document.getElementById('canvas-wrapper');
+    const wrapper = this.getWrapper();
+    if (!wrapper) return;
     const rect = wrapper.getBoundingClientRect();
 
     if (this.draggedGuideOrientation === 'horizontal') {
@@ -301,7 +327,7 @@ class RulersAndGuides {
       this.previewGuideLine = null;
     }
 
-    const wrapper = document.getElementById('canvas-wrapper');
+    const wrapper = this.getWrapper();
     const upper = this.canvas.upperCanvasEl;
     if (!wrapper || !upper) return;
 
@@ -419,3 +445,6 @@ class RulersAndGuides {
 }
 
 window.RulersAndGuides = RulersAndGuides;
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = RulersAndGuides;
+}
