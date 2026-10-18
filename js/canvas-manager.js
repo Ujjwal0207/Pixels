@@ -638,6 +638,16 @@ class CanvasManager {
         }
       }
 
+      // Toggle Rulers & Magnetic Guides (Ctrl+; / Cmd+;)
+      if (cmdOrCtrl && (e.key === ';' || e.code === 'Semicolon')) {
+        e.preventDefault();
+        if (window.app && window.app.rulers) {
+          window.app.rulers.toggleGuides();
+          const btn = document.getElementById('btn-toggle-rulers');
+          if (btn) btn.classList.toggle('active', window.app.rulers.visible);
+        }
+      }
+
       // Arrow keys nudge
       if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key) && activeObj) {
         if (activeObj.lockMovementX && activeObj.lockMovementY) return;
