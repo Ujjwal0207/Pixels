@@ -17,16 +17,24 @@ class SnappingEngine {
     this.onObjectMoving = this.handleObjectMoving.bind(this);
     this.onAfterRender = this.drawGuidelines.bind(this);
     this.onMouseUp = this.clearGuidelines.bind(this);
+    this.spatialIndex = null;
 
     this.init();
   }
 
-  setCanvas(canvas) {
+  destroy() {
     if (this.canvas) {
       this.canvas.off('object:moving', this.onObjectMoving);
       this.canvas.off('after:render', this.onAfterRender);
       this.canvas.off('mouse:up', this.onMouseUp);
+      this.canvas.off('object:modified', this.onMouseUp);
     }
+    this.spatialIndex = null;
+    this.activeGuidelines = [];
+  }
+
+  setCanvas(canvas) {
+    this.destroy();
     this.canvas = canvas;
     this.init();
   }
@@ -42,6 +50,7 @@ class SnappingEngine {
     this.canvas.on('object:moving', this.onObjectMoving);
     this.canvas.on('after:render', this.onAfterRender);
     this.canvas.on('mouse:up', this.onMouseUp);
+    this.canvas.on('object:modified', this.onMouseUp);
   }
 
   handleObjectMoving(e) {
@@ -150,32 +159,101 @@ class SnappingEngine {
       }
     }
 
-    // 5. Snap to other objects on canvas
+    // 5. Fast O(log N) Snap to other objects on canvas via Spatial Binary Search
     if (!snappedX || !snappedY) {
-      this.canvas.forEachObject((obj) => {
-        if (obj === target || !obj.visible || (target.contains && target.contains(obj)) || obj.isGuide) return;
-        const otherCenter = obj.getCenterPoint();
+      const index = this.buildSpatialIndex(target);
 
-        // Snap to other object Center X
-        if (!snappedX && Math.abs(targetCenter.x - otherCenter.x) <= this.snapThreshold) {
-          newCenterX = otherCenter.x;
-          this.activeGuidelines.push({ type: 'vertical', x: otherCenter.x, isCenter: false });
+      if (!snappedX && index.xPoints.length > 0) {
+        const match = this.findNearestSnap(index.xPoints, targetCenter.x);
+        if (match) {
+          newCenterX = match.val;
+          this.activeGuidelines.push({ type: 'vertical', x: match.val, isCenter: match.isCenter });
           snappedX = true;
         }
+      }
 
-        // Snap to other object Center Y
-        if (!snappedY && Math.abs(targetCenter.y - otherCenter.y) <= this.snapThreshold) {
-          newCenterY = otherCenter.y;
-          this.activeGuidelines.push({ type: 'horizontal', y: otherCenter.y, isCenter: false });
+      if (!snappedY && index.yPoints.length > 0) {
+        const match = this.findNearestSnap(index.yPoints, targetCenter.y);
+        if (match) {
+          newCenterY = match.val;
+          this.activeGuidelines.push({ type: 'horizontal', y: match.val, isCenter: match.isCenter });
           snappedY = true;
         }
-      });
+      }
     }
 
     if (snappedX || snappedY) {
       target.setPositionByOrigin(new fabric.Point(newCenterX, newCenterY), 'center', 'center');
       target.setCoords();
     }
+  }
+
+  buildSpatialIndex(target) {
+    if (this.spatialIndex && this.spatialIndex.target === target) {
+      return this.spatialIndex;
+    }
+    const xPoints = [];
+    const yPoints = [];
+    if (!this.canvas) return { xPoints, yPoints, target };
+
+    this.canvas.forEachObject((obj) => {
+      if (obj === target || !obj.visible || (target.contains && target.contains(obj)) || obj.isGuide) return;
+      const center = obj.getCenterPoint();
+      xPoints.push({ val: center.x, isCenter: true });
+      yPoints.push({ val: center.y, isCenter: true });
+
+      const b = obj.getBoundingRect ? obj.getBoundingRect(true) : null;
+      if (b) {
+        xPoints.push({ val: b.left, isCenter: false });
+        xPoints.push({ val: b.left + b.width, isCenter: false });
+        yPoints.push({ val: b.top, isCenter: false });
+        yPoints.push({ val: b.top + b.height, isCenter: false });
+      }
+    });
+
+    xPoints.sort((a, b) => a.val - b.val);
+    yPoints.sort((a, b) => a.val - b.val);
+
+    this.spatialIndex = { xPoints, yPoints, target };
+    return this.spatialIndex;
+  }
+
+  findNearestSnap(sortedPoints, targetVal) {
+    if (!sortedPoints || sortedPoints.length === 0) return null;
+    let low = 0;
+    let high = sortedPoints.length - 1;
+    let best = null;
+    let minDiff = Infinity;
+
+    while (low <= high) {
+      const mid = (low + high) >> 1;
+      const diff = sortedPoints[mid].val - targetVal;
+      const absDiff = Math.abs(diff);
+
+      if (absDiff <= this.snapThreshold && absDiff < minDiff) {
+        minDiff = absDiff;
+        best = sortedPoints[mid];
+      }
+
+      if (diff < 0) {
+        low = mid + 1;
+      } else {
+        high = mid - 1;
+      }
+    }
+
+    if (low < sortedPoints.length && Math.abs(sortedPoints[low].val - targetVal) <= this.snapThreshold) {
+      if (Math.abs(sortedPoints[low].val - targetVal) < minDiff) {
+        best = sortedPoints[low];
+      }
+    }
+    if (high >= 0 && Math.abs(sortedPoints[high].val - targetVal) <= this.snapThreshold) {
+      if (Math.abs(sortedPoints[high].val - targetVal) < minDiff) {
+        best = sortedPoints[high];
+      }
+    }
+
+    return best;
   }
 
   drawGuidelines() {
@@ -204,6 +282,7 @@ class SnappingEngine {
 
   clearGuidelines() {
     this.activeGuidelines = [];
+    this.spatialIndex = null;
     if (this.canvas) {
       this.canvas.requestRenderAll();
     }
