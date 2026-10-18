@@ -127,6 +127,7 @@
       this.brushColor = '#8b5cf6';
       this.brushWidth = 5;
       this.brushType = 'Pencil';
+      this.brushOpacity = 1;
     }
 
     setCanvas(canvas) {
@@ -149,16 +150,29 @@
 
     setBrushColor(color) {
       this.brushColor = color;
-      if (this.canvas.freeDrawingBrush) {
-        this.canvas.freeDrawingBrush.color = color;
-      }
+      this.updateBrush();
     }
 
     setBrushWidth(width) {
       this.brushWidth = window.AppUtils ? window.AppUtils.safeParseInt(width, 5, 1, 150) : (parseInt(width, 10) || 5);
-      if (this.canvas.freeDrawingBrush) {
-        this.canvas.freeDrawingBrush.width = this.brushWidth;
+      this.updateBrush();
+    }
+
+    setBrushOpacity(opacity) {
+      const value = Number(opacity);
+      this.brushOpacity = Number.isFinite(value) ? Math.max(0.1, Math.min(1, value)) : 1;
+      this.updateBrush();
+    }
+
+    getBrushColor(opacity = 1) {
+      const color = this.brushColor;
+      if (color.startsWith('#') && color.length === 7) {
+        const r = parseInt(color.slice(1, 3), 16);
+        const g = parseInt(color.slice(3, 5), 16);
+        const b = parseInt(color.slice(5, 7), 16);
+        return `rgba(${r}, ${g}, ${b}, ${Math.max(0.02, Math.min(1, this.brushOpacity * opacity))})`;
       }
+      return color;
     }
 
     updateBrush() {
@@ -166,34 +180,39 @@
 
       if (this.brushType === 'Circle') {
         this.canvas.freeDrawingBrush = new fabric.CircleBrush(this.canvas);
-        this.canvas.freeDrawingBrush.color = this.brushColor;
+        this.canvas.freeDrawingBrush.color = this.getBrushColor();
         this.canvas.freeDrawingBrush.width = this.brushWidth;
       } else if (this.brushType === 'Spray') {
         this.canvas.freeDrawingBrush = new fabric.SprayBrush(this.canvas);
-        this.canvas.freeDrawingBrush.color = this.brushColor;
+        this.canvas.freeDrawingBrush.color = this.getBrushColor();
         this.canvas.freeDrawingBrush.width = this.brushWidth;
       } else if (this.brushType === 'Calligraphy' && fabric.CalligraphyBrush) {
         this.canvas.freeDrawingBrush = new fabric.CalligraphyBrush(this.canvas, {
-          color: this.brushColor,
+          color: this.getBrushColor(),
           width: this.brushWidth * 2,
           angle: 45
         });
       } else if (this.brushType === 'Highlighter') {
         this.canvas.freeDrawingBrush = new fabric.PencilBrush(this.canvas);
-        let hlColor = this.brushColor;
-        if (hlColor.startsWith('#') && hlColor.length === 7) {
-          const r = parseInt(hlColor.slice(1, 3), 16);
-          const g = parseInt(hlColor.slice(3, 5), 16);
-          const b = parseInt(hlColor.slice(5, 7), 16);
-          hlColor = `rgba(${r}, ${g}, ${b}, 0.38)`;
-        }
-        this.canvas.freeDrawingBrush.color = hlColor;
+        this.canvas.freeDrawingBrush.color = this.getBrushColor(0.38);
         this.canvas.freeDrawingBrush.width = this.brushWidth * 3;
         this.canvas.freeDrawingBrush.strokeLineCap = 'square';
-      } else {
-        // Standard Pencil / Pen
+      } else if (this.brushType === 'Marker') {
         this.canvas.freeDrawingBrush = new fabric.PencilBrush(this.canvas);
-        this.canvas.freeDrawingBrush.color = this.brushColor;
+        this.canvas.freeDrawingBrush.color = this.getBrushColor(0.72);
+        this.canvas.freeDrawingBrush.width = this.brushWidth * 2;
+        this.canvas.freeDrawingBrush.strokeLineCap = 'square';
+        this.canvas.freeDrawingBrush.strokeLineJoin = 'bevel';
+      } else if (this.brushType === 'Pen') {
+        this.canvas.freeDrawingBrush = new fabric.PencilBrush(this.canvas);
+        this.canvas.freeDrawingBrush.color = this.getBrushColor();
+        this.canvas.freeDrawingBrush.width = Math.max(1, this.brushWidth * 0.7);
+        this.canvas.freeDrawingBrush.strokeLineCap = 'round';
+        this.canvas.freeDrawingBrush.strokeLineJoin = 'round';
+      } else {
+        // Standard pencil uses a smooth path with rounded joins.
+        this.canvas.freeDrawingBrush = new fabric.PencilBrush(this.canvas);
+        this.canvas.freeDrawingBrush.color = this.getBrushColor();
         this.canvas.freeDrawingBrush.width = this.brushWidth;
         this.canvas.freeDrawingBrush.strokeLineCap = 'round';
         this.canvas.freeDrawingBrush.strokeLineJoin = 'round';
