@@ -601,8 +601,11 @@ class CanvasManager {
 
       // Paste (Ctrl+V / Cmd+V)
       if (cmdOrCtrl && e.key.toLowerCase() === 'v') {
-        e.preventDefault();
-        this.paste();
+        if (this.clipboard) {
+          e.preventDefault();
+          this.paste();
+        }
+        // If internal clipboard is empty, let native paste event fire for OS/browser clipboard ingestion
       }
 
       // Duplicate (Ctrl+D / Cmd+D)
@@ -637,12 +640,13 @@ class CanvasManager {
 
       // Arrow keys nudge
       if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key) && activeObj) {
+        if (activeObj.lockMovementX && activeObj.lockMovementY) return;
         e.preventDefault();
         const step = e.shiftKey ? 10 : 1;
-        if (e.key === 'ArrowLeft') activeObj.left -= step;
-        if (e.key === 'ArrowRight') activeObj.left += step;
-        if (e.key === 'ArrowUp') activeObj.top -= step;
-        if (e.key === 'ArrowDown') activeObj.top += step;
+        if (e.key === 'ArrowLeft' && !activeObj.lockMovementX) activeObj.left -= step;
+        if (e.key === 'ArrowRight' && !activeObj.lockMovementX) activeObj.left += step;
+        if (e.key === 'ArrowUp' && !activeObj.lockMovementY) activeObj.top -= step;
+        if (e.key === 'ArrowDown' && !activeObj.lockMovementY) activeObj.top += step;
         activeObj.setCoords();
         this.canvas.requestRenderAll();
         this.recordState();
