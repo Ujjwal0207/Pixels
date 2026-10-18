@@ -41,9 +41,12 @@ class QRCodeTool {
 
         if (dataUrl) {
           fabric.Image.fromURL(dataUrl, (fabricImg) => {
+            const artboardW = this.canvasManager ? this.canvasManager.artboardWidth : (this.canvas.width / (this.canvas.getZoom() || 1));
+            const artboardH = this.canvasManager ? this.canvasManager.artboardHeight : (this.canvas.height / (this.canvas.getZoom() || 1));
+
             fabricImg.set({
-              left: this.canvas.width / 2,
-              top: this.canvas.height / 2,
+              left: artboardW / 2,
+              top: artboardH / 2,
               originX: 'center',
               originY: 'center',
               scaleX: 0.6,
