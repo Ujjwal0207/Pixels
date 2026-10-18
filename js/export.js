@@ -54,6 +54,58 @@ class ExportEngine {
     this.downloadFile(dataUrl, filename);
   }
 
+  // Copy High-Resolution PNG directly to System Clipboard (Slack/Notion/Discord/Figma instant paste)
+  async copyImageToClipboard(options = {}) {
+    const { transparent = false, multiplier = 2 } = options;
+
+    const originalBg = this.canvas.backgroundColor;
+    if (transparent) {
+      this.canvas.backgroundColor = null;
+    }
+
+    const guides = this.canvas.getObjects().filter(o => o.isGuide && o.visible);
+    guides.forEach(g => { g.visible = false; });
+    this.canvas.renderAll();
+
+    const zoom = this.canvas.getZoom() || 1;
+    const effectiveMultiplier = (1 / zoom) * multiplier;
+
+    const dataUrl = this.canvas.toDataURL({
+      format: 'png',
+      multiplier: effectiveMultiplier,
+      enableRetinaScaling: true,
+    });
+
+    if (transparent) {
+      this.canvas.backgroundColor = originalBg;
+    }
+    guides.forEach(g => { g.visible = true; });
+    this.canvas.renderAll();
+
+    try {
+      const res = await fetch(dataUrl);
+      const blob = await res.blob();
+      if (navigator.clipboard && navigator.clipboard.write && typeof ClipboardItem !== 'undefined') {
+        await navigator.clipboard.write([
+          new ClipboardItem({ 'image/png': blob })
+        ]);
+        if (window.showToast) {
+          window.showToast('Copied high-res design to clipboard! Ready to paste.', 'success');
+        }
+        return true;
+      } else {
+        throw new Error('ClipboardItem API not supported in this browser');
+      }
+    } catch (err) {
+      console.warn('Clipboard write fallback:', err);
+      this.downloadFile(dataUrl, 'designpro-graphic.png');
+      if (window.showToast) {
+        window.showToast('Downloaded PNG (clipboard write restricted)', 'info');
+      }
+      return false;
+    }
+  }
+
   // Export as JPEG
   exportJPEG(options = {}) {
     const { quality = 0.95, multiplier = 2, filename = 'designpro-graphic.jpg' } = options;
