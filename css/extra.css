@@ -502,6 +502,12 @@ body.presentation-mode-active .canvas-viewport {
   color: #e2e8f0;
 }
 
+#btn-present-mode.presentation-hover-muted:hover {
+  background: #ffffff;
+  border-color: var(--border-subtle);
+  box-shadow: var(--shadow-sm);
+}
+
 /* Duotone filter buttons */
 .btn-duotone-pill {
   height: 28px;
@@ -1009,6 +1015,7 @@ body.presentation-mode-active .canvas-viewport {
 
 .content-hub-card {
   position: relative;
+  min-width: 0;
   background: #ffffff;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
@@ -1025,10 +1032,17 @@ body.presentation-mode-active .canvas-viewport {
   box-shadow: var(--shadow-md);
 }
 
+.content-hub-card:focus-visible {
+  outline: 2px solid var(--accent-purple);
+  outline-offset: 2px;
+}
+
 .content-thumb-wrapper {
   position: relative;
   width: 100%;
   aspect-ratio: 4 / 3;
+  min-height: 110px;
+  flex: 0 0 auto;
   background: var(--bg-surface);
   display: flex;
   align-items: center;
@@ -1062,6 +1076,25 @@ body.presentation-mode-active .canvas-viewport {
 
 .content-card-info {
   padding: 6px 8px;
+}
+
+.content-source {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-muted);
+  font-size: 0.62rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.content-hub-empty {
+  grid-column: 1 / -1;
+  padding: 28px 16px;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  text-align: center;
 }
 
 .content-title {
