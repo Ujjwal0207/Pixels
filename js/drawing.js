@@ -180,7 +180,14 @@
         });
       } else if (this.brushType === 'Highlighter') {
         this.canvas.freeDrawingBrush = new fabric.PencilBrush(this.canvas);
-        this.canvas.freeDrawingBrush.color = this.brushColor;
+        let hlColor = this.brushColor;
+        if (hlColor.startsWith('#') && hlColor.length === 7) {
+          const r = parseInt(hlColor.slice(1, 3), 16);
+          const g = parseInt(hlColor.slice(3, 5), 16);
+          const b = parseInt(hlColor.slice(5, 7), 16);
+          hlColor = `rgba(${r}, ${g}, ${b}, 0.38)`;
+        }
+        this.canvas.freeDrawingBrush.color = hlColor;
         this.canvas.freeDrawingBrush.width = this.brushWidth * 3;
         this.canvas.freeDrawingBrush.strokeLineCap = 'square';
       } else {
