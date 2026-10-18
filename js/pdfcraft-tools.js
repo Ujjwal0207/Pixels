@@ -83,6 +83,8 @@ class PDFCraftTools {
                 try {
                   const imgData = staticCanvas.toDataURL({ format: 'jpeg', quality: 0.95 });
                   pdf.addImage(imgData, 'JPEG', 0, 0, pageW, pageH);
+                  // Embed searchable vector text overlay (Flaw 8 Fix)
+                  this.embedVectorTextLayer(pdf, staticCanvas, pageW, pageH);
                 } catch (e) {
                   console.warn('PDF page image extraction error:', e);
                 }
@@ -103,7 +105,7 @@ class PDFCraftTools {
 
           pdf.save(filename);
           if (window.showToast) {
-            window.showToast(`Saved multi-page PDF (${pagesManager.pages.length} pages)!`, 'success');
+            window.showToast(`Saved multi-page vector-enhanced PDF (${pagesManager.pages.length} pages)!`, 'success');
           }
         } catch (err) {
           console.error('Multi-page PDF export error:', err);
@@ -123,10 +125,59 @@ class PDFCraftTools {
     });
 
     pdf.addImage(imgData, 'JPEG', 0, 0, w, h);
+    // Embed searchable vector text overlay (Flaw 8 Fix)
+    this.embedVectorTextLayer(pdf, this.canvas, w, h);
     pdf.save(filename);
 
     if (window.showToast) {
-      window.showToast(`Exported high-res PDF (${filename})!`, 'success');
+      window.showToast(`Exported vector-enhanced PDF (${filename})!`, 'success');
+    }
+  }
+
+  // Searchable Vector Text Layer Embedder (Preserves crisp vector typography & searchability)
+  embedVectorTextLayer(pdf, fabricCanvas, pageW, pageH) {
+    if (!pdf || !fabricCanvas) return;
+    try {
+      const objects = fabricCanvas.getObjects();
+      objects.forEach((obj) => {
+        if (!obj.visible || obj.isGuide) return;
+        if (obj.type === 'i-text' || obj.type === 'text' || obj.type === 'textbox') {
+          const text = obj.text || '';
+          if (!text.trim()) return;
+
+          const scaleY = obj.scaleY || 1;
+          const fontSize = (obj.fontSize || 16) * scaleY;
+          const left = obj.left || 0;
+          const top = obj.top || 0;
+
+          // Convert hex fill to RGB
+          let r = 0, g = 0, b = 0;
+          if (typeof obj.fill === 'string' && obj.fill.startsWith('#')) {
+            const hex = obj.fill.replace('#', '');
+            if (hex.length === 6) {
+              r = parseInt(hex.substring(0, 2), 16) || 0;
+              g = parseInt(hex.substring(2, 4), 16) || 0;
+              b = parseInt(hex.substring(4, 6), 16) || 0;
+            }
+          }
+
+          // Use pt scaling: 1 px ≈ 0.75 pt in standard PDF
+          pdf.setFontSize(Math.max(6, fontSize * 0.75));
+          pdf.setTextColor(r, g, b);
+
+          // Handle multiline text
+          const lines = text.split('\n');
+          const lineHeight = (obj.lineHeight || 1.16) * fontSize;
+          lines.forEach((line, lineIdx) => {
+            const lineY = top + (lineIdx * lineHeight) + (fontSize * 0.8);
+            if (lineY <= pageH) {
+              pdf.text(line, left, lineY);
+            }
+          });
+        }
+      });
+    } catch (err) {
+      console.warn('Vector text layer embedding note:', err);
     }
   }
 
