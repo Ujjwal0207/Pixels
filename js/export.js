@@ -92,10 +92,10 @@ class ExportEngine {
       pagesManager.saveCurrentPageState();
     }
 
-    const propertiesToInclude = [
+    const propertiesToInclude = window.CANVAS_EXTENDED_PROPERTIES || [
       'id', 'name', 'selectable', 'lockMovementX', 'lockMovementY',
       'lockRotation', 'lockScalingX', 'lockScalingY', 'charSpacing', 'lineHeight',
-      'globalCompositeOperation', 'filters', 'clipPath', 'isStamp', 'isWatermark'
+      'globalCompositeOperation', 'filters', 'clipPath', 'isStamp', 'isWatermark', 'isLocked', 'shadow'
     ];
 
     const projectData = {
