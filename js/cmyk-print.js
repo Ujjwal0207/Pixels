@@ -38,7 +38,7 @@
     ensureOverlayElement() {
       if (this.bleedOverlayEl && document.body.contains(this.bleedOverlayEl)) return;
 
-      const container = document.getElementById('canvas-wrapper');
+      const container = document.getElementById('canvas-scroll-container') || document.getElementById('canvas-wrapper') || document.querySelector('.canvas-viewport');
       if (!container) return;
 
       this.bleedOverlayEl = document.createElement('div');
@@ -108,7 +108,7 @@
       if (!upperCanvas || !this.bleedOverlayEl) return;
 
       const rect = upperCanvas.getBoundingClientRect();
-      const wrapper = document.getElementById('canvas-wrapper');
+      const wrapper = document.getElementById('canvas-scroll-container') || document.getElementById('canvas-wrapper') || document.querySelector('.canvas-viewport');
       if (!wrapper) return;
       const wrapperRect = wrapper.getBoundingClientRect();
 
