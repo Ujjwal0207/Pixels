@@ -649,7 +649,9 @@ class ElementsTool {
   setStrokeWidth(width) {
     const active = this.canvas.getActiveObject();
     if (!active) return;
-    active.set('strokeWidth', parseInt(width, 10));
+    const val = window.AppUtils ? window.AppUtils.safeParseInt(width, 0, 0, 100) : (parseInt(width, 10) || 0);
+    active.set('strokeWidth', val);
+    active.setCoords();
     this.canvas.renderAll();
     this.canvasManager.recordState();
   }
@@ -657,7 +659,8 @@ class ElementsTool {
   setOpacity(val) {
     const active = this.canvas.getActiveObject();
     if (!active) return;
-    active.set('opacity', parseFloat(val));
+    const safeVal = window.AppUtils ? window.AppUtils.safeParseFloat(val, 1, 0, 1) : (parseFloat(val) || 1);
+    active.set('opacity', safeVal);
     this.canvas.renderAll();
     this.canvasManager.recordState();
   }
