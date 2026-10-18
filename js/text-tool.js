@@ -212,137 +212,123 @@ class TextTool {
     this.canvas.renderAll();
   }
 
-  // Active object formatting methods
-  setFontFamily(family) {
+  // Helper: Apply formatting to single text object or all text objects in an activeSelection/group
+  _applyToTextSelection(handler) {
     const active = this.canvas.getActiveObject();
-    if (active && (active.isType('i-text') || active.isType('text'))) {
-      active.set('fontFamily', family);
+    if (!active) return false;
+
+    if (active.isType('i-text') || active.isType('text') || active.isType('textbox')) {
+      handler(active);
+      if (typeof active.initDimensions === 'function') active.initDimensions();
+      active.setCoords();
       this.canvas.renderAll();
       this.canvasManager.recordState();
+      return true;
+    } else if (active.type === 'activeSelection' || active.type === 'group') {
+      let changed = false;
+      active.forEachObject((obj) => {
+        if (obj.isType('i-text') || obj.isType('text') || obj.isType('textbox')) {
+          handler(obj);
+          if (typeof obj.initDimensions === 'function') obj.initDimensions();
+          obj.setCoords();
+          obj.dirty = true;
+          changed = true;
+        }
+      });
+      if (changed) {
+        active.dirty = true;
+        this.canvas.renderAll();
+        this.canvasManager.recordState();
+        return true;
+      }
     }
+    return false;
+  }
+
+  // Active object formatting methods
+  setFontFamily(family) {
+    this._applyToTextSelection((obj) => obj.set('fontFamily', family));
   }
 
   setFontSize(size) {
-    const active = this.canvas.getActiveObject();
-    if (active && (active.isType('i-text') || active.isType('text') || active.isType('textbox'))) {
-      const val = window.AppUtils ? window.AppUtils.safeParseInt(size, 32, 6, 500) : (parseInt(size, 10) || 32);
-      active.set('fontSize', val);
-      if (typeof active.initDimensions === 'function') active.initDimensions();
-      active.setCoords();
-      this.canvas.renderAll();
-      this.canvasManager.recordState();
-    }
+    const val = window.AppUtils ? window.AppUtils.safeParseInt(size, 32, 6, 500) : (parseInt(size, 10) || 32);
+    this._applyToTextSelection((obj) => obj.set('fontSize', val));
   }
 
   setTextColor(color) {
-    const active = this.canvas.getActiveObject();
-    if (active && (active.isType('i-text') || active.isType('text'))) {
-      active.set('fill', color);
-      this.canvas.renderAll();
-      this.canvasManager.recordState();
-    }
+    this._applyToTextSelection((obj) => obj.set('fill', color));
   }
 
   toggleBold() {
-    const active = this.canvas.getActiveObject();
-    if (active && (active.isType('i-text') || active.isType('text'))) {
-      const isBold = active.fontWeight === 'bold';
-      active.set('fontWeight', isBold ? 'normal' : 'bold');
-      this.canvas.renderAll();
-      this.canvasManager.recordState();
-      return !isBold;
-    }
-    return false;
+    let result = false;
+    this._applyToTextSelection((obj) => {
+      const isBold = obj.fontWeight === 'bold';
+      obj.set('fontWeight', isBold ? 'normal' : 'bold');
+      result = !isBold;
+    });
+    return result;
   }
 
   toggleItalic() {
-    const active = this.canvas.getActiveObject();
-    if (active && (active.isType('i-text') || active.isType('text'))) {
-      const isItalic = active.fontStyle === 'italic';
-      active.set('fontStyle', isItalic ? 'normal' : 'italic');
-      this.canvas.renderAll();
-      this.canvasManager.recordState();
-      return !isItalic;
-    }
-    return false;
+    let result = false;
+    this._applyToTextSelection((obj) => {
+      const isItalic = obj.fontStyle === 'italic';
+      obj.set('fontStyle', isItalic ? 'normal' : 'italic');
+      result = !isItalic;
+    });
+    return result;
   }
 
   toggleUnderline() {
-    const active = this.canvas.getActiveObject();
-    if (active && (active.isType('i-text') || active.isType('text'))) {
-      const isUnderlined = !!active.underline;
-      active.set('underline', !isUnderlined);
-      this.canvas.renderAll();
-      this.canvasManager.recordState();
-      return !isUnderlined;
-    }
-    return false;
+    let result = false;
+    this._applyToTextSelection((obj) => {
+      const isUnderlined = !!obj.underline;
+      obj.set('underline', !isUnderlined);
+      result = !isUnderlined;
+    });
+    return result;
   }
 
   setTextAlign(alignment) {
-    const active = this.canvas.getActiveObject();
-    if (active && (active.isType('i-text') || active.isType('text'))) {
-      active.set('textAlign', alignment);
-      this.canvas.renderAll();
-      this.canvasManager.recordState();
-    }
+    this._applyToTextSelection((obj) => obj.set('textAlign', alignment));
   }
 
   setLetterSpacing(spacing) {
-    const active = this.canvas.getActiveObject();
-    if (active && (active.isType('i-text') || active.isType('text') || active.isType('textbox'))) {
-      const val = window.AppUtils ? window.AppUtils.safeParseInt(spacing, 0, -200, 1000) : (parseInt(spacing, 10) || 0);
-      active.set('charSpacing', val);
-      if (typeof active.initDimensions === 'function') active.initDimensions();
-      active.setCoords();
-      this.canvas.renderAll();
-      this.canvasManager.recordState();
-    }
+    const val = window.AppUtils ? window.AppUtils.safeParseInt(spacing, 0, -200, 1000) : (parseInt(spacing, 10) || 0);
+    this._applyToTextSelection((obj) => obj.set('charSpacing', val));
   }
 
   setLineHeight(height) {
-    const active = this.canvas.getActiveObject();
-    if (active && (active.isType('i-text') || active.isType('text') || active.isType('textbox'))) {
-      const val = window.AppUtils ? window.AppUtils.safeParseFloat(height, 1.2, 0.5, 4.0) : (parseFloat(height) || 1.2);
-      active.set('lineHeight', val);
-      if (typeof active.initDimensions === 'function') active.initDimensions();
-      active.setCoords();
-      this.canvas.renderAll();
-      this.canvasManager.recordState();
-    }
+    const val = window.AppUtils ? window.AppUtils.safeParseFloat(height, 1.2, 0.5, 4.0) : (parseFloat(height) || 1.2);
+    this._applyToTextSelection((obj) => obj.set('lineHeight', val));
   }
 
   setTextShadow(shadowType) {
-    const active = this.canvas.getActiveObject();
-    if (!active || !(active.isType('i-text') || active.isType('text'))) return;
-
-    if (shadowType === 'none') {
-      active.set('shadow', null);
-    } else if (shadowType === 'soft') {
-      active.set('shadow', new fabric.Shadow({
+    let shadow = null;
+    if (shadowType === 'soft') {
+      shadow = new fabric.Shadow({
         color: 'rgba(0, 0, 0, 0.35)',
         blur: 10,
         offsetX: 3,
         offsetY: 3,
-      }));
+      });
     } else if (shadowType === 'neon') {
-      active.set('shadow', new fabric.Shadow({
+      shadow = new fabric.Shadow({
         color: 'rgba(236, 72, 153, 0.75)',
         blur: 20,
         offsetX: 0,
         offsetY: 0,
-      }));
+      });
     } else if (shadowType === 'retro') {
-      active.set('shadow', new fabric.Shadow({
+      shadow = new fabric.Shadow({
         color: '#000000',
         blur: 0,
         offsetX: 5,
         offsetY: 5,
-      }));
+      });
     }
 
-    this.canvas.renderAll();
-    this.canvasManager.recordState();
+    this._applyToTextSelection((obj) => obj.set('shadow', shadow));
   }
 }
 
