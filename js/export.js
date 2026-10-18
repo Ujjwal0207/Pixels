@@ -30,36 +30,26 @@ class ExportEngine {
     const originalBg = this.canvas.backgroundColor;
     if (transparent) {
       this.canvas.backgroundColor = null;
-      this.canvas.renderAll();
     }
 
-    // Try native toBlob on lowerCanvas or fallback to toDataURL
-    const lowerCanvas = this.canvas.lowerCanvasEl;
-    if (lowerCanvas && lowerCanvas.toBlob && multiplier <= 1) {
-      lowerCanvas.toBlob((blob) => {
-        if (transparent) {
-          this.canvas.backgroundColor = originalBg;
-          this.canvas.renderAll();
-        }
-        if (blob) {
-          const url = URL.createObjectURL(blob);
-          this.downloadFile(url, filename);
-          setTimeout(() => URL.revokeObjectURL(url), 2000);
-        }
-      }, 'image/png');
-      return;
-    }
+    const guides = this.canvas.getObjects().filter(o => o.isGuide && o.visible);
+    guides.forEach(g => { g.visible = false; });
+    this.canvas.renderAll();
+
+    const zoom = this.canvas.getZoom() || 1;
+    const effectiveMultiplier = (1 / zoom) * multiplier;
 
     const dataUrl = this.canvas.toDataURL({
       format: 'png',
-      multiplier: multiplier,
+      multiplier: effectiveMultiplier,
       enableRetinaScaling: true,
     });
 
     if (transparent) {
       this.canvas.backgroundColor = originalBg;
-      this.canvas.renderAll();
     }
+    guides.forEach(g => { g.visible = true; });
+    this.canvas.renderAll();
 
     this.downloadFile(dataUrl, filename);
   }
@@ -71,35 +61,58 @@ class ExportEngine {
     const originalBg = this.canvas.backgroundColor;
     if (!originalBg || originalBg === 'transparent') {
       this.canvas.backgroundColor = '#ffffff';
-      this.canvas.renderAll();
     }
+
+    const guides = this.canvas.getObjects().filter(o => o.isGuide && o.visible);
+    guides.forEach(g => { g.visible = false; });
+    this.canvas.renderAll();
+
+    const zoom = this.canvas.getZoom() || 1;
+    const effectiveMultiplier = (1 / zoom) * multiplier;
 
     const dataUrl = this.canvas.toDataURL({
       format: 'jpeg',
       quality: quality,
-      multiplier: multiplier,
+      multiplier: effectiveMultiplier,
       enableRetinaScaling: true,
     });
 
     if (!originalBg || originalBg === 'transparent') {
       this.canvas.backgroundColor = originalBg;
-      this.canvas.renderAll();
     }
+    guides.forEach(g => { g.visible = true; });
+    this.canvas.renderAll();
 
     this.downloadFile(dataUrl, filename);
   }
 
   // Export as SVG with filter & shadow preservation (Flaw 11 Fix)
   exportSVG(filename = 'designpro-vector.svg') {
+    const artW = this.canvasManager ? this.canvasManager.artboardWidth : (this.canvas.width / (this.canvas.getZoom() || 1));
+    const artH = this.canvasManager ? this.canvasManager.artboardHeight : (this.canvas.height / (this.canvas.getZoom() || 1));
+
+    const guides = this.canvas.getObjects().filter(o => o.isGuide && o.visible);
+    guides.forEach(g => { g.visible = false; });
+    this.canvas.renderAll();
+
     let svgContent = this.canvas.toSVG({
-      width: this.canvas.width,
-      height: this.canvas.height,
+      width: artW,
+      height: artH,
+      viewBox: {
+        x: 0,
+        y: 0,
+        width: artW,
+        height: artH
+      }
     });
+
+    guides.forEach(g => { g.visible = true; });
+    this.canvas.renderAll();
 
     // Check for objects with shadow or filters and inject SVG <defs>
     try {
       const objects = this.canvas.getObjects();
-      const shadowObjects = objects.filter((o) => o.shadow && o.visible);
+      const shadowObjects = objects.filter((o) => o.shadow && o.visible && !o.isGuide);
       if (shadowObjects.length > 0 && !svgContent.includes('<feDropShadow')) {
         let defs = '<defs>\n';
         shadowObjects.forEach((obj, idx) => {
@@ -199,10 +212,20 @@ class ExportEngine {
 
   // Print Canvas directly
   printDesign() {
+    const guides = this.canvas.getObjects().filter(o => o.isGuide && o.visible);
+    guides.forEach(g => { g.visible = false; });
+    this.canvas.renderAll();
+
+    const zoom = this.canvas.getZoom() || 1;
+    const effectiveMultiplier = (1 / zoom) * 2;
+
     const dataUrl = this.canvas.toDataURL({
       format: 'png',
-      multiplier: 2,
+      multiplier: effectiveMultiplier,
     });
+
+    guides.forEach(g => { g.visible = true; });
+    this.canvas.renderAll();
 
     const printWin = window.open('', '_blank');
     if (!printWin) return;
