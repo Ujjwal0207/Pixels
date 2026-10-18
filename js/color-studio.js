@@ -55,10 +55,20 @@
 
       if (active.type === 'i-text' || active.type === 'text' || active.type === 'textbox') {
         active.set('fill', hex);
-      } else if (active.type === 'rect' || active.type === 'circle' || active.type === 'triangle' || active.type === 'path') {
+      } else if (active.type === 'rect' || active.type === 'circle' || active.type === 'triangle' || active.type === 'path' || active.type === 'polygon') {
         active.set('fill', hex);
       } else if (active.type === 'line') {
         active.set('stroke', hex);
+      } else if (active.type === 'activeSelection' || active.type === 'group') {
+        active.forEachObject(obj => {
+          if (obj.type === 'line') {
+            obj.set('stroke', hex);
+          } else {
+            obj.set('fill', hex);
+          }
+          obj.dirty = true;
+        });
+        active.dirty = true;
       }
 
       this.canvas.renderAll();
@@ -184,9 +194,21 @@
         if (obj.type === 'i-text' || obj.type === 'text' || obj.type === 'textbox') {
           obj.set('fill', targetColor);
           count++;
-        } else if (obj.type === 'rect' || obj.type === 'circle' || obj.type === 'triangle' || obj.type === 'path') {
+        } else if (obj.type === 'rect' || obj.type === 'circle' || obj.type === 'triangle' || obj.type === 'path' || obj.type === 'polygon') {
           obj.set('fill', targetColor);
           count++;
+        } else if (obj.type === 'group') {
+          obj.forEachObject((child, cIdx) => {
+            const childColor = newPalette[(idx + cIdx) % paletteLen];
+            if (child.type === 'line') {
+              child.set('stroke', childColor);
+            } else {
+              child.set('fill', childColor);
+            }
+            child.dirty = true;
+            count++;
+          });
+          obj.dirty = true;
         }
       });
 
