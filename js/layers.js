@@ -324,6 +324,27 @@ class LayersManager {
       }
     });
   }
+
+  // Release Clipping Mask and restore original mask shape
+  releaseClippingMask() {
+    const active = this.canvas.getActiveObject();
+    if (!active || !active.clipPath) {
+      if (window.showToast) window.showToast('Selected object has no clipping mask', 'info');
+      return;
+    }
+
+    const mask = active.clipPath;
+    active.set('clipPath', null);
+    mask.set({
+      selectable: true,
+      evented: true,
+    });
+    this.canvas.add(mask);
+    this.canvas.renderAll();
+    this.renderLayers();
+    this.canvasManager.recordState();
+    if (window.showToast) window.showToast('Clipping mask released!', 'success');
+  }
 }
 
 window.LayersManager = LayersManager;
