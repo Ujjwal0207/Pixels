@@ -18,6 +18,19 @@ class ImagesTool {
     if (!files || files.length === 0) return;
 
     Array.from(files).forEach((file) => {
+      // Check for SVG vector graphics
+      if (file.type === 'image/svg+xml' || file.name.toLowerCase().endsWith('.svg')) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const svgString = e.target.result;
+          this.addSVGToCanvas(svgString, file.name);
+          const blobUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgString);
+          this.addUploadThumbnail(blobUrl);
+        };
+        reader.readAsText(file);
+        return;
+      }
+
       if (!file.type.match('image.*')) return;
 
       const reader = new FileReader();
@@ -27,6 +40,42 @@ class ImagesTool {
         this.addUploadThumbnail(dataUrl);
       };
       reader.readAsDataURL(file);
+    });
+  }
+
+  // Add crisp vector SVG to canvas using Fabric native SVG parser
+  addSVGToCanvas(svgString, name = 'Vector Graphic') {
+    if (!svgString || typeof fabric === 'undefined' || !fabric.loadSVGFromString) return;
+
+    fabric.loadSVGFromString(svgString, (objects, options) => {
+      if (!objects || objects.length === 0) return;
+      const svgGroup = fabric.util.groupSVGElements(objects, options);
+      const artboardW = this.canvasManager ? this.canvasManager.artboardWidth : (this.canvas.width / (this.canvas.getZoom() || 1));
+      const artboardH = this.canvasManager ? this.canvasManager.artboardHeight : (this.canvas.height / (this.canvas.getZoom() || 1));
+
+      const maxW = artboardW * 0.55;
+      const maxH = artboardH * 0.55;
+      const currentW = svgGroup.width || 100;
+      const currentH = svgGroup.height || 100;
+      const scale = Math.min(maxW / currentW, maxH / currentH, 1);
+
+      svgGroup.set({
+        left: artboardW / 2,
+        top: artboardH / 2,
+        originX: 'center',
+        originY: 'center',
+        scaleX: scale,
+        scaleY: scale,
+        name: name,
+        selectable: true,
+        evented: true,
+      });
+
+      this.canvas.add(svgGroup);
+      this.canvas.setActiveObject(svgGroup);
+      this.canvas.renderAll();
+      if (this.canvasManager) this.canvasManager.recordState();
+      if (window.showToast) window.showToast(`Imported vector ${name}!`, 'success');
     });
   }
 
@@ -206,6 +255,67 @@ class ImagesTool {
         url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
       },
     ];
+  }
+
+  // Set image as artboard background with cover-fit and send to back
+  setImageAsBackground(img) {
+    if (!img) {
+      const active = this.canvas.getActiveObject();
+      if (active && active.type === 'image') {
+        img = active;
+      }
+    }
+    if (!img || img.type !== 'image') return;
+
+    const artW = this.canvasManager ? this.canvasManager.artboardWidth : (this.canvas.width / (this.canvas.getZoom() || 1));
+    const artH = this.canvasManager ? this.canvasManager.artboardHeight : (this.canvas.height / (this.canvas.getZoom() || 1));
+
+    // Calculate aspect ratio cover scale
+    const scale = Math.max(artW / (img.width || 1), artH / (img.height || 1));
+    img.set({
+      scaleX: scale,
+      scaleY: scale,
+      left: artW / 2,
+      top: artH / 2,
+      originX: 'center',
+      originY: 'center',
+      isBackgroundImage: true,
+      lockMovementX: true,
+      lockMovementY: true,
+      lockScalingX: true,
+      lockScalingY: true,
+      lockRotation: true,
+    });
+
+    img.sendToBack();
+    this.canvas.discardActiveObject();
+    this.canvas.renderAll();
+    if (this.canvasManager) this.canvasManager.recordState();
+    if (window.app && window.app.layers) window.app.layers.renderLayers();
+    if (window.showToast) window.showToast('Image set as artboard background!', 'success');
+  }
+
+  // Detach background image so it becomes a standard movable layer
+  detachBackground(img) {
+    if (!img) {
+      img = this.canvas.getObjects().find((o) => o.isBackgroundImage);
+    }
+    if (!img) return;
+
+    img.set({
+      isBackgroundImage: false,
+      lockMovementX: false,
+      lockMovementY: false,
+      lockScalingX: false,
+      lockScalingY: false,
+      lockRotation: false,
+    });
+
+    this.canvas.setActiveObject(img);
+    this.canvas.renderAll();
+    if (this.canvasManager) this.canvasManager.recordState();
+    if (window.app && window.app.layers) window.app.layers.renderLayers();
+    if (window.showToast) window.showToast('Background image detached to active layer!', 'info');
   }
 }
 
