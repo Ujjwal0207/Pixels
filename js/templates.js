@@ -2173,6 +2173,357 @@ class TemplatesEngine {
 
     this.canvas.add(glow1, glow2, pillBadge, pillText, headline, subheadline, ...cardObjects, ctaBtn, ctaText);
   }
+
+  // =========================================================================
+  // Modular Template Catalog, Custom Vault & Pack Sharing
+  // =========================================================================
+
+  async initTemplateHub() {
+    await this.loadCatalogTemplates();
+    await this.renderCustomTemplates();
+    this.setupTemplateSearch();
+  }
+
+  // Load external modular catalog
+  async loadCatalogTemplates() {
+    try {
+      const res = await fetch('templates/templates-catalog.json');
+      if (res.ok) {
+        this.catalogTemplates = await res.json();
+      }
+    } catch (e) {
+      this.catalogTemplates = this.getFallbackCatalog();
+    }
+    this.renderCatalogTemplates();
+  }
+
+  // Filter all templates (presets, modular catalog, custom templates)
+  filterAllTemplates() {
+    const query = (this.searchQuery || '').toLowerCase();
+    const cat = this.currentCategory || 'all';
+
+    // 1. Filter Preset Hardcoded Cards
+    const presetCards = document.querySelectorAll('#templates-grid .template-card:not(.dynamic-catalog-card)');
+    presetCards.forEach(card => {
+      const cardCat = (card.getAttribute('data-category') || '').toLowerCase();
+      const cardTitle = (card.querySelector('.template-name')?.textContent || '').toLowerCase();
+      const matchCat = cat === 'all' || cardCat === cat;
+      const matchQuery = !query || cardTitle.includes(query) || cardCat.includes(query);
+      card.style.display = (matchCat && matchQuery) ? 'flex' : 'none';
+    });
+
+    // 2. Filter & Render Modular Catalog Cards
+    this.renderCatalogTemplates();
+
+    // 3. Filter My Custom Saved Templates
+    const customCards = document.querySelectorAll('#my-templates-grid .my-custom-template-card');
+    customCards.forEach(card => {
+      const cardTitle = (card.querySelector('.template-name')?.textContent || '').toLowerCase();
+      const matchQuery = !query || cardTitle.includes(query);
+      card.style.display = matchQuery ? 'flex' : 'none';
+    });
+  }
+
+  // Render modular catalog cards in #templates-grid
+  renderCatalogTemplates() {
+    const grid = document.getElementById('templates-grid');
+    if (!grid) return;
+
+    const filtered = (this.catalogTemplates || []).filter(t => {
+      const matchCat = !this.currentCategory || this.currentCategory === 'all' || t.category === this.currentCategory;
+      const matchQuery = !this.searchQuery || t.name.toLowerCase().includes(this.searchQuery) || (t.description && t.description.toLowerCase().includes(this.searchQuery)) || t.category.toLowerCase().includes(this.searchQuery);
+      return matchCat && matchQuery;
+    });
+
+    const existingDynamic = grid.querySelectorAll('.dynamic-catalog-card');
+    existingDynamic.forEach(el => el.remove());
+
+    filtered.forEach(t => {
+      const card = document.createElement('div');
+      card.className = 'template-card dynamic-catalog-card';
+      card.setAttribute('data-template-id', t.id);
+      card.setAttribute('data-category', t.category);
+      card.innerHTML = `
+        <div class="template-thumb" style="background: ${t.previewGradient || '#18181b'};">
+          <div style="font-weight: 800; color: ${t.accentColor || '#ffffff'}; font-size: 0.95rem; text-align: center; padding: 10px; line-height: 1.2;">
+            ${t.name}
+          </div>
+        </div>
+        <div class="template-info">
+          <div class="template-name">${t.name}</div>
+          <div class="template-category">${t.category.toUpperCase()} (${t.dimensions.width}×${t.dimensions.height})</div>
+        </div>
+      `;
+      card.addEventListener('click', () => {
+        this.loadCatalogTemplate(t);
+      });
+      grid.appendChild(card);
+    });
+  }
+
+  // Load a modular JSON template onto canvas
+  loadCatalogTemplate(t) {
+    if (!t || !this.canvas) return;
+    if (this.canvasManager) this.canvasManager.isBatchLoading = true;
+    this.canvas.clear();
+
+    if (t.dimensions) {
+      this.canvasManager.setArtboardSize(t.dimensions.width, t.dimensions.height);
+    }
+    if (t.background) {
+      this.canvas.setBackgroundColor(t.background, () => {});
+    }
+
+    if (Array.isArray(t.objects)) {
+      t.objects.forEach(objData => {
+        let fabricObj = null;
+        const options = { ...objData };
+        if (options.shadow && typeof options.shadow === 'object' && !(options.shadow instanceof fabric.Shadow)) {
+          options.shadow = new fabric.Shadow(options.shadow);
+        }
+
+        switch (objData.type) {
+          case 'rect':
+            fabricObj = new fabric.Rect(options);
+            break;
+          case 'circle':
+            fabricObj = new fabric.Circle(options);
+            break;
+          case 'triangle':
+            fabricObj = new fabric.Triangle(options);
+            break;
+          case 'i-text':
+            fabricObj = new fabric.IText(options.text || '', options);
+            break;
+          case 'polygon':
+            fabricObj = new fabric.Polygon(options.points || [], options);
+            break;
+          case 'line':
+            fabricObj = new fabric.Line(options.points || [0, 0, 100, 100], options);
+            break;
+          default:
+            break;
+        }
+        if (fabricObj) {
+          this.canvas.add(fabricObj);
+        }
+      });
+    }
+
+    this.canvas.renderAll();
+    if (this.canvasManager) this.canvasManager.isBatchLoading = false;
+    this.canvasManager.recordState();
+    if (window.app && window.app.layers) window.app.layers.renderLayers();
+    if (window.showToast) window.showToast(`Loaded template: ${t.name}`, 'success');
+  }
+
+  // Save current artboard as a custom reusable template in IndexedDB (Strategy 1)
+  async saveCurrentAsCustomTemplate(name = 'My Custom Template', category = 'custom') {
+    if (!this.canvas) return;
+
+    const artW = this.canvasManager ? this.canvasManager.artboardWidth : 1080;
+    const artH = this.canvasManager ? this.canvasManager.artboardHeight : 1080;
+
+    const thumbnail = this.canvas.toDataURL({
+      format: 'jpeg',
+      quality: 0.6,
+      multiplier: 0.18,
+    });
+
+    const canvasJson = this.canvas.toJSON(['isGuide', 'isLocked', 'name', 'shadow']);
+
+    const templateRecord = {
+      id: 'tpl_custom_' + Date.now(),
+      name: name.trim() || 'Custom Template',
+      category: category.toLowerCase(),
+      artboardWidth: artW,
+      artboardHeight: artH,
+      thumbnail: thumbnail,
+      json: canvasJson,
+      createdAt: Date.now(),
+    };
+
+    if (window.app && window.app.storage) {
+      await window.app.storage.saveCustomTemplate(templateRecord);
+      await this.renderCustomTemplates();
+      if (window.showToast) {
+        window.showToast(`Saved "${templateRecord.name}" to My Templates!`, 'success');
+      }
+    }
+  }
+
+  // Render user's custom templates in #my-templates-grid
+  async renderCustomTemplates() {
+    const grid = document.getElementById('my-templates-grid');
+    const countBadge = document.getElementById('my-templates-count');
+    if (!grid) return;
+
+    let templates = [];
+    if (window.app && window.app.storage) {
+      templates = await window.app.storage.getCustomTemplates();
+    }
+    this.customTemplates = templates;
+
+    if (countBadge) {
+      countBadge.textContent = templates.length;
+    }
+
+    grid.innerHTML = '';
+    if (templates.length === 0) {
+      grid.innerHTML = `
+        <div style="grid-column: 1 / -1; padding: 18px 12px; text-align: center; color: var(--text-muted); font-size: 0.8rem; background: rgba(0,0,0,0.02); border-radius: 8px; border: 1px dashed var(--border-color);">
+          No saved templates yet.<br/>Click <strong>"Save as Template"</strong> above to store your custom designs.
+        </div>
+      `;
+      return;
+    }
+
+    templates.forEach(t => {
+      const card = document.createElement('div');
+      card.className = 'template-card my-custom-template-card';
+      card.innerHTML = `
+        <div class="template-thumb" style="background: #ffffff; display: flex; align-items: center; justify-content: center; position: relative;">
+          <img src="${t.thumbnail}" alt="${t.name}" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
+          <button class="btn-delete-template" style="position: absolute; top: 4px; right: 4px; background: rgba(239, 68, 68, 0.85); color: white; border: none; border-radius: 4px; width: 22px; height: 22px; font-size: 11px; cursor: pointer;" title="Delete Template">✕</button>
+        </div>
+        <div class="template-info">
+          <div class="template-name">${t.name}</div>
+          <div class="template-category">Saved Design (${t.artboardWidth}×${t.artboardHeight})</div>
+        </div>
+      `;
+
+      card.querySelector('.template-thumb').addEventListener('click', (e) => {
+        if (e.target.classList.contains('btn-delete-template')) return;
+        this.loadCustomTemplate(t);
+      });
+
+      card.querySelector('.btn-delete-template').addEventListener('click', async (e) => {
+        e.stopPropagation();
+        if (confirm(`Delete custom template "${t.name}"?`)) {
+          if (window.app && window.app.storage) {
+            await window.app.storage.deleteCustomTemplate(t.id);
+            await this.renderCustomTemplates();
+            if (window.showToast) window.showToast(`Deleted template "${t.name}"`, 'info');
+          }
+        }
+      });
+
+      grid.appendChild(card);
+    });
+  }
+
+  // Load a user's custom template
+  loadCustomTemplate(t) {
+    if (!t || !t.json || !this.canvas) return;
+    if (this.canvasManager) {
+      this.canvasManager.isBatchLoading = true;
+      this.canvasManager.setArtboardSize(t.artboardWidth || 1080, t.artboardHeight || 1080);
+    }
+
+    this.canvas.loadFromJSON(t.json, () => {
+      this.canvas.renderAll();
+      if (this.canvasManager) {
+        this.canvasManager.isBatchLoading = false;
+        this.canvasManager.recordState();
+      }
+      if (window.app && window.app.layers) window.app.layers.renderLayers();
+      if (window.showToast) window.showToast(`Loaded custom template: ${t.name}`, 'success');
+    });
+  }
+
+  // Export custom templates as a .designpro-pack (Strategy 3)
+  async exportTemplatePack() {
+    let templates = this.customTemplates;
+    if (!templates || templates.length === 0) {
+      if (window.showToast) window.showToast('No custom templates to export. Save a template first!', 'error');
+      return;
+    }
+
+    const pack = {
+      packName: 'Pixels-Design-Pack',
+      version: '1.0',
+      exportedAt: new Date().toISOString(),
+      templateCount: templates.length,
+      templates: templates,
+    };
+
+    const blob = new Blob([JSON.stringify(pack, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `pixels-templates-pack-${Date.now()}.designpro-pack`;
+    a.click();
+    URL.revokeObjectURL(url);
+    if (window.showToast) window.showToast('Exported template pack!', 'success');
+  }
+
+  // Import template pack (.designpro-pack or .json)
+  async importTemplatePack(file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const pack = JSON.parse(e.target.result);
+        const templates = Array.isArray(pack) ? pack : (pack.templates || []);
+        if (templates.length === 0) {
+          if (window.showToast) window.showToast('No templates found in file.', 'error');
+          return;
+        }
+
+        if (window.app && window.app.storage) {
+          for (const t of templates) {
+            await window.app.storage.saveCustomTemplate({
+              ...t,
+              id: 'tpl_custom_' + Date.now() + '_' + Math.random().toString(36).substring(2, 5),
+            });
+          }
+          await this.renderCustomTemplates();
+          if (window.showToast) window.showToast(`Imported ${templates.length} templates successfully!`, 'success');
+        }
+      } catch (err) {
+        if (window.showToast) window.showToast('Invalid template pack file.', 'error');
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  // Setup Search and Filter category listeners
+  setupTemplateSearch() {
+    const searchInput = document.getElementById('template-search-input');
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        this.searchQuery = e.target.value.toLowerCase().trim();
+        this.filterAllTemplates();
+      });
+    }
+
+    document.querySelectorAll('.category-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.category-pill').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.currentCategory = btn.getAttribute('data-category') || 'all';
+        this.filterAllTemplates();
+      });
+    });
+  }
+
+  getFallbackCatalog() {
+    return [
+      {
+        id: 'tpl-cyber-flash',
+        name: 'Cyber Flash Sale',
+        category: 'marketing',
+        dimensions: { width: 1080, height: 1080 },
+        background: '#09090b',
+        previewGradient: 'linear-gradient(135deg, #09090b, #18181b)',
+        accentColor: '#06b6d4',
+        objects: [
+          { type: 'i-text', left: 540, top: 440, text: 'CYBER WEEK', fontSize: 82, fontFamily: 'Bebas Neue', fill: '#ffffff', originX: 'center', originY: 'center' },
+          { type: 'i-text', left: 540, top: 550, text: '70% OFF', fontSize: 96, fontFamily: 'Outfit', fontWeight: 900, fill: '#06b6d4', originX: 'center', originY: 'center' }
+        ]
+      }
+    ];
+  }
 }
 
 window.TemplatesEngine = TemplatesEngine;
