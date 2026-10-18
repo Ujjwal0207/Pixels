@@ -59,8 +59,8 @@ class SnappingEngine {
     if (!target) return;
 
     this.activeGuidelines = [];
-    const canvasWidth = this.canvas.width;
-    const canvasHeight = this.canvas.height;
+    const canvasWidth = this.canvasManager ? this.canvasManager.artboardWidth : (this.canvas.width / (this.canvas.getZoom() || 1));
+    const canvasHeight = this.canvasManager ? this.canvasManager.artboardHeight : (this.canvas.height / (this.canvas.getZoom() || 1));
     const canvasCenterX = canvasWidth / 2;
     const canvasCenterY = canvasHeight / 2;
 
@@ -268,12 +268,15 @@ class SnappingEngine {
       ctx.strokeStyle = g.isCenter ? this.centerGuidelineColor : this.guidelineColor;
       ctx.setLineDash([4, 4]);
 
+      const artboardW = this.canvasManager ? this.canvasManager.artboardWidth : (this.canvas.width / (this.canvas.getZoom() || 1));
+      const artboardH = this.canvasManager ? this.canvasManager.artboardHeight : (this.canvas.height / (this.canvas.getZoom() || 1));
+
       if (g.type === 'vertical') {
         ctx.moveTo(g.x, 0);
-        ctx.lineTo(g.x, this.canvas.height);
+        ctx.lineTo(g.x, artboardH);
       } else if (g.type === 'horizontal') {
         ctx.moveTo(0, g.y);
-        ctx.lineTo(this.canvas.width, g.y);
+        ctx.lineTo(artboardW, g.y);
       }
       ctx.stroke();
     });
