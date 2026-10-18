@@ -1,0 +1,2776 @@
+[
+  {
+    "id": "tpl-cyber-flash",
+    "name": "Cyber Flash Sale",
+    "category": "marketing",
+    "dimensions": {
+      "width": 1080,
+      "height": 1080
+    },
+    "background": "#09090b",
+    "previewGradient": "linear-gradient(135deg, #09090b, #18181b)",
+    "accentColor": "#06b6d4",
+    "description": "High-impact dark mode flash discount banner with neon cyan typography.",
+    "objects": [
+      {
+        "type": "circle",
+        "left": 540,
+        "top": 540,
+        "radius": 340,
+        "fill": "rgba(6, 182, 212, 0.08)",
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "rect",
+        "left": 540,
+        "top": 320,
+        "width": 320,
+        "height": 44,
+        "fill": "rgba(236, 72, 153, 0.2)",
+        "stroke": "#ec4899",
+        "strokeWidth": 1.5,
+        "rx": 22,
+        "ry": 22,
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "i-text",
+        "left": 540,
+        "top": 320,
+        "text": "LIMITED TIME OFFER",
+        "fontSize": 15,
+        "fontFamily": "Inter",
+        "fontWeight": 700,
+        "fill": "#ec4899",
+        "originX": "center",
+        "originY": "center",
+        "charSpacing": 120
+      },
+      {
+        "type": "i-text",
+        "left": 540,
+        "top": 440,
+        "text": "CYBER WEEK",
+        "fontSize": 82,
+        "fontFamily": "Bebas Neue",
+        "fill": "#ffffff",
+        "originX": "center",
+        "originY": "center",
+        "charSpacing": 180
+      },
+      {
+        "type": "i-text",
+        "left": 540,
+        "top": 550,
+        "text": "70% OFF",
+        "fontSize": 96,
+        "fontFamily": "Outfit",
+        "fontWeight": 900,
+        "fill": "#06b6d4",
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "i-text",
+        "left": 540,
+        "top": 660,
+        "text": "Use code CYBER70 at checkout • Free worldwide shipping",
+        "fontSize": 20,
+        "fontFamily": "Inter",
+        "fill": "#a1a1aa",
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "rect",
+        "left": 540,
+        "top": 760,
+        "width": 260,
+        "height": 60,
+        "fill": "#06b6d4",
+        "rx": 30,
+        "ry": 30,
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "i-text",
+        "left": 540,
+        "top": 760,
+        "text": "CLAIM DISCOUNT",
+        "fontSize": 17,
+        "fontFamily": "Outfit",
+        "fontWeight": 800,
+        "fill": "#09090b",
+        "originX": "center",
+        "originY": "center"
+      }
+    ]
+  },
+  {
+    "id": "tpl-black-friday",
+    "name": "Black Friday Mega Drop",
+    "category": "marketing",
+    "dimensions": {
+      "width": 1080,
+      "height": 1080
+    },
+    "background": "#000000",
+    "previewGradient": "linear-gradient(135deg, #1c1917, #000000)",
+    "accentColor": "#facc15",
+    "description": "Bold gold and carbon Black Friday promotional artboard.",
+    "objects": [
+      {
+        "type": "rect",
+        "left": 540,
+        "top": 540,
+        "width": 940,
+        "height": 940,
+        "fill": "transparent",
+        "stroke": "rgba(250, 204, 21, 0.4)",
+        "strokeWidth": 2,
+        "rx": 16,
+        "ry": 16,
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "circle",
+        "left": 540,
+        "top": 400,
+        "radius": 260,
+        "fill": "rgba(250, 204, 21, 0.06)",
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "i-text",
+        "left": 540,
+        "top": 280,
+        "text": "ANNUAL SALE EVENT",
+        "fontSize": 18,
+        "fontFamily": "Inter",
+        "fontWeight": 800,
+        "fill": "#facc15",
+        "originX": "center",
+        "originY": "center",
+        "charSpacing": 180
+      },
+      {
+        "type": "i-text",
+        "left": 540,
+        "top": 420,
+        "text": "BLACK\nFRIDAY",
+        "fontSize": 110,
+        "fontFamily": "Outfit",
+        "fontWeight": 900,
+        "fill": "#ffffff",
+        "textAlign": "center",
+        "lineHeight": 0.9,
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "rect",
+        "left": 540,
+        "top": 620,
+        "width": 440,
+        "height": 64,
+        "fill": "#facc15",
+        "rx": 8,
+        "ry": 8,
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "i-text",
+        "left": 540,
+        "top": 620,
+        "text": "DOORS OPEN AT MIDNIGHT",
+        "fontSize": 20,
+        "fontFamily": "Outfit",
+        "fontWeight": 900,
+        "fill": "#000000",
+        "originX": "center",
+        "originY": "center",
+        "charSpacing": 80
+      },
+      {
+        "type": "i-text",
+        "left": 540,
+        "top": 740,
+        "text": "Save up to 80% on 5,000+ top brand electronics",
+        "fontSize": 22,
+        "fontFamily": "Inter",
+        "fill": "#d4d4d8",
+        "originX": "center",
+        "originY": "center"
+      }
+    ]
+  },
+  {
+    "id": "tpl-summer-fashion",
+    "name": "Summer Lookbook Editorial",
+    "category": "marketing",
+    "dimensions": {
+      "width": 1080,
+      "height": 1080
+    },
+    "background": "#fafaf9",
+    "previewGradient": "linear-gradient(135deg, #f5f5f4, #e7e5e4)",
+    "accentColor": "#1c1917",
+    "description": "Minimalist warm-neutral editorial fashion lookbook layout.",
+    "objects": [
+      {
+        "type": "rect",
+        "left": 80,
+        "top": 80,
+        "width": 920,
+        "height": 920,
+        "fill": "transparent",
+        "stroke": "#d6d3d1",
+        "strokeWidth": 1.5
+      },
+      {
+        "type": "rect",
+        "left": 140,
+        "top": 140,
+        "width": 400,
+        "height": 800,
+        "fill": "#e7e5e4",
+        "rx": 4,
+        "ry": 4
+      },
+      {
+        "type": "i-text",
+        "left": 590,
+        "top": 220,
+        "text": "COLLECTION 24",
+        "fontSize": 16,
+        "fontFamily": "Inter",
+        "fontWeight": 700,
+        "fill": "#78716c",
+        "charSpacing": 160
+      },
+      {
+        "type": "i-text",
+        "left": 590,
+        "top": 290,
+        "text": "NATURAL\nLINEN &\nEARTH",
+        "fontSize": 64,
+        "fontFamily": "Playfair Display",
+        "fontWeight": 700,
+        "fill": "#1c1917",
+        "lineHeight": 1.15
+      },
+      {
+        "type": "rect",
+        "left": 590,
+        "top": 560,
+        "width": 120,
+        "height": 3,
+        "fill": "#1c1917"
+      },
+      {
+        "type": "i-text",
+        "left": 590,
+        "top": 600,
+        "text": "Breathable silhouettes designed for warm horizons and effortless everyday elegance.",
+        "fontSize": 20,
+        "fontFamily": "Inter",
+        "fill": "#57534e",
+        "lineHeight": 1.4
+      },
+      {
+        "type": "rect",
+        "left": 590,
+        "top": 750,
+        "width": 220,
+        "height": 52,
+        "fill": "#1c1917",
+        "rx": 4,
+        "ry": 4
+      },
+      {
+        "type": "i-text",
+        "left": 700,
+        "top": 776,
+        "text": "EXPLORE NOW",
+        "fontSize": 14,
+        "fontFamily": "Inter",
+        "fontWeight": 700,
+        "fill": "#fafaf9",
+        "originX": "center",
+        "originY": "center",
+        "charSpacing": 100
+      }
+    ]
+  },
+  {
+    "id": "tpl-saas-launch",
+    "name": "SaaS Product Launch Hero",
+    "category": "marketing",
+    "dimensions": {
+      "width": 1920,
+      "height": 1080
+    },
+    "background": "#030712",
+    "previewGradient": "linear-gradient(135deg, #030712, #111827)",
+    "accentColor": "#6366f1",
+    "description": "Futuristic dark mode presentation hero artboard for software launches.",
+    "objects": [
+      {
+        "type": "circle",
+        "left": 1400,
+        "top": 540,
+        "radius": 460,
+        "fill": "rgba(99, 102, 241, 0.12)",
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "rect",
+        "left": 180,
+        "top": 220,
+        "width": 260,
+        "height": 44,
+        "fill": "rgba(99, 102, 241, 0.2)",
+        "stroke": "#6366f1",
+        "strokeWidth": 1.5,
+        "rx": 22,
+        "ry": 22
+      },
+      {
+        "type": "i-text",
+        "left": 310,
+        "top": 242,
+        "text": "V2.0 RELEASE CANDIDATE",
+        "fontSize": 13,
+        "fontFamily": "Inter",
+        "fontWeight": 700,
+        "fill": "#818cf8",
+        "originX": "center",
+        "originY": "center",
+        "charSpacing": 100
+      },
+      {
+        "type": "i-text",
+        "left": 180,
+        "top": 310,
+        "text": "INTELLIGENT\nDESIGN WORKFLOW",
+        "fontSize": 88,
+        "fontFamily": "Outfit",
+        "fontWeight": 900,
+        "fill": "#ffffff",
+        "lineHeight": 1.05
+      },
+      {
+        "type": "i-text",
+        "left": 180,
+        "top": 560,
+        "text": "Automate layouts, brand synchronization, and multi-format export with zero latency.",
+        "fontSize": 26,
+        "fontFamily": "Inter",
+        "fill": "#9ca3af"
+      },
+      {
+        "type": "rect",
+        "left": 180,
+        "top": 680,
+        "width": 280,
+        "height": 68,
+        "fill": "#6366f1",
+        "rx": 34,
+        "ry": 34
+      },
+      {
+        "type": "i-text",
+        "left": 320,
+        "top": 714,
+        "text": "START FREE TRIAL →",
+        "fontSize": 18,
+        "fontFamily": "Outfit",
+        "fontWeight": 800,
+        "fill": "#ffffff",
+        "originX": "center",
+        "originY": "center"
+      }
+    ]
+  },
+  {
+    "id": "tpl-real-estate-luxury",
+    "name": "Luxury Estate Showcase",
+    "category": "marketing",
+    "dimensions": {
+      "width": 1080,
+      "height": 1080
+    },
+    "background": "#0f172a",
+    "previewGradient": "linear-gradient(135deg, #0f172a, #1e293b)",
+    "accentColor": "#38bdf8",
+    "description": "Modern architecture and real estate promotional square flyer.",
+    "objects": [
+      {
+        "type": "rect",
+        "left": 60,
+        "top": 60,
+        "width": 960,
+        "height": 600,
+        "fill": "#1e293b",
+        "rx": 12,
+        "ry": 12
+      },
+      {
+        "type": "i-text",
+        "left": 100,
+        "top": 710,
+        "text": "MODERN RESIDENCES • BEVERLY HILLS",
+        "fontSize": 16,
+        "fontFamily": "Inter",
+        "fontWeight": 700,
+        "fill": "#38bdf8",
+        "charSpacing": 140
+      },
+      {
+        "type": "i-text",
+        "left": 100,
+        "top": 760,
+        "text": "THE GLASS PAVILION",
+        "fontSize": 52,
+        "fontFamily": "Outfit",
+        "fontWeight": 800,
+        "fill": "#ffffff"
+      },
+      {
+        "type": "i-text",
+        "left": 100,
+        "top": 850,
+        "text": "5 BEDS • 6 BATHS • INFINITY POOL • 7,400 SQ FT",
+        "fontSize": 18,
+        "fontFamily": "Inter",
+        "fill": "#94a3b8",
+        "charSpacing": 60
+      },
+      {
+        "type": "rect",
+        "left": 740,
+        "top": 880,
+        "width": 240,
+        "height": 60,
+        "fill": "#38bdf8",
+        "rx": 8,
+        "ry": 8
+      },
+      {
+        "type": "i-text",
+        "left": 860,
+        "top": 910,
+        "text": "$4,850,000",
+        "fontSize": 24,
+        "fontFamily": "Outfit",
+        "fontWeight": 900,
+        "fill": "#0f172a",
+        "originX": "center",
+        "originY": "center"
+      }
+    ]
+  },
+  {
+    "id": "tpl-artisan-coffee",
+    "name": "Artisan Coffee Roasters",
+    "category": "marketing",
+    "dimensions": {
+      "width": 1080,
+      "height": 1080
+    },
+    "background": "#292524",
+    "previewGradient": "linear-gradient(135deg, #292524, #1c1917)",
+    "accentColor": "#d97706",
+    "description": "Warm craft brewery & artisan espresso promotional square.",
+    "objects": [
+      {
+        "type": "circle",
+        "left": 540,
+        "top": 540,
+        "radius": 420,
+        "fill": "transparent",
+        "stroke": "rgba(217, 119, 6, 0.3)",
+        "strokeWidth": 2,
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "i-text",
+        "left": 540,
+        "top": 260,
+        "text": "SINGLE ORIGIN MICRO-LOT",
+        "fontSize": 16,
+        "fontFamily": "Inter",
+        "fontWeight": 700,
+        "fill": "#d97706",
+        "originX": "center",
+        "originY": "center",
+        "charSpacing": 160
+      },
+      {
+        "type": "i-text",
+        "left": 540,
+        "top": 370,
+        "text": "COPPER &\nBEAN",
+        "fontSize": 86,
+        "fontFamily": "Playfair Display",
+        "fontWeight": 900,
+        "fill": "#f5f5f4",
+        "textAlign": "center",
+        "lineHeight": 0.95,
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "i-text",
+        "left": 540,
+        "top": 580,
+        "text": "Freshly roasted in Seattle • Notes of Jasmine & Honey",
+        "fontSize": 22,
+        "fontFamily": "Inter",
+        "fill": "#a8a29e",
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "rect",
+        "left": 540,
+        "top": 680,
+        "width": 280,
+        "height": 56,
+        "fill": "#d97706",
+        "rx": 28,
+        "ry": 28,
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "i-text",
+        "left": 540,
+        "top": 708,
+        "text": "ORDER ONLINE 20% OFF",
+        "fontSize": 16,
+        "fontFamily": "Outfit",
+        "fontWeight": 800,
+        "fill": "#1c1917",
+        "originX": "center",
+        "originY": "center"
+      }
+    ]
+  },
+  {
+    "id": "tpl-fitness-gym",
+    "name": "Velocity Fitness Club",
+    "category": "marketing",
+    "dimensions": {
+      "width": 1080,
+      "height": 1080
+    },
+    "background": "#09090b",
+    "previewGradient": "linear-gradient(135deg, #09090b, #18181b)",
+    "accentColor": "#ef4444",
+    "description": "High-intensity fitness, gym, and workout promotional card.",
+    "objects": [
+      {
+        "type": "rect",
+        "left": 80,
+        "top": 80,
+        "width": 920,
+        "height": 920,
+        "fill": "transparent",
+        "stroke": "#27272a",
+        "strokeWidth": 2
+      },
+      {
+        "type": "i-text",
+        "left": 140,
+        "top": 220,
+        "text": "NO SHORTCUTS • NO EXCUSES",
+        "fontSize": 18,
+        "fontFamily": "Inter",
+        "fontWeight": 800,
+        "fill": "#ef4444",
+        "charSpacing": 140
+      },
+      {
+        "type": "i-text",
+        "left": 140,
+        "top": 310,
+        "text": "UNLEASH\nYOUR LIMITS",
+        "fontSize": 100,
+        "fontFamily": "Bebas Neue",
+        "fill": "#ffffff",
+        "lineHeight": 0.9,
+        "charSpacing": 60
+      },
+      {
+        "type": "i-text",
+        "left": 140,
+        "top": 560,
+        "text": "Join 500+ athletes. HIIT, Olympic Weightlifting, and Recovery Sauna.",
+        "fontSize": 24,
+        "fontFamily": "Inter",
+        "fill": "#a1a1aa"
+      },
+      {
+        "type": "rect",
+        "left": 140,
+        "top": 680,
+        "width": 340,
+        "height": 66,
+        "fill": "#ef4444",
+        "rx": 8,
+        "ry": 8
+      },
+      {
+        "type": "i-text",
+        "left": 310,
+        "top": 713,
+        "text": "GET 7-DAY FREE PASS",
+        "fontSize": 18,
+        "fontFamily": "Outfit",
+        "fontWeight": 900,
+        "fill": "#ffffff",
+        "originX": "center",
+        "originY": "center"
+      }
+    ]
+  },
+  {
+    "id": "tpl-restaurant-promo",
+    "name": "Gourmet Dining Experience",
+    "category": "marketing",
+    "dimensions": {
+      "width": 1080,
+      "height": 1080
+    },
+    "background": "#18181b",
+    "previewGradient": "linear-gradient(135deg, #18181b, #09090b)",
+    "accentColor": "#eab308",
+    "description": "Refined dark luxury culinary restaurant promo poster.",
+    "objects": [
+      {
+        "type": "rect",
+        "left": 540,
+        "top": 540,
+        "width": 920,
+        "height": 920,
+        "fill": "transparent",
+        "stroke": "#3f3f46",
+        "strokeWidth": 1.5,
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "i-text",
+        "left": 540,
+        "top": 240,
+        "text": "MICHELIN GUIDE SELECTION",
+        "fontSize": 15,
+        "fontFamily": "Inter",
+        "fontWeight": 700,
+        "fill": "#eab308",
+        "originX": "center",
+        "originY": "center",
+        "charSpacing": 200
+      },
+      {
+        "type": "i-text",
+        "left": 540,
+        "top": 360,
+        "text": "ATELIER GOURMET",
+        "fontSize": 72,
+        "fontFamily": "Playfair Display",
+        "fontWeight": 700,
+        "fill": "#ffffff",
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "i-text",
+        "left": 540,
+        "top": 480,
+        "text": "Seasonal Tasting Menu by Chef Marco Rossi",
+        "fontSize": 22,
+        "fontFamily": "Inter",
+        "fill": "#a1a1aa",
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "rect",
+        "left": 540,
+        "top": 620,
+        "width": 280,
+        "height": 56,
+        "fill": "transparent",
+        "stroke": "#eab308",
+        "strokeWidth": 2,
+        "rx": 6,
+        "ry": 6,
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "i-text",
+        "left": 540,
+        "top": 648,
+        "text": "RESERVE TABLE",
+        "fontSize": 16,
+        "fontFamily": "Inter",
+        "fontWeight": 800,
+        "fill": "#eab308",
+        "originX": "center",
+        "originY": "center",
+        "charSpacing": 120
+      }
+    ]
+  },
+  {
+    "id": "tpl-minimal-quote",
+    "name": "Swiss Minimal Quote",
+    "category": "social",
+    "dimensions": {
+      "width": 1080,
+      "height": 1080
+    },
+    "background": "#f8fafc",
+    "previewGradient": "linear-gradient(135deg, #f8fafc, #f1f5f9)",
+    "accentColor": "#0f172a",
+    "description": "Editorial typography quote card inspired by Swiss modernism.",
+    "objects": [
+      {
+        "type": "rect",
+        "left": 100,
+        "top": 100,
+        "width": 880,
+        "height": 880,
+        "fill": "transparent",
+        "stroke": "#e2e8f0",
+        "strokeWidth": 2
+      },
+      {
+        "type": "i-text",
+        "left": 160,
+        "top": 200,
+        "text": "“",
+        "fontSize": 140,
+        "fontFamily": "Playfair Display",
+        "fill": "#3b82f6"
+      },
+      {
+        "type": "i-text",
+        "left": 160,
+        "top": 360,
+        "text": "Simplicity is about\nsubtracting the obvious\nand adding the meaningful.",
+        "fontSize": 44,
+        "fontFamily": "Playfair Display",
+        "lineHeight": 1.25,
+        "fill": "#0f172a"
+      },
+      {
+        "type": "rect",
+        "left": 160,
+        "top": 620,
+        "width": 80,
+        "height": 4,
+        "fill": "#3b82f6"
+      },
+      {
+        "type": "i-text",
+        "left": 160,
+        "top": 660,
+        "text": "JOHN MAEDA",
+        "fontSize": 18,
+        "fontFamily": "Inter",
+        "fontWeight": 700,
+        "fill": "#0f172a",
+        "charSpacing": 160
+      },
+      {
+        "type": "i-text",
+        "left": 160,
+        "top": 700,
+        "text": "The Laws of Simplicity (2006)",
+        "fontSize": 16,
+        "fontFamily": "Inter",
+        "fill": "#64748b"
+      }
+    ]
+  },
+  {
+    "id": "tpl-instagram-reel-travel",
+    "name": "Wanderlust Story & Reel",
+    "category": "social",
+    "dimensions": {
+      "width": 1080,
+      "height": 1920
+    },
+    "background": "#022c22",
+    "previewGradient": "linear-gradient(135deg, #022c22, #064e3b)",
+    "accentColor": "#34d399",
+    "description": "Vertical 9:16 Instagram Story and TikTok aesthetic cover.",
+    "objects": [
+      {
+        "type": "circle",
+        "left": 540,
+        "top": 960,
+        "radius": 480,
+        "fill": "rgba(52, 211, 153, 0.08)",
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "rect",
+        "left": 100,
+        "top": 180,
+        "width": 220,
+        "height": 42,
+        "fill": "rgba(52, 211, 153, 0.2)",
+        "stroke": "#34d399",
+        "strokeWidth": 1.5,
+        "rx": 21,
+        "ry": 21
+      },
+      {
+        "type": "i-text",
+        "left": 210,
+        "top": 201,
+        "text": "TRAVEL DIARIES",
+        "fontSize": 14,
+        "fontFamily": "Inter",
+        "fontWeight": 800,
+        "fill": "#a7f3d0",
+        "originX": "center",
+        "originY": "center",
+        "charSpacing": 100
+      },
+      {
+        "type": "i-text",
+        "left": 100,
+        "top": 320,
+        "text": "HIDDEN\nLAGOONS OF\nBALI",
+        "fontSize": 92,
+        "fontFamily": "Outfit",
+        "fontWeight": 900,
+        "fill": "#ffffff",
+        "lineHeight": 1.05
+      },
+      {
+        "type": "i-text",
+        "left": 100,
+        "top": 720,
+        "text": "Top 5 secret waterfalls and sunrise viewpoints that locals never share.",
+        "fontSize": 28,
+        "fontFamily": "Inter",
+        "fill": "#d1fae5",
+        "lineHeight": 1.4
+      },
+      {
+        "type": "rect",
+        "left": 100,
+        "top": 1600,
+        "width": 880,
+        "height": 80,
+        "fill": "#34d399",
+        "rx": 40,
+        "ry": 40
+      },
+      {
+        "type": "i-text",
+        "left": 540,
+        "top": 1640,
+        "text": "SWIPE UP TO READ GUIDE ↗",
+        "fontSize": 20,
+        "fontFamily": "Outfit",
+        "fontWeight": 800,
+        "fill": "#022c22",
+        "originX": "center",
+        "originY": "center"
+      }
+    ]
+  },
+  {
+    "id": "tpl-twitter-banner",
+    "name": "Tech Founder Twitter Header",
+    "category": "social",
+    "dimensions": {
+      "width": 1500,
+      "height": 500
+    },
+    "background": "#0f172a",
+    "previewGradient": "linear-gradient(135deg, #0f172a, #1e293b)",
+    "accentColor": "#38bdf8",
+    "description": "Clean Twitter / X profile banner with tech bio typography.",
+    "objects": [
+      {
+        "type": "circle",
+        "left": 1200,
+        "top": 250,
+        "radius": 240,
+        "fill": "rgba(56, 189, 248, 0.12)",
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "i-text",
+        "left": 120,
+        "top": 130,
+        "text": "BUILDING THE FUTURE OF CREATIVE TOOLS",
+        "fontSize": 16,
+        "fontFamily": "Inter",
+        "fontWeight": 700,
+        "fill": "#38bdf8",
+        "charSpacing": 140
+      },
+      {
+        "type": "i-text",
+        "left": 120,
+        "top": 180,
+        "text": "ALEX CHEN",
+        "fontSize": 68,
+        "fontFamily": "Outfit",
+        "fontWeight": 900,
+        "fill": "#ffffff"
+      },
+      {
+        "type": "i-text",
+        "left": 120,
+        "top": 280,
+        "text": "Founder @PixelsApp • Open-Source Advocate • 0 to 1M Users in 6 Months",
+        "fontSize": 22,
+        "fontFamily": "Inter",
+        "fill": "#94a3b8"
+      },
+      {
+        "type": "rect",
+        "left": 120,
+        "top": 360,
+        "width": 180,
+        "height": 44,
+        "fill": "#38bdf8",
+        "rx": 22,
+        "ry": 22
+      },
+      {
+        "type": "i-text",
+        "left": 210,
+        "top": 382,
+        "text": "READ MY ESSAYS",
+        "fontSize": 13,
+        "fontFamily": "Outfit",
+        "fontWeight": 800,
+        "fill": "#0f172a",
+        "originX": "center",
+        "originY": "center"
+      }
+    ]
+  },
+  {
+    "id": "tpl-linkedin-carousel",
+    "name": "LinkedIn Growth Slide",
+    "category": "social",
+    "dimensions": {
+      "width": 1080,
+      "height": 1080
+    },
+    "background": "#ffffff",
+    "previewGradient": "linear-gradient(135deg, #ffffff, #f1f5f9)",
+    "accentColor": "#0284c7",
+    "description": "Authority-building multi-slide carousel cover for professional networks.",
+    "objects": [
+      {
+        "type": "rect",
+        "left": 80,
+        "top": 80,
+        "width": 920,
+        "height": 920,
+        "fill": "transparent",
+        "stroke": "#e2e8f0",
+        "strokeWidth": 2,
+        "rx": 16,
+        "ry": 16
+      },
+      {
+        "type": "rect",
+        "left": 140,
+        "top": 160,
+        "width": 160,
+        "height": 38,
+        "fill": "#e0f2fe",
+        "rx": 8,
+        "ry": 8
+      },
+      {
+        "type": "i-text",
+        "left": 220,
+        "top": 179,
+        "text": "CAREER TIP",
+        "fontSize": 14,
+        "fontFamily": "Inter",
+        "fontWeight": 800,
+        "fill": "#0284c7",
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "i-text",
+        "left": 140,
+        "top": 260,
+        "text": "How to 10x Your\nProductivity With\nModern Web Tools",
+        "fontSize": 72,
+        "fontFamily": "Outfit",
+        "fontWeight": 900,
+        "fill": "#0f172a",
+        "lineHeight": 1.1
+      },
+      {
+        "type": "rect",
+        "left": 140,
+        "top": 580,
+        "width": 80,
+        "height": 4,
+        "fill": "#0284c7"
+      },
+      {
+        "type": "i-text",
+        "left": 140,
+        "top": 640,
+        "text": "Swipe through for the 5-step framework used by top engineering teams worldwide.",
+        "fontSize": 24,
+        "fontFamily": "Inter",
+        "fill": "#64748b",
+        "lineHeight": 1.4
+      },
+      {
+        "type": "i-text",
+        "left": 860,
+        "top": 880,
+        "text": "SWIPE →",
+        "fontSize": 18,
+        "fontFamily": "Inter",
+        "fontWeight": 800,
+        "fill": "#0284c7"
+      }
+    ]
+  },
+  {
+    "id": "tpl-podcast-cover",
+    "name": "Deep Tech Podcast",
+    "category": "social",
+    "dimensions": {
+      "width": 1080,
+      "height": 1080
+    },
+    "background": "#1e1b4b",
+    "previewGradient": "linear-gradient(135deg, #1e1b4b, #312e81)",
+    "accentColor": "#a855f7",
+    "description": "High-contrast square podcast cover artboard with vivid purple glow.",
+    "objects": [
+      {
+        "type": "circle",
+        "left": 540,
+        "top": 460,
+        "radius": 260,
+        "fill": "rgba(168, 85, 247, 0.2)",
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "i-text",
+        "left": 540,
+        "top": 220,
+        "text": "THE WEEKLY BROADCAST",
+        "fontSize": 16,
+        "fontFamily": "Inter",
+        "fontWeight": 800,
+        "fill": "#c084fc",
+        "originX": "center",
+        "originY": "center",
+        "charSpacing": 180
+      },
+      {
+        "type": "i-text",
+        "left": 540,
+        "top": 380,
+        "text": "SYNAPSE",
+        "fontSize": 110,
+        "fontFamily": "Bebas Neue",
+        "fill": "#ffffff",
+        "originX": "center",
+        "originY": "center",
+        "charSpacing": 160
+      },
+      {
+        "type": "i-text",
+        "left": 540,
+        "top": 520,
+        "text": "AI ARCHITECTURE & DISTRIBUTED SYSTEMS",
+        "fontSize": 20,
+        "fontFamily": "Inter",
+        "fontWeight": 700,
+        "fill": "#e9d5ff",
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "rect",
+        "left": 540,
+        "top": 720,
+        "width": 320,
+        "height": 50,
+        "fill": "#a855f7",
+        "rx": 25,
+        "ry": 25,
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "i-text",
+        "left": 540,
+        "top": 745,
+        "text": "LISTEN ON SPOTIFY & APPLE",
+        "fontSize": 14,
+        "fontFamily": "Outfit",
+        "fontWeight": 800,
+        "fill": "#ffffff",
+        "originX": "center",
+        "originY": "center"
+      }
+    ]
+  },
+  {
+    "id": "tpl-giveaway-card",
+    "name": "VIP Mega Giveaway",
+    "category": "social",
+    "dimensions": {
+      "width": 1080,
+      "height": 1080
+    },
+    "background": "#0f172a",
+    "previewGradient": "linear-gradient(135deg, #0f172a, #1e293b)",
+    "accentColor": "#f43f5e",
+    "description": "Vibrant community contest & social giveaway promo template.",
+    "objects": [
+      {
+        "type": "rect",
+        "left": 80,
+        "top": 80,
+        "width": 920,
+        "height": 920,
+        "fill": "transparent",
+        "stroke": "rgba(244, 63, 94, 0.4)",
+        "strokeWidth": 2,
+        "rx": 24,
+        "ry": 24
+      },
+      {
+        "type": "i-text",
+        "left": 540,
+        "top": 240,
+        "text": "COMMUNITY CELEBRATION",
+        "fontSize": 18,
+        "fontFamily": "Inter",
+        "fontWeight": 800,
+        "fill": "#f43f5e",
+        "originX": "center",
+        "originY": "center",
+        "charSpacing": 160
+      },
+      {
+        "type": "i-text",
+        "left": 540,
+        "top": 400,
+        "text": "$2,500\nGIVEAWAY",
+        "fontSize": 104,
+        "fontFamily": "Outfit",
+        "fontWeight": 900,
+        "fill": "#ffffff",
+        "textAlign": "center",
+        "lineHeight": 0.95,
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "i-text",
+        "left": 540,
+        "top": 620,
+        "text": "TAG 2 FRIENDS & SHARE IN YOUR STORY TO ENTER",
+        "fontSize": 20,
+        "fontFamily": "Inter",
+        "fontWeight": 600,
+        "fill": "#cbd5e1",
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "rect",
+        "left": 540,
+        "top": 740,
+        "width": 340,
+        "height": 60,
+        "fill": "#f43f5e",
+        "rx": 30,
+        "ry": 30,
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "i-text",
+        "left": 540,
+        "top": 770,
+        "text": "RULES & DETAILS IN BIO",
+        "fontSize": 16,
+        "fontFamily": "Outfit",
+        "fontWeight": 800,
+        "fill": "#ffffff",
+        "originX": "center",
+        "originY": "center"
+      }
+    ]
+  },
+  {
+    "id": "tpl-youtube-pro",
+    "name": "High-CTR Tech Review",
+    "category": "youtube",
+    "dimensions": {
+      "width": 1280,
+      "height": 720
+    },
+    "background": "#0b0f19",
+    "previewGradient": "linear-gradient(135deg, #0b0f19, #1e1b4b)",
+    "accentColor": "#8b5cf6",
+    "description": "Bold YouTube thumbnail with high-contrast text and glowing background.",
+    "objects": [
+      {
+        "type": "circle",
+        "left": 1000,
+        "top": 360,
+        "radius": 280,
+        "fill": "rgba(139, 92, 246, 0.15)",
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "rect",
+        "left": 80,
+        "top": 120,
+        "width": 240,
+        "height": 40,
+        "fill": "#ef4444",
+        "rx": 6,
+        "ry": 6
+      },
+      {
+        "type": "i-text",
+        "left": 200,
+        "top": 140,
+        "text": "HONEST OPINION",
+        "fontSize": 15,
+        "fontFamily": "Inter",
+        "fontWeight": 800,
+        "fill": "#ffffff",
+        "originX": "center",
+        "originY": "center",
+        "charSpacing": 100
+      },
+      {
+        "type": "i-text",
+        "left": 80,
+        "top": 210,
+        "text": "DON'T BUY\nTHIS YET!",
+        "fontSize": 88,
+        "fontFamily": "Bebas Neue",
+        "lineHeight": 0.9,
+        "fill": "#ffffff",
+        "charSpacing": 100
+      },
+      {
+        "type": "i-text",
+        "left": 80,
+        "top": 420,
+        "text": "30 DAYS LATER REVIEW",
+        "fontSize": 32,
+        "fontFamily": "Outfit",
+        "fontWeight": 900,
+        "fill": "#facc15"
+      },
+      {
+        "type": "rect",
+        "left": 80,
+        "top": 510,
+        "width": 380,
+        "height": 60,
+        "fill": "rgba(255, 255, 255, 0.08)",
+        "stroke": "rgba(255, 255, 255, 0.2)",
+        "strokeWidth": 1.5,
+        "rx": 12,
+        "ry": 12
+      },
+      {
+        "type": "i-text",
+        "left": 270,
+        "top": 540,
+        "text": "WATCH BEFORE PURCHASING",
+        "fontSize": 16,
+        "fontFamily": "Inter",
+        "fontWeight": 700,
+        "fill": "#a1a1aa",
+        "originX": "center",
+        "originY": "center"
+      }
+    ]
+  },
+  {
+    "id": "tpl-youtube-gaming",
+    "name": "Extreme Gaming Thumbnail",
+    "category": "youtube",
+    "dimensions": {
+      "width": 1280,
+      "height": 720
+    },
+    "background": "#050505",
+    "previewGradient": "linear-gradient(135deg, #050505, #1e1b4b)",
+    "accentColor": "#22c55e",
+    "description": "High-saturation gaming thumbnail with neon green accents.",
+    "objects": [
+      {
+        "type": "rect",
+        "left": 60,
+        "top": 80,
+        "width": 260,
+        "height": 46,
+        "fill": "#22c55e",
+        "rx": 6,
+        "ry": 6
+      },
+      {
+        "type": "i-text",
+        "left": 190,
+        "top": 103,
+        "text": "WORLD RECORD",
+        "fontSize": 18,
+        "fontFamily": "Inter",
+        "fontWeight": 900,
+        "fill": "#000000",
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "i-text",
+        "left": 60,
+        "top": 180,
+        "text": "100 DAYS IN\nHARDCORE",
+        "fontSize": 98,
+        "fontFamily": "Outfit",
+        "fontWeight": 900,
+        "fill": "#ffffff",
+        "lineHeight": 0.9
+      },
+      {
+        "type": "rect",
+        "left": 60,
+        "top": 420,
+        "width": 380,
+        "height": 68,
+        "fill": "#ef4444",
+        "rx": 8,
+        "ry": 8
+      },
+      {
+        "type": "i-text",
+        "left": 250,
+        "top": 454,
+        "text": "I ALMOST DIED?!",
+        "fontSize": 28,
+        "fontFamily": "Outfit",
+        "fontWeight": 900,
+        "fill": "#ffffff",
+        "originX": "center",
+        "originY": "center"
+      }
+    ]
+  },
+  {
+    "id": "tpl-youtube-finance",
+    "name": "Finance & Wealth Breakdown",
+    "category": "youtube",
+    "dimensions": {
+      "width": 1280,
+      "height": 720
+    },
+    "background": "#0a0a0a",
+    "previewGradient": "linear-gradient(135deg, #0a0a0a, #172554)",
+    "accentColor": "#10b981",
+    "description": "Authority finance thumbnail with stock chart vibes and bold numbers.",
+    "objects": [
+      {
+        "type": "circle",
+        "left": 1100,
+        "top": 360,
+        "radius": 320,
+        "fill": "rgba(16, 185, 129, 0.1)",
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "rect",
+        "left": 80,
+        "top": 100,
+        "width": 240,
+        "height": 38,
+        "fill": "rgba(16, 185, 129, 0.2)",
+        "stroke": "#10b981",
+        "strokeWidth": 1.5,
+        "rx": 19,
+        "ry": 19
+      },
+      {
+        "type": "i-text",
+        "left": 200,
+        "top": 119,
+        "text": "PORTFOLIO BLUEPRINT",
+        "fontSize": 13,
+        "fontFamily": "Inter",
+        "fontWeight": 800,
+        "fill": "#34d399",
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "i-text",
+        "left": 80,
+        "top": 180,
+        "text": "$0 TO $100K",
+        "fontSize": 104,
+        "fontFamily": "Outfit",
+        "fontWeight": 900,
+        "fill": "#10b981"
+      },
+      {
+        "type": "i-text",
+        "left": 80,
+        "top": 320,
+        "text": "INVESTING STRATEGY FOR 2025",
+        "fontSize": 32,
+        "fontFamily": "Inter",
+        "fontWeight": 700,
+        "fill": "#ffffff"
+      },
+      {
+        "type": "rect",
+        "left": 80,
+        "top": 440,
+        "width": 440,
+        "height": 70,
+        "fill": "#ffffff",
+        "rx": 8,
+        "ry": 8
+      },
+      {
+        "type": "i-text",
+        "left": 300,
+        "top": 475,
+        "text": "THE EXACT 3 ASSETS I BUY →",
+        "fontSize": 18,
+        "fontFamily": "Inter",
+        "fontWeight": 800,
+        "fill": "#000000",
+        "originX": "center",
+        "originY": "center"
+      }
+    ]
+  },
+  {
+    "id": "tpl-youtube-podcast",
+    "name": "Video Podcast Studio Interview",
+    "category": "youtube",
+    "dimensions": {
+      "width": 1280,
+      "height": 720
+    },
+    "background": "#18181b",
+    "previewGradient": "linear-gradient(135deg, #18181b, #27272a)",
+    "accentColor": "#f59e0b",
+    "description": "Deep-conversation video podcast episode thumbnail.",
+    "objects": [
+      {
+        "type": "rect",
+        "left": 80,
+        "top": 90,
+        "width": 140,
+        "height": 36,
+        "fill": "#f59e0b",
+        "rx": 4,
+        "ry": 4
+      },
+      {
+        "type": "i-text",
+        "left": 150,
+        "top": 108,
+        "text": "EPISODE 42",
+        "fontSize": 14,
+        "fontFamily": "Inter",
+        "fontWeight": 800,
+        "fill": "#000000",
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "i-text",
+        "left": 80,
+        "top": 170,
+        "text": "THE TRUTH ABOUT\nARTIFICIAL INTELLIGENCE",
+        "fontSize": 68,
+        "fontFamily": "Outfit",
+        "fontWeight": 900,
+        "fill": "#ffffff",
+        "lineHeight": 1.05
+      },
+      {
+        "type": "i-text",
+        "left": 80,
+        "top": 350,
+        "text": "With Dr. Sarah Lin • Stanford AI Research Lab",
+        "fontSize": 24,
+        "fontFamily": "Inter",
+        "fill": "#a1a1aa"
+      },
+      {
+        "type": "rect",
+        "left": 80,
+        "top": 470,
+        "width": 320,
+        "height": 54,
+        "fill": "rgba(255, 255, 255, 0.08)",
+        "stroke": "#3f3f46",
+        "strokeWidth": 1.5,
+        "rx": 8,
+        "ry": 8
+      },
+      {
+        "type": "i-text",
+        "left": 240,
+        "top": 497,
+        "text": "FULL 2-HOUR UNCUT CHAT",
+        "fontSize": 15,
+        "fontFamily": "Inter",
+        "fontWeight": 700,
+        "fill": "#f59e0b",
+        "originX": "center",
+        "originY": "center"
+      }
+    ]
+  },
+  {
+    "id": "tpl-youtube-vlog",
+    "name": "Travel Vlog Cinematic",
+    "category": "youtube",
+    "dimensions": {
+      "width": 1280,
+      "height": 720
+    },
+    "background": "#0c4a6e",
+    "previewGradient": "linear-gradient(135deg, #0c4a6e, #0369a1)",
+    "accentColor": "#38bdf8",
+    "description": "Crisp cyan and deep ocean cinematic travel video thumbnail.",
+    "objects": [
+      {
+        "type": "rect",
+        "left": 70,
+        "top": 80,
+        "width": 180,
+        "height": 36,
+        "fill": "rgba(56, 189, 248, 0.2)",
+        "stroke": "#38bdf8",
+        "strokeWidth": 1.5,
+        "rx": 18,
+        "ry": 18
+      },
+      {
+        "type": "i-text",
+        "left": 160,
+        "top": 98,
+        "text": "ICELAND 4K",
+        "fontSize": 13,
+        "fontFamily": "Inter",
+        "fontWeight": 800,
+        "fill": "#38bdf8",
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "i-text",
+        "left": 70,
+        "top": 160,
+        "text": "I ROAD-TRIPPED\nALONE FOR 14 DAYS",
+        "fontSize": 78,
+        "fontFamily": "Outfit",
+        "fontWeight": 900,
+        "fill": "#ffffff",
+        "lineHeight": 0.95
+      },
+      {
+        "type": "i-text",
+        "left": 70,
+        "top": 370,
+        "text": "Glaciers, Volcanic Basalt, and Sleeping in a Van",
+        "fontSize": 24,
+        "fontFamily": "Inter",
+        "fill": "#bae6fd"
+      }
+    ]
+  },
+  {
+    "id": "tpl-youtube-coding",
+    "name": "Full-Stack Dev Tutorial",
+    "category": "youtube",
+    "dimensions": {
+      "width": 1280,
+      "height": 720
+    },
+    "background": "#020617",
+    "previewGradient": "linear-gradient(135deg, #020617, #0f172a)",
+    "accentColor": "#38bdf8",
+    "description": "Clean code editor aesthetics and neon text for developer tutorials.",
+    "objects": [
+      {
+        "type": "rect",
+        "left": 70,
+        "top": 80,
+        "width": 220,
+        "height": 40,
+        "fill": "#38bdf8",
+        "rx": 6,
+        "ry": 6
+      },
+      {
+        "type": "i-text",
+        "left": 180,
+        "top": 100,
+        "text": "FULL CRASH COURSE",
+        "fontSize": 14,
+        "fontFamily": "Inter",
+        "fontWeight": 900,
+        "fill": "#020617",
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "i-text",
+        "left": 70,
+        "top": 160,
+        "text": "BUILD & DEPLOY\nA SAAS IN 2025",
+        "fontSize": 84,
+        "fontFamily": "Outfit",
+        "fontWeight": 900,
+        "fill": "#ffffff",
+        "lineHeight": 1
+      },
+      {
+        "type": "i-text",
+        "left": 70,
+        "top": 370,
+        "text": "Next.js 15 • Tailwind • WebSockets • Stripe Payments",
+        "fontSize": 22,
+        "fontFamily": "Inter",
+        "fill": "#94a3b8"
+      }
+    ]
+  },
+  {
+    "id": "tpl-minimal-resume",
+    "name": "Nordic Executive Resume",
+    "category": "business",
+    "dimensions": {
+      "width": 800,
+      "height": 1200
+    },
+    "background": "#ffffff",
+    "previewGradient": "linear-gradient(135deg, #ffffff, #f8fafc)",
+    "accentColor": "#0f172a",
+    "description": "Minimalist executive CV layout with clean grid hierarchy.",
+    "objects": [
+      {
+        "type": "rect",
+        "left": 0,
+        "top": 0,
+        "width": 260,
+        "height": 1200,
+        "fill": "#f8fafc"
+      },
+      {
+        "type": "circle",
+        "left": 130,
+        "top": 120,
+        "radius": 60,
+        "fill": "#e2e8f0",
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "i-text",
+        "left": 130,
+        "top": 220,
+        "text": "CONTACT",
+        "fontSize": 14,
+        "fontFamily": "Inter",
+        "fontWeight": 700,
+        "fill": "#0f172a",
+        "originX": "center",
+        "originY": "center",
+        "charSpacing": 100
+      },
+      {
+        "type": "i-text",
+        "left": 30,
+        "top": 260,
+        "text": "alex@designpro.io\n+1 (555) 019-2834\nSan Francisco, CA\ngithub.com/designer",
+        "fontSize": 12,
+        "fontFamily": "Inter",
+        "fill": "#64748b",
+        "lineHeight": 1.8
+      },
+      {
+        "type": "i-text",
+        "left": 300,
+        "top": 80,
+        "text": "ELENA ROSTOVA",
+        "fontSize": 36,
+        "fontFamily": "Outfit",
+        "fontWeight": 800,
+        "fill": "#0f172a"
+      },
+      {
+        "type": "i-text",
+        "left": 300,
+        "top": 130,
+        "text": "Principal Product Designer & Systems Architect",
+        "fontSize": 15,
+        "fontFamily": "Inter",
+        "fontWeight": 600,
+        "fill": "#64748b"
+      },
+      {
+        "type": "rect",
+        "left": 300,
+        "top": 170,
+        "width": 440,
+        "height": 2,
+        "fill": "#0f172a"
+      },
+      {
+        "type": "i-text",
+        "left": 300,
+        "top": 200,
+        "text": "EXPERIENCE",
+        "fontSize": 16,
+        "fontFamily": "Inter",
+        "fontWeight": 700,
+        "fill": "#0f172a",
+        "charSpacing": 80
+      },
+      {
+        "type": "i-text",
+        "left": 300,
+        "top": 240,
+        "text": "Senior Design Lead • Vercel (2021 – Present)",
+        "fontSize": 14,
+        "fontFamily": "Inter",
+        "fontWeight": 700,
+        "fill": "#0f172a"
+      },
+      {
+        "type": "i-text",
+        "left": 300,
+        "top": 270,
+        "text": "Led design systems across 4 core developer platforms. Improved user onboarding retention by 34%.",
+        "fontSize": 13,
+        "fontFamily": "Inter",
+        "fill": "#475569",
+        "lineHeight": 1.4
+      }
+    ]
+  },
+  {
+    "id": "tpl-minimal-invoice",
+    "name": "Minimalist Studio Invoice",
+    "category": "business",
+    "dimensions": {
+      "width": 1200,
+      "height": 1600
+    },
+    "background": "#ffffff",
+    "previewGradient": "linear-gradient(135deg, #ffffff, #f1f5f9)",
+    "accentColor": "#2563eb",
+    "description": "Professional freelance and agency billing invoice layout.",
+    "objects": [
+      {
+        "type": "rect",
+        "left": 80,
+        "top": 80,
+        "width": 1040,
+        "height": 1440,
+        "fill": "transparent",
+        "stroke": "#e2e8f0",
+        "strokeWidth": 1.5
+      },
+      {
+        "type": "i-text",
+        "left": 140,
+        "top": 140,
+        "text": "PIXELS DESIGN STUDIO",
+        "fontSize": 24,
+        "fontFamily": "Outfit",
+        "fontWeight": 800,
+        "fill": "#0f172a"
+      },
+      {
+        "type": "i-text",
+        "left": 860,
+        "top": 140,
+        "text": "INVOICE #0842",
+        "fontSize": 20,
+        "fontFamily": "Inter",
+        "fontWeight": 700,
+        "fill": "#2563eb"
+      },
+      {
+        "type": "i-text",
+        "left": 140,
+        "top": 200,
+        "text": "124 Innovation Way, Suite 400\nSan Francisco, CA 94107",
+        "fontSize": 14,
+        "fontFamily": "Inter",
+        "fill": "#64748b",
+        "lineHeight": 1.5
+      },
+      {
+        "type": "rect",
+        "left": 140,
+        "top": 320,
+        "width": 920,
+        "height": 48,
+        "fill": "#f8fafc",
+        "rx": 6,
+        "ry": 6
+      },
+      {
+        "type": "i-text",
+        "left": 160,
+        "top": 334,
+        "text": "DESCRIPTION",
+        "fontSize": 13,
+        "fontFamily": "Inter",
+        "fontWeight": 700,
+        "fill": "#475569"
+      },
+      {
+        "type": "i-text",
+        "left": 740,
+        "top": 334,
+        "text": "HOURS",
+        "fontSize": 13,
+        "fontFamily": "Inter",
+        "fontWeight": 700,
+        "fill": "#475569"
+      },
+      {
+        "type": "i-text",
+        "left": 960,
+        "top": 334,
+        "text": "TOTAL",
+        "fontSize": 13,
+        "fontFamily": "Inter",
+        "fontWeight": 700,
+        "fill": "#475569"
+      },
+      {
+        "type": "i-text",
+        "left": 160,
+        "top": 400,
+        "text": "Brand Identity, Typography System & Canvas UI",
+        "fontSize": 14,
+        "fontFamily": "Inter",
+        "fill": "#0f172a"
+      },
+      {
+        "type": "i-text",
+        "left": 760,
+        "top": 400,
+        "text": "40",
+        "fontSize": 14,
+        "fontFamily": "Inter",
+        "fill": "#0f172a"
+      },
+      {
+        "type": "i-text",
+        "left": 960,
+        "top": 400,
+        "text": "$6,000.00",
+        "fontSize": 14,
+        "fontFamily": "Inter",
+        "fontWeight": 700,
+        "fill": "#0f172a"
+      }
+    ]
+  },
+  {
+    "id": "tpl-pitch-deck-title",
+    "name": "Investor Pitch Deck Title",
+    "category": "business",
+    "dimensions": {
+      "width": 1920,
+      "height": 1080
+    },
+    "background": "#0a0a0f",
+    "previewGradient": "linear-gradient(135deg, #0a0a0f, #1e1b4b)",
+    "accentColor": "#6366f1",
+    "description": "Sleek dark 16:9 keynote slide for seed & Series A startup presentations.",
+    "objects": [
+      {
+        "type": "circle",
+        "left": 1500,
+        "top": 540,
+        "radius": 460,
+        "fill": "rgba(99, 102, 241, 0.15)",
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "rect",
+        "left": 180,
+        "top": 220,
+        "width": 180,
+        "height": 40,
+        "fill": "rgba(99, 102, 241, 0.2)",
+        "stroke": "#6366f1",
+        "strokeWidth": 1.5,
+        "rx": 20,
+        "ry": 20
+      },
+      {
+        "type": "i-text",
+        "left": 270,
+        "top": 240,
+        "text": "SERIES A PITCH",
+        "fontSize": 14,
+        "fontFamily": "Inter",
+        "fontWeight": 700,
+        "fill": "#818cf8",
+        "originX": "center",
+        "originY": "center",
+        "charSpacing": 120
+      },
+      {
+        "type": "i-text",
+        "left": 180,
+        "top": 320,
+        "text": "THE NEXT ERA OF\nCANVAS COMPUTING",
+        "fontSize": 92,
+        "fontFamily": "Outfit",
+        "fontWeight": 900,
+        "fill": "#ffffff",
+        "lineHeight": 1.05
+      },
+      {
+        "type": "i-text",
+        "left": 180,
+        "top": 580,
+        "text": "Real-time client-side graphic engine replacing legacy cloud bloat.",
+        "fontSize": 26,
+        "fontFamily": "Inter",
+        "fill": "#9ca3af"
+      },
+      {
+        "type": "i-text",
+        "left": 180,
+        "top": 860,
+        "text": "CONFIDENTIAL • JUNE 2025",
+        "fontSize": 16,
+        "fontFamily": "Inter",
+        "fill": "#6b7280",
+        "charSpacing": 100
+      }
+    ]
+  },
+  {
+    "id": "tpl-business-card-minimal",
+    "name": "Architect Business Card",
+    "category": "business",
+    "dimensions": {
+      "width": 1050,
+      "height": 600
+    },
+    "background": "#fafaf9",
+    "previewGradient": "linear-gradient(135deg, #fafaf9, #e7e5e4)",
+    "accentColor": "#1c1917",
+    "description": "High-end tactile business card for architects and interior designers.",
+    "objects": [
+      {
+        "type": "rect",
+        "left": 50,
+        "top": 50,
+        "width": 950,
+        "height": 500,
+        "fill": "transparent",
+        "stroke": "#e7e5e4",
+        "strokeWidth": 2
+      },
+      {
+        "type": "i-text",
+        "left": 100,
+        "top": 120,
+        "text": "MARCUS VANCE",
+        "fontSize": 44,
+        "fontFamily": "Outfit",
+        "fontWeight": 800,
+        "fill": "#1c1917"
+      },
+      {
+        "type": "i-text",
+        "left": 100,
+        "top": 180,
+        "text": "PRINCIPAL ARCHITECT • AIA",
+        "fontSize": 14,
+        "fontFamily": "Inter",
+        "fontWeight": 700,
+        "fill": "#78716c",
+        "charSpacing": 140
+      },
+      {
+        "type": "rect",
+        "left": 100,
+        "top": 220,
+        "width": 80,
+        "height": 3,
+        "fill": "#1c1917"
+      },
+      {
+        "type": "i-text",
+        "left": 100,
+        "top": 380,
+        "text": "m.vance@studioarchitecture.com\n+1 (212) 555-0149\n540 Madison Ave, New York",
+        "fontSize": 14,
+        "fontFamily": "Inter",
+        "fill": "#44403c",
+        "lineHeight": 1.6
+      }
+    ]
+  },
+  {
+    "id": "tpl-business-card-dark",
+    "name": "Black Gold Luxury Card",
+    "category": "business",
+    "dimensions": {
+      "width": 1050,
+      "height": 600
+    },
+    "background": "#09090b",
+    "previewGradient": "linear-gradient(135deg, #09090b, #18181b)",
+    "accentColor": "#facc15",
+    "description": "Matte black with metallic gold typography business card.",
+    "objects": [
+      {
+        "type": "rect",
+        "left": 40,
+        "top": 40,
+        "width": 970,
+        "height": 520,
+        "fill": "transparent",
+        "stroke": "rgba(250, 204, 21, 0.3)",
+        "strokeWidth": 1.5
+      },
+      {
+        "type": "i-text",
+        "left": 525,
+        "top": 180,
+        "text": "AURELIUS",
+        "fontSize": 48,
+        "fontFamily": "Playfair Display",
+        "fontWeight": 700,
+        "fill": "#facc15",
+        "originX": "center",
+        "originY": "center",
+        "charSpacing": 180
+      },
+      {
+        "type": "i-text",
+        "left": 525,
+        "top": 240,
+        "text": "PRIVATE WEALTH MANAGEMENT",
+        "fontSize": 13,
+        "fontFamily": "Inter",
+        "fontWeight": 700,
+        "fill": "#e4e4e7",
+        "originX": "center",
+        "originY": "center",
+        "charSpacing": 160
+      },
+      {
+        "type": "rect",
+        "left": 525,
+        "top": 290,
+        "width": 60,
+        "height": 2,
+        "fill": "#facc15",
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "i-text",
+        "left": 525,
+        "top": 400,
+        "text": "GENEVA • LONDON • ZURICH",
+        "fontSize": 12,
+        "fontFamily": "Inter",
+        "fill": "#a1a1aa",
+        "originX": "center",
+        "originY": "center",
+        "charSpacing": 200
+      }
+    ]
+  },
+  {
+    "id": "tpl-report-cover",
+    "name": "Quarterly Strategy Report",
+    "category": "business",
+    "dimensions": {
+      "width": 800,
+      "height": 1200
+    },
+    "background": "#0f172a",
+    "previewGradient": "linear-gradient(135deg, #0f172a, #1e293b)",
+    "accentColor": "#38bdf8",
+    "description": "Executive report cover artboard for corporate research publications.",
+    "objects": [
+      {
+        "type": "rect",
+        "left": 80,
+        "top": 80,
+        "width": 640,
+        "height": 1040,
+        "fill": "transparent",
+        "stroke": "#334155",
+        "strokeWidth": 1.5
+      },
+      {
+        "type": "i-text",
+        "left": 120,
+        "top": 180,
+        "text": "GLOBAL MARKET INTELLIGENCE",
+        "fontSize": 13,
+        "fontFamily": "Inter",
+        "fontWeight": 800,
+        "fill": "#38bdf8",
+        "charSpacing": 140
+      },
+      {
+        "type": "i-text",
+        "left": 120,
+        "top": 240,
+        "text": "FUTURE OF\nFINTECH 2026",
+        "fontSize": 56,
+        "fontFamily": "Outfit",
+        "fontWeight": 900,
+        "fill": "#ffffff",
+        "lineHeight": 1.05
+      },
+      {
+        "type": "rect",
+        "left": 120,
+        "top": 440,
+        "width": 80,
+        "height": 4,
+        "fill": "#38bdf8"
+      },
+      {
+        "type": "i-text",
+        "left": 120,
+        "top": 500,
+        "text": "An exhaustive analysis of embedded banking, distributed ledgers, and automated risk scoring.",
+        "fontSize": 16,
+        "fontFamily": "Inter",
+        "fill": "#94a3b8",
+        "lineHeight": 1.5
+      },
+      {
+        "type": "i-text",
+        "left": 120,
+        "top": 960,
+        "text": "VENTURE RESEARCH GROUP • Q3 REPORT",
+        "fontSize": 12,
+        "fontFamily": "Inter",
+        "fill": "#64748b",
+        "charSpacing": 100
+      }
+    ]
+  },
+  {
+    "id": "tpl-neon-concert",
+    "name": "Neon Electro Music Poster",
+    "category": "events",
+    "dimensions": {
+      "width": 1080,
+      "height": 1920
+    },
+    "background": "#050014",
+    "previewGradient": "linear-gradient(135deg, #050014, #1a0033)",
+    "accentColor": "#ec4899",
+    "description": "Vibrant cyberpunk festival poster with glowing neon elements.",
+    "objects": [
+      {
+        "type": "circle",
+        "left": 540,
+        "top": 600,
+        "radius": 460,
+        "fill": "rgba(236, 72, 153, 0.15)",
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "circle",
+        "left": 540,
+        "top": 1000,
+        "radius": 360,
+        "fill": "rgba(6, 182, 212, 0.12)",
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "i-text",
+        "left": 540,
+        "top": 240,
+        "text": "AMSTERDAM DANCE EVENT PRESENTS",
+        "fontSize": 16,
+        "fontFamily": "Inter",
+        "fontWeight": 700,
+        "fill": "#ec4899",
+        "originX": "center",
+        "originY": "center",
+        "charSpacing": 180
+      },
+      {
+        "type": "i-text",
+        "left": 540,
+        "top": 440,
+        "text": "NEON WAVE\nFESTIVAL",
+        "fontSize": 124,
+        "fontFamily": "Bebas Neue",
+        "fill": "#ffffff",
+        "textAlign": "center",
+        "lineHeight": 0.9,
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "rect",
+        "left": 540,
+        "top": 720,
+        "width": 480,
+        "height": 50,
+        "fill": "rgba(236, 72, 153, 0.2)",
+        "stroke": "#ec4899",
+        "strokeWidth": 1.5,
+        "rx": 25,
+        "ry": 25,
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "i-text",
+        "left": 540,
+        "top": 720,
+        "text": "OCTOBER 24 – 26 • GASHOUDER ARENA",
+        "fontSize": 16,
+        "fontFamily": "Outfit",
+        "fontWeight": 800,
+        "fill": "#ffffff",
+        "originX": "center",
+        "originY": "center",
+        "charSpacing": 100
+      },
+      {
+        "type": "i-text",
+        "left": 540,
+        "top": 880,
+        "text": "ERIC PRYDZ • TALE OF US • AMELIE LENS • BICEP",
+        "fontSize": 24,
+        "fontFamily": "Outfit",
+        "fontWeight": 800,
+        "fill": "#06b6d4",
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "rect",
+        "left": 540,
+        "top": 1640,
+        "width": 380,
+        "height": 70,
+        "fill": "#ec4899",
+        "rx": 35,
+        "ry": 35,
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "i-text",
+        "left": 540,
+        "top": 1640,
+        "text": "GET TICKETS NOW",
+        "fontSize": 20,
+        "fontFamily": "Outfit",
+        "fontWeight": 900,
+        "fill": "#ffffff",
+        "originX": "center",
+        "originY": "center"
+      }
+    ]
+  },
+  {
+    "id": "tpl-ai-summit",
+    "name": "Global AI Keynote Summit",
+    "category": "events",
+    "dimensions": {
+      "width": 1920,
+      "height": 1080
+    },
+    "background": "#09090b",
+    "previewGradient": "linear-gradient(135deg, #09090b, #1e1b4b)",
+    "accentColor": "#8b5cf6",
+    "description": "Professional keynote conference slide & banner for tech summits.",
+    "objects": [
+      {
+        "type": "circle",
+        "left": 1400,
+        "top": 540,
+        "radius": 460,
+        "fill": "rgba(139, 92, 246, 0.15)",
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "rect",
+        "left": 160,
+        "top": 200,
+        "width": 280,
+        "height": 44,
+        "fill": "rgba(139, 92, 246, 0.2)",
+        "stroke": "#8b5cf6",
+        "strokeWidth": 1.5,
+        "rx": 22,
+        "ry": 22
+      },
+      {
+        "type": "i-text",
+        "left": 300,
+        "top": 222,
+        "text": "ANNUAL DEVELOPER KEYNOTE",
+        "fontSize": 13,
+        "fontFamily": "Inter",
+        "fontWeight": 700,
+        "fill": "#c084fc",
+        "originX": "center",
+        "originY": "center",
+        "charSpacing": 100
+      },
+      {
+        "type": "i-text",
+        "left": 160,
+        "top": 300,
+        "text": "FRONTIER AI\n& REASONING",
+        "fontSize": 96,
+        "fontFamily": "Outfit",
+        "fontWeight": 900,
+        "fill": "#ffffff",
+        "lineHeight": 1.05
+      },
+      {
+        "type": "i-text",
+        "left": 160,
+        "top": 580,
+        "text": "Keynote talks by leading foundation model researchers and autonomous agent pioneers.",
+        "fontSize": 24,
+        "fontFamily": "Inter",
+        "fill": "#a1a1aa"
+      },
+      {
+        "type": "rect",
+        "left": 160,
+        "top": 720,
+        "width": 340,
+        "height": 64,
+        "fill": "#8b5cf6",
+        "rx": 32,
+        "ry": 32
+      },
+      {
+        "type": "i-text",
+        "left": 330,
+        "top": 752,
+        "text": "REGISTER PASS ($299) →",
+        "fontSize": 18,
+        "fontFamily": "Outfit",
+        "fontWeight": 800,
+        "fill": "#ffffff",
+        "originX": "center",
+        "originY": "center"
+      }
+    ]
+  },
+  {
+    "id": "tpl-wedding-invitation",
+    "name": "Botanical Wedding Invitation",
+    "category": "events",
+    "dimensions": {
+      "width": 1080,
+      "height": 1920
+    },
+    "background": "#fafaf9",
+    "previewGradient": "linear-gradient(135deg, #fafaf9, #f5f5f4)",
+    "accentColor": "#78716c",
+    "description": "Elegant serif typography botanical wedding card.",
+    "objects": [
+      {
+        "type": "rect",
+        "left": 80,
+        "top": 80,
+        "width": 920,
+        "height": 1760,
+        "fill": "transparent",
+        "stroke": "#e7e5e4",
+        "strokeWidth": 2
+      },
+      {
+        "type": "i-text",
+        "left": 540,
+        "top": 380,
+        "text": "TOGETHER WITH THEIR FAMILIES",
+        "fontSize": 16,
+        "fontFamily": "Inter",
+        "fontWeight": 600,
+        "fill": "#78716c",
+        "originX": "center",
+        "originY": "center",
+        "charSpacing": 180
+      },
+      {
+        "type": "i-text",
+        "left": 540,
+        "top": 620,
+        "text": "Charlotte\n&\nAlexander",
+        "fontSize": 96,
+        "fontFamily": "Playfair Display",
+        "fontWeight": 700,
+        "fill": "#1c1917",
+        "textAlign": "center",
+        "lineHeight": 1.25,
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "rect",
+        "left": 540,
+        "top": 960,
+        "width": 100,
+        "height": 2,
+        "fill": "#a8a29e",
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "i-text",
+        "left": 540,
+        "top": 1080,
+        "text": "SATURDAY, SEPTEMBER 20, 2025\nAT FOUR O'CLOCK IN THE AFTERNOON",
+        "fontSize": 20,
+        "fontFamily": "Inter",
+        "fontWeight": 600,
+        "fill": "#44403c",
+        "textAlign": "center",
+        "lineHeight": 1.8,
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "i-text",
+        "left": 540,
+        "top": 1260,
+        "text": "VILLA CIPRESSI • LAKE COMO, ITALY",
+        "fontSize": 18,
+        "fontFamily": "Inter",
+        "fontWeight": 700,
+        "fill": "#78716c",
+        "originX": "center",
+        "originY": "center",
+        "charSpacing": 140
+      },
+      {
+        "type": "i-text",
+        "left": 540,
+        "top": 1480,
+        "text": "RECEPTION TO FOLLOW • RSVP BY AUGUST 1ST",
+        "fontSize": 14,
+        "fontFamily": "Inter",
+        "fill": "#a8a29e",
+        "originX": "center",
+        "originY": "center",
+        "charSpacing": 100
+      }
+    ]
+  },
+  {
+    "id": "tpl-hackathon-poster",
+    "name": "48H Hackathon Championship",
+    "category": "events",
+    "dimensions": {
+      "width": 1080,
+      "height": 1080
+    },
+    "background": "#09090b",
+    "previewGradient": "linear-gradient(135deg, #09090b, #111827)",
+    "accentColor": "#22c55e",
+    "description": "Energetic terminal green and black collegiate hackathon flyer.",
+    "objects": [
+      {
+        "type": "rect",
+        "left": 80,
+        "top": 80,
+        "width": 920,
+        "height": 920,
+        "fill": "transparent",
+        "stroke": "#22c55e",
+        "strokeWidth": 2
+      },
+      {
+        "type": "i-text",
+        "left": 140,
+        "top": 180,
+        "text": ">> GLOBAL STUDENT HACKATHON 2025",
+        "fontSize": 16,
+        "fontFamily": "Inter",
+        "fontWeight": 800,
+        "fill": "#22c55e",
+        "charSpacing": 100
+      },
+      {
+        "type": "i-text",
+        "left": 140,
+        "top": 280,
+        "text": "BUILD THE\nUNTHINKABLE",
+        "fontSize": 94,
+        "fontFamily": "Outfit",
+        "fontWeight": 900,
+        "fill": "#ffffff",
+        "lineHeight": 0.95
+      },
+      {
+        "type": "i-text",
+        "left": 140,
+        "top": 520,
+        "text": "$50,000 IN PRIZES • 48 HOURS • 1,000 HACKERS",
+        "fontSize": 20,
+        "fontFamily": "Inter",
+        "fontWeight": 700,
+        "fill": "#86efac"
+      },
+      {
+        "type": "rect",
+        "left": 140,
+        "top": 660,
+        "width": 360,
+        "height": 64,
+        "fill": "#22c55e",
+        "rx": 6,
+        "ry": 6
+      },
+      {
+        "type": "i-text",
+        "left": 320,
+        "top": 692,
+        "text": "REGISTER SQUAD NOW",
+        "fontSize": 18,
+        "fontFamily": "Outfit",
+        "fontWeight": 900,
+        "fill": "#000000",
+        "originX": "center",
+        "originY": "center"
+      }
+    ]
+  },
+  {
+    "id": "tpl-webinar-masterclass",
+    "name": "Design Systems Masterclass",
+    "category": "events",
+    "dimensions": {
+      "width": 1920,
+      "height": 1080
+    },
+    "background": "#0f172a",
+    "previewGradient": "linear-gradient(135deg, #0f172a, #1e293b)",
+    "accentColor": "#38bdf8",
+    "description": "Live interactive webinar screen with host details.",
+    "objects": [
+      {
+        "type": "rect",
+        "left": 160,
+        "top": 160,
+        "width": 220,
+        "height": 40,
+        "fill": "rgba(56, 189, 248, 0.2)",
+        "stroke": "#38bdf8",
+        "strokeWidth": 1.5,
+        "rx": 20,
+        "ry": 20
+      },
+      {
+        "type": "i-text",
+        "left": 270,
+        "top": 180,
+        "text": "FREE LIVE WEBINAR",
+        "fontSize": 14,
+        "fontFamily": "Inter",
+        "fontWeight": 700,
+        "fill": "#38bdf8",
+        "originX": "center",
+        "originY": "center",
+        "charSpacing": 100
+      },
+      {
+        "type": "i-text",
+        "left": 160,
+        "top": 260,
+        "text": "SCALING DESIGN SYSTEMS\nFROM STARTUP TO ENTERPRISE",
+        "fontSize": 78,
+        "fontFamily": "Outfit",
+        "fontWeight": 900,
+        "fill": "#ffffff",
+        "lineHeight": 1.1
+      },
+      {
+        "type": "i-text",
+        "left": 160,
+        "top": 520,
+        "text": "Thursday, July 17 • 10:00 AM PST • Interactive Q&A Included",
+        "fontSize": 24,
+        "fontFamily": "Inter",
+        "fill": "#94a3b8"
+      },
+      {
+        "type": "rect",
+        "left": 160,
+        "top": 680,
+        "width": 320,
+        "height": 64,
+        "fill": "#38bdf8",
+        "rx": 32,
+        "ry": 32
+      },
+      {
+        "type": "i-text",
+        "left": 320,
+        "top": 712,
+        "text": "CLAIM YOUR FREE SEAT",
+        "fontSize": 18,
+        "fontFamily": "Outfit",
+        "fontWeight": 800,
+        "fill": "#0f172a",
+        "originX": "center",
+        "originY": "center"
+      }
+    ]
+  },
+  {
+    "id": "tpl-art-gallery",
+    "name": "Modern Art Exhibition",
+    "category": "events",
+    "dimensions": {
+      "width": 1080,
+      "height": 1440
+    },
+    "background": "#18181b",
+    "previewGradient": "linear-gradient(135deg, #18181b, #09090b)",
+    "accentColor": "#f43f5e",
+    "description": "Contemporary museum and modern art exhibition flyer.",
+    "objects": [
+      {
+        "type": "rect",
+        "left": 80,
+        "top": 80,
+        "width": 920,
+        "height": 1280,
+        "fill": "transparent",
+        "stroke": "#27272a",
+        "strokeWidth": 2
+      },
+      {
+        "type": "circle",
+        "left": 540,
+        "top": 540,
+        "radius": 280,
+        "fill": "rgba(244, 63, 94, 0.15)",
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "i-text",
+        "left": 540,
+        "top": 240,
+        "text": "MUSEUM OF MODERN FORMS",
+        "fontSize": 16,
+        "fontFamily": "Inter",
+        "fontWeight": 800,
+        "fill": "#f43f5e",
+        "originX": "center",
+        "originY": "center",
+        "charSpacing": 200
+      },
+      {
+        "type": "i-text",
+        "left": 540,
+        "top": 460,
+        "text": "CHROMATIC\nHORIZONS",
+        "fontSize": 98,
+        "fontFamily": "Playfair Display",
+        "fontWeight": 900,
+        "fill": "#ffffff",
+        "textAlign": "center",
+        "lineHeight": 0.95,
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "i-text",
+        "left": 540,
+        "top": 740,
+        "text": "Works by 12 International Avant-Garde Painters",
+        "fontSize": 22,
+        "fontFamily": "Inter",
+        "fill": "#a1a1aa",
+        "originX": "center",
+        "originY": "center"
+      },
+      {
+        "type": "i-text",
+        "left": 540,
+        "top": 860,
+        "text": "JUNE 12 – AUGUST 30 • VENICE, ITALY",
+        "fontSize": 18,
+        "fontFamily": "Inter",
+        "fontWeight": 700,
+        "fill": "#f43f5e",
+        "originX": "center",
+        "originY": "center",
+        "charSpacing": 120
+      }
+    ]
+  }
+]
