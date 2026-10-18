@@ -22,10 +22,10 @@ class ImagesTool {
       if (file.type === 'image/svg+xml' || file.name.toLowerCase().endsWith('.svg')) {
         const reader = new FileReader();
         reader.onload = (e) => {
-          const svgString = e.target.result;
+          const svgString = this.sanitizeSvgString(e.target.result);
           this.addSVGToCanvas(svgString, file.name);
           const blobUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgString);
-          this.addUploadThumbnail(blobUrl);
+          this.addUploadThumbnail(blobUrl, file.name, 'vector', svgString);
         };
         reader.readAsText(file);
         return;
@@ -37,10 +37,18 @@ class ImagesTool {
       reader.onload = (e) => {
         const dataUrl = e.target.result;
         this.addImageToCanvas(dataUrl, file.name);
-        this.addUploadThumbnail(dataUrl);
+        this.addUploadThumbnail(dataUrl, file.name, 'photo');
       };
       reader.readAsDataURL(file);
     });
+  }
+
+  sanitizeSvgString(svgString) {
+    return String(svgString || '')
+      .replace(/<script\b[^>]*>[\s\S]*?<\/script\s*>/gi, '')
+      .replace(/<foreignObject\b[^>]*>[\s\S]*?<\/foreignObject\s*>/gi, '')
+      .replace(/\s+on[a-z]+\s*=\s*(["']).*?\1/gi, '')
+      .replace(/\s+(?:href|xlink:href)\s*=\s*(["'])\s*(?:javascript:|https?:\/\/).*?\1/gi, '');
   }
 
   // Add crisp vector SVG to canvas using Fabric native SVG parser
@@ -80,18 +88,75 @@ class ImagesTool {
   }
 
   // Add Upload Thumbnail to sidebar
-  addUploadThumbnail(src) {
+  addUploadThumbnail(src, name = 'Imported image', type = 'photo', svgString = '') {
     const grid = document.getElementById('upload-thumbs-grid');
-    if (!grid) return;
-
     const item = document.createElement('div');
     item.className = 'upload-thumb-item';
-    item.innerHTML = `<img src="${src}" alt="Uploaded image" />`;
+    item.title = `Click to add ${name}`;
+    const image = document.createElement('img');
+    image.src = src;
+    image.alt = name;
+    item.appendChild(image);
     item.addEventListener('click', () => {
-      this.addImageToCanvas(src, 'Uploaded Image');
+      if (svgString) this.addSVGToCanvas(svgString, name);
+      else this.addImageToCanvas(src, name);
     });
 
-    grid.prepend(item);
+    if (grid) grid.prepend(item);
+    const imported = { id: `local-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, title: name, type, thumb: src, url: src, dataUrl: src, svgString, source: 'Device import' };
+    if (window.app && window.app.contentHub) window.app.contentHub.addImportedAsset(imported);
+    window.dispatchEvent(new CustomEvent('designpro:asset-imported', { detail: imported }));
+  }
+
+  async importFromUrl(rawUrl) {
+    let sourceUrl;
+    try {
+      sourceUrl = new URL(String(rawUrl || '').trim());
+      if (!['http:', 'https:'].includes(sourceUrl.protocol)) throw new Error('Only http and https image links are supported.');
+    } catch (error) {
+      if (window.showToast) window.showToast(error.message || 'Enter a valid image or SVG URL.', 'error');
+      return false;
+    }
+
+    let fileName = 'External image';
+    try {
+      fileName = decodeURIComponent(sourceUrl.pathname.split('/').filter(Boolean).pop() || fileName);
+    } catch (_) {
+      fileName = sourceUrl.pathname.split('/').filter(Boolean).pop() || fileName;
+    }
+    try {
+      const response = await fetch(sourceUrl.href, { mode: 'cors' });
+      if (!response.ok) throw new Error(`The image source returned ${response.status}.`);
+      const blob = await response.blob();
+      const contentType = (blob.type || response.headers.get('content-type') || '').toLowerCase();
+      const path = sourceUrl.pathname.toLowerCase();
+      if (contentType.includes('svg') || path.endsWith('.svg')) {
+        const svgString = this.sanitizeSvgString(await blob.text());
+        if (!/<svg\b/i.test(svgString)) throw new Error('The link did not return a valid SVG image.');
+        const dataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgString)}`;
+        this.addSVGToCanvas(svgString, fileName);
+        this.addUploadThumbnail(dataUrl, fileName, 'vector', svgString);
+      } else if (contentType.startsWith('image/') || /\.(?:png|jpe?g|webp|gif|bmp|avif)$/.test(path)) {
+        const dataUrl = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = () => reject(new Error('Could not read the image from that link.'));
+          reader.readAsDataURL(blob);
+        });
+        this.addImageToCanvas(dataUrl, fileName);
+        this.addUploadThumbnail(dataUrl, fileName, 'photo');
+      } else {
+        throw new Error('That link did not return an image or SVG.');
+      }
+      if (window.showToast) window.showToast(`Imported ${fileName}`, 'success');
+      return true;
+    } catch (error) {
+      const message = error.name === 'TypeError'
+        ? 'This source blocks direct importing. Download the image and use Import from device instead.'
+        : (error.message || 'Could not import that image.');
+      if (window.showToast) window.showToast(message, 'error');
+      return false;
+    }
   }
 
   // Add Image to Canvas with smart scaling
