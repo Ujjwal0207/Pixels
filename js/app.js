@@ -872,10 +872,12 @@ function setupBackgroundTab() {
     swatch.addEventListener('click', () => {
       const c1 = swatch.getAttribute('data-c1');
       const c2 = swatch.getAttribute('data-c2');
+      const artW = window.app.canvasManager ? window.app.canvasManager.artboardWidth : (window.app.canvas.width / (window.app.canvas.getZoom() || 1));
+      const artH = window.app.canvasManager ? window.app.canvasManager.artboardHeight : (window.app.canvas.height / (window.app.canvas.getZoom() || 1));
       const grad = new fabric.Gradient({
         type: 'linear',
         gradientUnits: 'pixels',
-        coords: { x1: 0, y1: 0, x2: window.app.canvas.width, y2: window.app.canvas.height },
+        coords: { x1: 0, y1: 0, x2: artW, y2: artH },
         colorStops: [
           { offset: 0, color: c1 },
           { offset: 1, color: c2 },
@@ -898,10 +900,12 @@ function setupBackgroundTab() {
       const c4 = card.getAttribute('data-p4');
       const name = card.getAttribute('data-name') || 'Curated Palette';
 
+      const artW = window.app.canvasManager ? window.app.canvasManager.artboardWidth : (window.app.canvas.width / (window.app.canvas.getZoom() || 1));
+      const artH = window.app.canvasManager ? window.app.canvasManager.artboardHeight : (window.app.canvas.height / (window.app.canvas.getZoom() || 1));
       const grad = new fabric.Gradient({
         type: 'linear',
         gradientUnits: 'pixels',
-        coords: { x1: 0, y1: 0, x2: window.app.canvas.width, y2: window.app.canvas.height },
+        coords: { x1: 0, y1: 0, x2: artW, y2: artH },
         colorStops: [
           { offset: 0, color: c1 },
           { offset: 1, color: c2 },
@@ -1691,6 +1695,15 @@ function setupClippingMaskEvents() {
     btnMask.addEventListener('click', () => {
       if (window.app && window.app.layers) {
         window.app.layers.createClippingMask();
+      }
+    });
+  }
+
+  const btnRelease = document.getElementById('btn-release-clip-mask');
+  if (btnRelease) {
+    btnRelease.addEventListener('click', () => {
+      if (window.app && window.app.layers) {
+        window.app.layers.releaseClippingMask();
       }
     });
   }
