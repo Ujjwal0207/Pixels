@@ -733,10 +733,14 @@ input:focus, select:focus, textarea:focus {
 }
 
 .photo-item {
+  display: block;
+  width: 100%;
   aspect-ratio: 4/3;
   border-radius: var(--radius-sm);
   overflow: hidden;
   cursor: pointer;
+  padding: 0;
+  background: var(--bg-surface);
   position: relative;
   border: 1px solid var(--border-subtle);
   transition: all var(--transition-fast);
@@ -755,6 +759,53 @@ input:focus, select:focus, textarea:focus {
 
 .photo-item:hover {
   border-color: var(--accent-purple);
+}
+
+.photo-library-tools,
+.hub-import-tools {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.asset-import-button {
+  justify-content: center;
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.asset-url-import {
+  display: flex;
+  gap: 6px;
+}
+
+.asset-url-import input {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 9px;
+  font-size: 0.76rem;
+}
+
+.asset-url-import button {
+  padding: 6px 10px;
+  font-size: 0.76rem;
+}
+
+.asset-import-hint,
+.draw-tool-hint {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
+
+.photos-empty {
+  grid-column: 1 / -1;
+  padding: 20px 10px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  text-align: center;
 }
 
 /* Backgrounds & Gradients */
