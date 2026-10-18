@@ -4,11 +4,12 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Initialize Core Canvas
+  // Initialize Core Storage & Canvas
+  const storageEngine = new StorageEngine();
   const canvasManager = new CanvasManager();
   const canvas = canvasManager.init('canvas-element');
 
-  // Initialize Tools
+  // Initialize Tools & Engines
   const textTool = new TextTool(canvasManager);
   const elementsTool = new ElementsTool(canvasManager);
   const imagesTool = new ImagesTool(canvasManager);
@@ -29,8 +30,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const effectcraft = new EffectCraftOverlays(canvasManager);
   const pdfcraft = new PDFCraftTools(canvasManager);
 
+  // New Studio Engines (Rulers, Content Hub, Brand Kit)
+  const rulersEngine = new RulersAndGuides(canvasManager);
+  const contentHub = new ContentHub(canvasManager);
+  const brandKit = new BrandKitEngine(canvasManager);
+
   // Global app reference for cross-component access
   window.app = {
+    storage: storageEngine,
     canvasManager,
     canvas,
     textTool,
@@ -52,9 +59,17 @@ document.addEventListener('DOMContentLoaded', () => {
     photocraft,
     effectcraft,
     pdfcraft,
+    rulers: rulersEngine,
+    contentHub,
+    brandKit,
     activeTab: 'templates',
     selectedFormat: 'png',
   };
+
+  // Initialize Storage & Subsystems
+  storageEngine.init();
+  rulersEngine.init();
+  brandKit.init();
 
   // Setup UI components
   setupNavigationRail();
@@ -75,11 +90,31 @@ document.addEventListener('DOMContentLoaded', () => {
   setupEffectCraftOverlays();
   setupPDFCraftTools();
   setupMultiPageEvents();
+  setupContentHubTab();
+  setupBrandKitTab();
+  setupClippingMaskEvents();
 
-  // Load Initial Default Template (Mega Flash Sale)
-  templatesEngine.loadTemplate('flash-sale');
-  pagesManager.init();
-  showToast('Welcome to DesignPro! Light & classy graphic studio ready.', 'info');
+  // Auto-Restore Draft from IndexedDB if exists, else load default template
+  storageEngine.loadDraft().then((draft) => {
+    if (draft && draft.pages && draft.pages.length > 0) {
+      pagesManager.pages = draft.pages;
+      pagesManager.currentPageIndex = draft.currentPageIndex || 0;
+      if (draft.title) {
+        const titleInput = document.getElementById('doc-title-input');
+        if (titleInput) titleInput.value = draft.title;
+      }
+      if (draft.artboardWidth && draft.artboardHeight) {
+        canvasManager.setArtboardSize(draft.artboardWidth, draft.artboardHeight);
+      }
+      pagesManager.switchPage(pagesManager.currentPageIndex);
+      pagesManager.renderPagesBar();
+      showToast('Restored your previous design from local storage!', 'success');
+    } else {
+      templatesEngine.loadTemplate('flash-sale');
+      pagesManager.init();
+      showToast('Welcome to DesignPro! Light & classy graphic studio ready.', 'info');
+    }
+  });
 });
 
 // Toast Notifications
@@ -141,6 +176,12 @@ function setupNavigationRail() {
       // Special tab handlers
       if (tabId === 'layers') {
         window.app.layers.renderLayers();
+      }
+      if (tabId === 'contenthub' && window.app.contentHub) {
+        window.app.contentHub.searchMedia(window.app.contentHub.currentQuery, window.app.contentHub.activeFilter);
+      }
+      if (tabId === 'brandkit' && window.app.brandKit) {
+        window.app.brandKit.renderBrandKitUI();
       }
       if (tabId === 'draw') {
         window.app.drawingTool.enableDrawing(true);
@@ -221,6 +262,17 @@ function setupHeaderEvents() {
   if (btnPresentMode) {
     btnPresentMode.addEventListener('click', () => {
       window.app.studioPro.enterPresentationMode();
+    });
+  }
+
+  // Toggle Rulers & Guides
+  const btnToggleRulers = document.getElementById('btn-toggle-rulers');
+  if (btnToggleRulers) {
+    btnToggleRulers.addEventListener('click', () => {
+      if (window.app.rulers) {
+        window.app.rulers.toggleGuides();
+        btnToggleRulers.classList.toggle('active', window.app.rulers.visible);
+      }
     });
   }
 }
@@ -1413,6 +1465,96 @@ function setupPDFCraftTools() {
     });
   }
 }
+
+// ===========================================================================
+// Content Hub Tab (600M+ Open Media Search & Filter)
+// ===========================================================================
+function setupContentHubTab() {
+  const searchInput = document.getElementById('content-hub-search-input');
+  const filterPills = document.querySelectorAll('.hub-pill');
+
+  if (searchInput) {
+    let debounceTimer;
+    searchInput.addEventListener('input', (e) => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        if (window.app && window.app.contentHub) {
+          window.app.contentHub.searchMedia(e.target.value, window.app.contentHub.activeFilter);
+        }
+      }, 400);
+    });
+  }
+
+  filterPills.forEach((pill) => {
+    pill.addEventListener('click', () => {
+      filterPills.forEach((p) => p.classList.remove('active'));
+      pill.classList.add('active');
+      const filter = pill.getAttribute('data-filter') || 'all';
+      if (window.app && window.app.contentHub) {
+        const query = searchInput ? searchInput.value : '';
+        window.app.contentHub.searchMedia(query, filter);
+      }
+    });
+  });
+}
+
+// ===========================================================================
+// Brand Kit & Team Governance Tab
+// ===========================================================================
+function setupBrandKitTab() {
+  const btnHarmonize = document.getElementById('btn-harmonize-brand');
+  if (btnHarmonize) {
+    btnHarmonize.addEventListener('click', () => {
+      if (window.app && window.app.brandKit) {
+        window.app.brandKit.harmonizeDesign();
+      }
+    });
+  }
+
+  const toggleEnforce = document.getElementById('toggle-brand-enforce');
+  if (toggleEnforce) {
+    toggleEnforce.addEventListener('change', (e) => {
+      if (window.app && window.app.brandKit) {
+        window.app.brandKit.toggleBrandEnforcement(e.target.checked);
+      }
+    });
+  }
+
+  const btnExport = document.getElementById('btn-export-brandkit');
+  if (btnExport) {
+    btnExport.addEventListener('click', () => {
+      if (window.app && window.app.brandKit) {
+        window.app.brandKit.exportBrandKit();
+      }
+    });
+  }
+
+  const btnImport = document.getElementById('btn-import-brandkit');
+  const inputImport = document.getElementById('input-import-brandkit');
+  if (btnImport && inputImport) {
+    btnImport.addEventListener('click', () => inputImport.click());
+    inputImport.addEventListener('change', (e) => {
+      if (e.target.files.length > 0 && window.app && window.app.brandKit) {
+        window.app.brandKit.importBrandKit(e.target.files[0]);
+      }
+    });
+  }
+}
+
+// ===========================================================================
+// Clipping Mask & Layer Actions
+// ===========================================================================
+function setupClippingMaskEvents() {
+  const btnMask = document.getElementById('btn-create-clip-mask');
+  if (btnMask) {
+    btnMask.addEventListener('click', () => {
+      if (window.app && window.app.layers) {
+        window.app.layers.createClippingMask();
+      }
+    });
+  }
+}
+
 
 
 
