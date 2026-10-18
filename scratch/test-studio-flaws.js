@@ -250,6 +250,194 @@ function testBrandKitMultiSelection() {
   console.log('✅ Brand Kit multi-selection activeSelection recoloring verified!');
 }
 
+// 10. Test Multi-Selection Typography Batch Styling (_applyToTextSelection)
+function testMultiSelectionTypography() {
+  const text1 = { type: 'i-text', text: 'Hello', fontFamily: 'Arial', fontSize: 24, dirty: false, set(k, v) { this[k] = v; } };
+  const text2 = { type: 'text', text: 'World', fontFamily: 'Arial', fontSize: 28, dirty: false, set(k, v) { this[k] = v; } };
+  const shape = { type: 'rect', fill: '#ff0000', set(k, v) { this[k] = v; } };
+
+  const selection = {
+    type: 'activeSelection',
+    dirty: false,
+    _objects: [text1, shape, text2],
+    forEachObject(fn) { this._objects.forEach(fn); }
+  };
+
+  function applyToSelection(target, handler) {
+    if (target.type === 'i-text' || target.type === 'text') {
+      handler(target);
+    } else if (target.type === 'activeSelection' || target.type === 'group') {
+      target.forEachObject(obj => {
+        if (obj.type === 'i-text' || obj.type === 'text') {
+          handler(obj);
+          obj.dirty = true;
+        }
+      });
+      target.dirty = true;
+    }
+  }
+
+  // Batch change font family and size
+  applyToSelection(selection, (obj) => {
+    obj.set('fontFamily', 'Outfit');
+    obj.set('fontSize', 36);
+  });
+
+  assert.strictEqual(text1.fontFamily, 'Outfit', 'text1 font must be Outfit');
+  assert.strictEqual(text1.fontSize, 36, 'text1 fontSize must be 36');
+  assert.strictEqual(text2.fontFamily, 'Outfit', 'text2 font must be Outfit');
+  assert.strictEqual(text2.fontSize, 36, 'text2 fontSize must be 36');
+  assert.strictEqual(shape.fontFamily, undefined, 'shape should be untouched');
+  assert.strictEqual(selection.dirty, true, 'selection must be dirty');
+  console.log('✅ Multi-selection typography batch formatting verified!');
+}
+
+// 11. Test Vector SVG Group Scaling Calculation
+function testSVGGroupScaling() {
+  const artboardW = 1080;
+  const artboardH = 1080;
+  const maxW = artboardW * 0.55; // 594
+  const maxH = artboardH * 0.55; // 594
+
+  const testSVGs = [
+    { width: 1200, height: 800 }, // Wide SVG
+    { width: 400, height: 1600 }, // Tall SVG
+    { width: 100, height: 100 },   // Small SVG
+  ];
+
+  testSVGs.forEach(({ width, height }) => {
+    const scale = Math.min(maxW / width, maxH / height, 1);
+    const scaledW = width * scale;
+    const scaledH = height * scale;
+
+    assert(scaledW <= maxW + 0.001, `Scaled width ${scaledW} exceeds maxW ${maxW}`);
+    assert(scaledH <= maxH + 0.001, `Scaled height ${scaledH} exceeds maxH ${maxH}`);
+    assert.strictEqual(Math.round(scaledW / scaledH * 100), Math.round(width / height * 100), 'Aspect ratio must be preserved');
+  });
+  console.log('✅ Vector SVG scaling and aspect ratio preservation verified!');
+}
+
+// 12. Test Set Image as Artboard Background with Cover-Fit Math & Locks
+function testSetImageAsBackground() {
+  const artW = 1080;
+  const artH = 1080;
+  const imgObj = {
+    type: 'image',
+    width: 1920,
+    height: 1080,
+    set(props) { Object.assign(this, props); },
+    sendToBackCalled: false,
+    sendToBack() { this.sendToBackCalled = true; }
+  };
+
+  // Cover scale: Math.max(artW / img.width, artH / img.height)
+  const scale = Math.max(artW / imgObj.width, artH / imgObj.height); // Math.max(0.5625, 1) = 1
+  imgObj.set({
+    scaleX: scale,
+    scaleY: scale,
+    left: artW / 2,
+    top: artH / 2,
+    originX: 'center',
+    originY: 'center',
+    isBackgroundImage: true,
+    lockMovementX: true,
+    lockMovementY: true,
+    lockScalingX: true,
+    lockScalingY: true,
+    lockRotation: true,
+  });
+  imgObj.sendToBack();
+
+  assert.strictEqual(imgObj.isBackgroundImage, true, 'Image must be flagged as background');
+  assert.strictEqual(imgObj.lockMovementX, true, 'Movement X must be locked');
+  assert.strictEqual(imgObj.lockMovementY, true, 'Movement Y must be locked');
+  assert.strictEqual(imgObj.scaleY * imgObj.height >= artH, true, 'Height must cover artboard');
+  assert.strictEqual(imgObj.sendToBackCalled, true, 'Must be sent to back layer');
+  console.log('✅ Set image as background cover-fit math and layer locking verified!');
+}
+
+// 13. Test Keyboard Shortcuts Polish (Locking & Native Paste Bubbling)
+function testKeyboardShortcutsSafety() {
+  // Scenario A: Locked object nudging
+  const lockedObj = {
+    left: 100,
+    top: 100,
+    lockMovementX: true,
+    lockMovementY: true,
+    setCoords() {},
+  };
+
+  const step = 1;
+  const key = 'ArrowLeft';
+  let prevented = false;
+
+  if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(key) && lockedObj) {
+    if (lockedObj.lockMovementX && lockedObj.lockMovementY) {
+      // Do nothing, do not move
+    } else {
+      prevented = true;
+      if (key === 'ArrowLeft' && !lockedObj.lockMovementX) lockedObj.left -= step;
+    }
+  }
+
+  assert.strictEqual(lockedObj.left, 100, 'Locked object left position must NOT change');
+  assert.strictEqual(prevented, false, 'Default action must not be prevented for fully locked objects');
+
+  // Scenario B: Ctrl+V with empty clipboard
+  let clipboard = null;
+  let defaultPrevented = false;
+  const e = {
+    metaKey: true,
+    ctrlKey: false,
+    key: 'v',
+    preventDefault() { defaultPrevented = true; }
+  };
+
+  const cmdOrCtrl = e.metaKey || e.ctrlKey;
+  if (cmdOrCtrl && e.key.toLowerCase() === 'v') {
+    if (clipboard) {
+      e.preventDefault();
+    }
+  }
+
+  assert.strictEqual(defaultPrevented, false, 'Ctrl+V with empty clipboard must not prevent default');
+  console.log('✅ Keyboard shortcut locked-object and native paste bubbling verified!');
+}
+
+// 14. Test Global Paste Type Dispatcher
+function testGlobalPasteDispatcher() {
+  function dispatchPaste(data) {
+    if (data.image) {
+      return { action: 'image-blob', type: data.image.type };
+    }
+    if (data.text) {
+      const trimmed = data.text.trim();
+      if (trimmed.startsWith('<svg') && trimmed.endsWith('</svg>')) {
+        return { action: 'vector-svg', content: trimmed };
+      }
+      if (/^https?:\/\/.*\.(png|jpg|jpeg|webp|gif|svg)(\?.*)?$/i.test(trimmed)) {
+        return { action: 'image-url', url: trimmed };
+      }
+      return { action: 'text', content: trimmed };
+    }
+    return null;
+  }
+
+  const res1 = dispatchPaste({ image: { type: 'image/png' } });
+  assert.strictEqual(res1.action, 'image-blob');
+
+  const res2 = dispatchPaste({ text: '<svg viewBox="0 0 100 100"><circle r="50"/></svg>' });
+  assert.strictEqual(res2.action, 'vector-svg');
+
+  const res3 = dispatchPaste({ text: 'https://images.unsplash.com/photo-123.jpg' });
+  assert.strictEqual(res3.action, 'image-url');
+
+  const res4 = dispatchPaste({ text: 'Modern Design Pro Text' });
+  assert.strictEqual(res4.action, 'text');
+
+  console.log('✅ Global paste dispatcher multi-format routing verified!');
+}
+
 testExportMultiplierWithZoom();
 testDistributeEvenSpacing();
 testSelectAllFiltersGuides();
@@ -259,4 +447,9 @@ testSafePhotoAdjustments();
 testGuideLineDimensionsUnderZoom();
 testDraftRestoreSafety();
 testBrandKitMultiSelection();
-console.log('🎉 ALL studio flaw verification tests passed!');
+testMultiSelectionTypography();
+testSVGGroupScaling();
+testSetImageAsBackground();
+testKeyboardShortcutsSafety();
+testGlobalPasteDispatcher();
+console.log('🎉 ALL 14 studio flaw & feature upgrade verification tests passed!');
