@@ -213,8 +213,11 @@ class TextTool {
 
   setFontSize(size) {
     const active = this.canvas.getActiveObject();
-    if (active && (active.isType('i-text') || active.isType('text'))) {
-      active.set('fontSize', parseInt(size, 10));
+    if (active && (active.isType('i-text') || active.isType('text') || active.isType('textbox'))) {
+      const val = window.AppUtils ? window.AppUtils.safeParseInt(size, 32, 6, 500) : (parseInt(size, 10) || 32);
+      active.set('fontSize', val);
+      if (typeof active.initDimensions === 'function') active.initDimensions();
+      active.setCoords();
       this.canvas.renderAll();
       this.canvasManager.recordState();
     }
@@ -276,8 +279,11 @@ class TextTool {
 
   setLetterSpacing(spacing) {
     const active = this.canvas.getActiveObject();
-    if (active && (active.isType('i-text') || active.isType('text'))) {
-      active.set('charSpacing', parseInt(spacing, 10));
+    if (active && (active.isType('i-text') || active.isType('text') || active.isType('textbox'))) {
+      const val = window.AppUtils ? window.AppUtils.safeParseInt(spacing, 0, -200, 1000) : (parseInt(spacing, 10) || 0);
+      active.set('charSpacing', val);
+      if (typeof active.initDimensions === 'function') active.initDimensions();
+      active.setCoords();
       this.canvas.renderAll();
       this.canvasManager.recordState();
     }
@@ -285,8 +291,11 @@ class TextTool {
 
   setLineHeight(height) {
     const active = this.canvas.getActiveObject();
-    if (active && (active.isType('i-text') || active.isType('text'))) {
-      active.set('lineHeight', parseFloat(height));
+    if (active && (active.isType('i-text') || active.isType('text') || active.isType('textbox'))) {
+      const val = window.AppUtils ? window.AppUtils.safeParseFloat(height, 1.2, 0.5, 4.0) : (parseFloat(height) || 1.2);
+      active.set('lineHeight', val);
+      if (typeof active.initDimensions === 'function') active.initDimensions();
+      active.setCoords();
       this.canvas.renderAll();
       this.canvasManager.recordState();
     }
