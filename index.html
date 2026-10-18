@@ -1262,6 +1262,7 @@
 
             <div class="toolbar-divider"></div>
             <button id="btn-action-remove-bg" class="toolbar-item" style="color: var(--accent-purple); font-weight: 700;" title="1-Click Background Knockout">✂ Remove BG</button>
+            <button id="btn-set-as-bg" class="toolbar-item" style="font-weight: 600;" title="Scale and Set Image as Artboard Background">🖼 Set as Background</button>
           </div>
 
           <!-- Universal Controls (Always visible when any object is selected) -->
@@ -1491,8 +1492,11 @@
             </div>
           </div>
         </div>
-        <div class="modal-footer">
-          <button id="btn-download-export" class="btn-primary" style="width: 100%;">Download Now</button>
+        <div class="modal-footer" style="display: flex; gap: 8px;">
+          <button id="btn-copy-clipboard" class="btn-secondary" style="flex: 1; font-weight: 600;" title="Copy High-Res PNG to Clipboard (instant paste into Slack, Figma, Discord, Docs)">
+            📋 Copy to Clipboard
+          </button>
+          <button id="btn-download-export" class="btn-primary" style="flex: 1.5;">Download Now</button>
         </div>
       </div>
     </dialog>
