@@ -147,8 +147,10 @@ class PagesManager {
 
     // Load canvas JSON
     this.canvas.loadFromJSON(targetPage.state, () => {
-      this.canvas.setWidth(targetPage.width);
-      this.canvas.setHeight(targetPage.height);
+      const currentZoom = this.canvasManager.zoomLevel || 1;
+      this.canvas.setWidth(targetPage.width * currentZoom);
+      this.canvas.setHeight(targetPage.height * currentZoom);
+      this.canvas.setZoom(currentZoom);
       this.canvas.renderAll();
       this.canvasManager.recordState();
       
@@ -165,9 +167,10 @@ class PagesManager {
   updateCurrentThumbnail() {
     if (!this.pages[this.currentPageIndex]) return;
     try {
+      const currentZoom = this.canvas.getZoom() || 1;
       const dataUrl = this.canvas.toDataURL({
         format: 'png',
-        multiplier: 0.15,
+        multiplier: (1 / currentZoom) * 0.15,
       });
       this.pages[this.currentPageIndex].thumbnail = dataUrl;
       const thumbEl = document.querySelector(`.page-tab[data-index="${this.currentPageIndex}"] .page-tab-thumb img`);
