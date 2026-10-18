@@ -161,6 +161,11 @@ class CanvasManager {
       padding: 4,
     });
 
+    // Artboard dimension helpers on canvas instance
+    this.canvas.getArtboardWidth = () => this.artboardWidth;
+    this.canvas.getArtboardHeight = () => this.artboardHeight;
+    this.canvas.getArtboardCenter = () => ({ x: this.artboardWidth / 2, y: this.artboardHeight / 2 });
+
     this.setupEvents();
     this.setupKeyboardShortcuts();
     this.recordState();
@@ -249,8 +254,9 @@ class CanvasManager {
           const dy = e.clientY - startY;
           scrollContainer.scrollLeft = startScrollLeft - dx;
           scrollContainer.scrollTop = startScrollTop - dy;
-          if (window.app && window.app.rulersGuides) {
-            window.app.rulersGuides.renderRulers();
+          const rulers = window.app && (window.app.rulers || window.app.rulersGuides);
+          if (rulers && typeof rulers.renderRulers === 'function') {
+            rulers.renderRulers();
           }
         }
       });
@@ -347,8 +353,9 @@ class CanvasManager {
       zoomText.textContent = `${Math.round(this.zoomLevel * 100)}%`;
     }
 
-    if (window.app && window.app.rulersGuides) {
-      window.app.rulersGuides.renderRulers();
+    const rulers = window.app && (window.app.rulers || window.app.rulersGuides);
+    if (rulers && typeof rulers.renderRulers === 'function') {
+      rulers.renderRulers();
     }
   }
 
@@ -604,15 +611,18 @@ class CanvasManager {
         this.duplicate();
       }
 
-      // Select All (Ctrl+A / Cmd+A)
+      // Select All (Ctrl+A / Cmd+A) - Only select visible, non-guide, selectable objects
       if (cmdOrCtrl && e.key.toLowerCase() === 'a') {
         e.preventDefault();
         this.canvas.discardActiveObject();
-        const sel = new fabric.ActiveSelection(this.canvas.getObjects(), {
-          canvas: this.canvas,
-        });
-        this.canvas.setActiveObject(sel);
-        this.canvas.requestRenderAll();
+        const selectableObjects = this.canvas.getObjects().filter((o) => !o.isGuide && o.selectable && o.visible);
+        if (selectableObjects.length > 0) {
+          const sel = new fabric.ActiveSelection(selectableObjects, {
+            canvas: this.canvas,
+          });
+          this.canvas.setActiveObject(sel);
+          this.canvas.requestRenderAll();
+        }
       }
 
       // Group (Ctrl+G / Cmd+G) & Ungroup (Ctrl+Shift+G / Cmd+Shift+G)
