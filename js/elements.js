@@ -22,6 +22,124 @@ class ElementsTool {
     };
   }
 
+  getShapeCatalog() {
+    return [
+      { key: 'rectangle', title: 'Rectangle' },
+      { key: 'square', title: 'Square' },
+      { key: 'rounded-rectangle', title: 'Rounded Rectangle' },
+      { key: 'circle', title: 'Circle' },
+      { key: 'triangle', title: 'Triangle' },
+      { key: 'star', title: 'Star' },
+      { key: 'heart', title: 'Heart' },
+      { key: 'hexagon', title: 'Hexagon' },
+      { key: 'diamond', title: 'Diamond' },
+      { key: 'sparkle', title: 'Sparkle' },
+      { key: 'speech-bubble', title: 'Speech Bubble' },
+      { key: 'ribbon', title: 'Ribbon Banner' },
+      { key: 'shield', title: 'Shield' },
+      { key: 'wave', title: 'Wave Divider' },
+      { key: 'crown', title: 'Crown' },
+      { key: 'ellipse', title: 'Ellipse' },
+      { key: 'pentagon', title: 'Pentagon' },
+      { key: 'octagon', title: 'Octagon' },
+      { key: 'parallelogram', title: 'Parallelogram' },
+      { key: 'trapezoid', title: 'Trapezoid' },
+      { key: 'right-triangle', title: 'Right Triangle' },
+      { key: 'cross', title: 'Cross' },
+      { key: 'chevron', title: 'Chevron' },
+      { key: 'right-arrow', title: 'Block Arrow' },
+      { key: 'pill', title: 'Pill' },
+      { key: 'cloud', title: 'Cloud' },
+      { key: 'teardrop', title: 'Teardrop' },
+    ];
+  }
+
+  addPresetShape(shapeKey) {
+    const existingShapes = {
+      rectangle: () => this.addRect(false),
+      square: () => this.addSquare(),
+      'rounded-rectangle': () => this.addRect(true),
+      circle: () => this.addCircle(),
+      triangle: () => this.addTriangle(),
+      star: () => this.addStar(),
+      heart: () => this.addHeart(),
+      hexagon: () => this.addHexagon(),
+      diamond: () => this.addDiamond(),
+      sparkle: () => this.addSparkle(),
+      'speech-bubble': () => this.addSpeechBubble(),
+      ribbon: () => this.addRibbon(),
+      shield: () => this.addShield(),
+      wave: () => this.addWaveDivider(),
+      crown: () => this.addCrown(),
+    };
+    if (existingShapes[shapeKey]) {
+      existingShapes[shapeKey]();
+      return true;
+    }
+
+    const center = this.getCenter();
+    const colors = {
+      ellipse: '#0ea5e9', pentagon: '#8b5cf6', octagon: '#f97316',
+      parallelogram: '#14b8a6', trapezoid: '#6366f1', 'right-triangle': '#f59e0b',
+      cross: '#ef4444', chevron: '#06b6d4', 'right-arrow': '#10b981',
+      pill: '#ec4899', cloud: '#60a5fa', teardrop: '#a855f7',
+    };
+    const fill = colors[shapeKey] || '#8b5cf6';
+    const polygon = (points) => new fabric.Polygon(points, {
+      left: center.x, top: center.y, originX: 'center', originY: 'center',
+      fill, name: this.getShapeCatalog().find((item) => item.key === shapeKey)?.title || 'Shape',
+    });
+    let shape;
+
+    switch (shapeKey) {
+      case 'ellipse':
+        shape = new fabric.Ellipse({ left: center.x, top: center.y, originX: 'center', originY: 'center', rx: 120, ry: 78, fill, name: 'Ellipse' });
+        break;
+      case 'pentagon':
+      case 'octagon': {
+        const sides = shapeKey === 'pentagon' ? 5 : 8;
+        const radius = 110;
+        const points = Array.from({ length: sides }, (_, i) => {
+          const angle = (-Math.PI / 2) + (i * Math.PI * 2 / sides);
+          return { x: radius + Math.cos(angle) * radius, y: radius + Math.sin(angle) * radius };
+        });
+        shape = polygon(points);
+        break;
+      }
+      case 'parallelogram': shape = polygon([{ x: 42, y: 0 }, { x: 220, y: 0 }, { x: 178, y: 150 }, { x: 0, y: 150 }]); break;
+      case 'trapezoid': shape = polygon([{ x: 42, y: 0 }, { x: 178, y: 0 }, { x: 220, y: 150 }, { x: 0, y: 150 }]); break;
+      case 'right-triangle': shape = polygon([{ x: 0, y: 0 }, { x: 190, y: 150 }, { x: 0, y: 150 }]); break;
+      case 'cross': shape = polygon([
+        { x: 75, y: 0 }, { x: 145, y: 0 }, { x: 145, y: 55 }, { x: 210, y: 55 },
+        { x: 210, y: 125 }, { x: 145, y: 125 }, { x: 145, y: 190 }, { x: 75, y: 190 },
+        { x: 75, y: 125 }, { x: 10, y: 125 }, { x: 10, y: 55 }, { x: 75, y: 55 },
+      ]); break;
+      case 'chevron': shape = polygon([{ x: 0, y: 0 }, { x: 82, y: 0 }, { x: 180, y: 75 }, { x: 82, y: 150 }, { x: 0, y: 150 }, { x: 98, y: 75 }]); break;
+      case 'right-arrow': shape = polygon([{ x: 0, y: 48 }, { x: 132, y: 48 }, { x: 132, y: 0 }, { x: 220, y: 75 }, { x: 132, y: 150 }, { x: 132, y: 102 }, { x: 0, y: 102 }]); break;
+      case 'pill':
+        shape = new fabric.Rect({ left: center.x, top: center.y, originX: 'center', originY: 'center', width: 230, height: 88, rx: 44, ry: 44, fill, name: 'Pill' });
+        break;
+      case 'cloud':
+        shape = new fabric.Path('M 55 150 C 15 150 5 100 40 82 C 40 40 90 22 120 56 C 155 8 222 36 215 91 C 253 106 238 154 202 154 Z', {
+          left: center.x, top: center.y, originX: 'center', originY: 'center', fill, name: 'Cloud',
+        });
+        break;
+      case 'teardrop':
+        shape = new fabric.Path('M 110 0 C 78 50 10 105 10 155 C 10 210 48 240 110 240 C 172 240 210 210 210 155 C 210 105 142 50 110 0 Z', {
+          left: center.x, top: center.y, originX: 'center', originY: 'center', fill, name: 'Teardrop',
+        });
+        break;
+      default:
+        return false;
+    }
+
+    this.canvas.add(shape);
+    this.canvas.setActiveObject(shape);
+    this.canvas.renderAll();
+    this.canvasManager.recordState();
+    return true;
+  }
+
   // 1. Rectangle
   addRect(rounded = false) {
     const center = this.getCenter();
@@ -41,6 +159,24 @@ class ElementsTool {
     });
     this.canvas.add(rect);
     this.canvas.setActiveObject(rect);
+    this.canvas.renderAll();
+    this.canvasManager.recordState();
+  }
+
+  addSquare() {
+    const center = this.getCenter();
+    const square = new fabric.Rect({
+      left: center.x,
+      top: center.y,
+      originX: 'center',
+      originY: 'center',
+      width: 180,
+      height: 180,
+      fill: '#8b5cf6',
+      name: 'Square',
+    });
+    this.canvas.add(square);
+    this.canvas.setActiveObject(square);
     this.canvas.renderAll();
     this.canvasManager.recordState();
   }
