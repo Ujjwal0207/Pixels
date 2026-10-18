@@ -93,11 +93,10 @@ class AdvancedEffectsEngine {
       let targetB = 255;
 
       if (targetColor) {
-        // Parse hex
         const hex = targetColor.replace('#', '');
-        targetR = parseInt(hex.substring(0, 2), 16) || 255;
-        targetG = parseInt(hex.substring(2, 4), 16) || 255;
-        targetB = parseInt(hex.substring(4, 6), 16) || 255;
+        targetR = window.AppUtils ? window.AppUtils.safeParseInt(hex.substring(0, 2), 255, 0, 255, 16) : (parseInt(hex.substring(0, 2), 16) || 255);
+        targetG = window.AppUtils ? window.AppUtils.safeParseInt(hex.substring(2, 4), 255, 0, 255, 16) : (parseInt(hex.substring(2, 4), 16) || 255);
+        targetB = window.AppUtils ? window.AppUtils.safeParseInt(hex.substring(4, 6), 255, 0, 255, 16) : (parseInt(hex.substring(4, 6), 16) || 255);
       } else {
         // Sample corners (Top-Left, Top-Right, Bottom-Left, Bottom-Right)
         const corners = [
@@ -118,24 +117,51 @@ class AdvancedEffectsEngine {
       }
 
       const tolSq = tolerance * tolerance * 3;
-      const featherSq = (tolerance * 1.6) * (tolerance * 1.6) * 3;
+      const featherSq = (tolerance * 1.5) * (tolerance * 1.5) * 3;
 
-      for (let i = 0; i < data.length; i += 4) {
-        const r = data[i];
-        const g = data[i + 1];
-        const b = data[i + 2];
+      // Edge-Connected Flood Fill (Flaw 15 Fix):
+      // Only remove pixels connected to image boundaries, preserving interior subject details!
+      const totalPixels = width * height;
+      const visited = new Uint8Array(totalPixels);
+      const queue = [];
 
-        const diffR = r - targetR;
-        const diffG = g - targetG;
-        const diffB = b - targetB;
+      // Seed all 4 outer border edges
+      for (let x = 0; x < width; x++) {
+        queue.push(x);
+        queue.push((height - 1) * width + x);
+      }
+      for (let y = 1; y < height - 1; y++) {
+        queue.push(y * width);
+        queue.push(y * width + (width - 1));
+      }
+
+      let head = 0;
+      while (head < queue.length) {
+        const p = queue[head++];
+        if (visited[p]) continue;
+        visited[p] = 1;
+
+        const px = p % width;
+        const py = Math.floor(p / width);
+        const idx = p * 4;
+
+        const diffR = data[idx] - targetR;
+        const diffG = data[idx + 1] - targetG;
+        const diffB = data[idx + 2] - targetB;
         const distSq = diffR * diffR + diffG * diffG + diffB * diffB;
 
         if (distSq <= tolSq) {
-          data[i + 3] = 0; // Pure transparent
+          data[idx + 3] = 0; // Pure transparent background
+
+          // Enqueue 4-connected neighbors
+          if (px > 0 && !visited[p - 1]) queue.push(p - 1);
+          if (px < width - 1 && !visited[p + 1]) queue.push(p + 1);
+          if (py > 0 && !visited[p - width]) queue.push(p - width);
+          if (py < height - 1 && !visited[p + width]) queue.push(p + width);
         } else if (distSq < featherSq) {
-          // Feathered semi-transparent edge
+          // Feather boundary transition
           const factor = (distSq - tolSq) / (featherSq - tolSq);
-          data[i + 3] = Math.round(data[i + 3] * factor);
+          data[idx + 3] = Math.round(data[idx + 3] * factor);
         }
       }
 
