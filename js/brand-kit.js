@@ -144,8 +144,12 @@ class BrandKitEngine {
     if (active) {
       if (active.type === 'i-text' || active.type === 'text') {
         active.set('fill', hex);
-      } else if (active.type === 'group') {
-        active.forEachObject(obj => obj.set('fill', hex));
+      } else if (active.type === 'group' || active.type === 'activeSelection') {
+        active.forEachObject(obj => {
+          obj.set('fill', hex);
+          obj.dirty = true;
+        });
+        active.dirty = true;
       } else {
         active.set('fill', hex);
       }
@@ -160,11 +164,32 @@ class BrandKitEngine {
 
   applyFontToSelection(fontName) {
     const active = this.canvas.getActiveObject();
-    if (active && (active.type === 'i-text' || active.type === 'text')) {
-      active.set('fontFamily', fontName);
-      this.canvas.renderAll();
-      this.canvasManager.recordState();
-      if (window.showToast) window.showToast(`Applied brand font: ${fontName}`, 'success');
+    if (active) {
+      if (active.type === 'i-text' || active.type === 'text') {
+        active.set('fontFamily', fontName);
+        this.canvas.renderAll();
+        this.canvasManager.recordState();
+        if (window.showToast) window.showToast(`Applied brand font: ${fontName}`, 'success');
+      } else if (active.type === 'activeSelection' || active.type === 'group') {
+        let changed = false;
+        active.forEachObject(obj => {
+          if (obj.type === 'i-text' || obj.type === 'text') {
+            obj.set('fontFamily', fontName);
+            obj.dirty = true;
+            changed = true;
+          }
+        });
+        if (changed) {
+          active.dirty = true;
+          this.canvas.renderAll();
+          this.canvasManager.recordState();
+          if (window.showToast) window.showToast(`Applied brand font: ${fontName} to selected text`, 'success');
+        } else {
+          if (window.showToast) window.showToast(`No text layers found in selection`, 'info');
+        }
+      } else {
+        if (window.showToast) window.showToast(`Select a text layer to apply ${fontName}`, 'info');
+      }
     } else {
       if (window.showToast) window.showToast(`Select a text layer to apply ${fontName}`, 'info');
     }
@@ -183,9 +208,20 @@ class BrandKitEngine {
     objects.forEach((obj, idx) => {
       if (obj.type === 'i-text' || obj.type === 'text') {
         obj.set('fontFamily', this.currentKit.fonts.heading);
-      } else if (obj.type === 'rect' || obj.type === 'circle' || obj.type === 'path') {
+      } else if (obj.type === 'rect' || obj.type === 'circle' || obj.type === 'path' || obj.type === 'triangle' || obj.type === 'polygon') {
         const assignedColor = idx % 3 === 0 ? brandPrimary : (idx % 3 === 1 ? brandSecondary : brandAccent);
         obj.set('fill', assignedColor);
+      } else if (obj.type === 'group') {
+        obj.forEachObject((child, cIdx) => {
+          if (child.type === 'i-text' || child.type === 'text') {
+            child.set('fontFamily', this.currentKit.fonts.heading);
+          } else if (child.type === 'rect' || child.type === 'circle' || child.type === 'path' || child.type === 'triangle' || child.type === 'polygon') {
+            const assignedColor = (idx + cIdx) % 3 === 0 ? brandPrimary : ((idx + cIdx) % 3 === 1 ? brandSecondary : brandAccent);
+            child.set('fill', assignedColor);
+          }
+          child.dirty = true;
+        });
+        obj.dirty = true;
       }
     });
 
