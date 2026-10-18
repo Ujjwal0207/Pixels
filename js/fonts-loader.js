@@ -61,20 +61,27 @@ class GoogleFontsLoader {
       this.loadedFonts.add(cleanName);
     }
 
-    // Wait for document.fonts
+    const active = this.canvas ? this.canvas.getActiveObject() : null;
+    const weight = active && active.fontWeight ? active.fontWeight : '400';
+    const size = active && active.fontSize ? `${active.fontSize}px` : '16px';
+
+    // Wait for document.fonts with weight and size verification
     try {
       if (document.fonts) {
-        await document.fonts.load(`16px "${cleanName}"`);
+        await document.fonts.load(`${weight} ${size} "${cleanName}"`);
       }
     } catch (e) {
       console.warn('Font load check:', e);
     }
 
-    // Apply to selected text object
-    const active = this.canvas.getActiveObject();
-    if (active && (active.type === 'i-text' || active.type === 'text')) {
+    // Apply to selected text object with metric recalculation (Flaw 9 Fix)
+    if (active && (active.type === 'i-text' || active.type === 'text' || active.type === 'textbox')) {
       active.set('fontFamily', cleanName);
-      this.canvas.renderAll();
+      if (typeof active.initDimensions === 'function') {
+        active.initDimensions();
+      }
+      active.setCoords();
+      this.canvas.requestRenderAll();
       this.canvasManager.recordState();
 
       // Update font family select if present
