@@ -38,8 +38,8 @@ class PDFCraftTools {
     }
 
     const { jsPDF } = window.jspdf;
-    const w = this.canvas.width;
-    const h = this.canvas.height;
+    const w = this.canvasManager ? this.canvasManager.artboardWidth : (this.canvas.width / (this.canvas.getZoom() || 1));
+    const h = this.canvasManager ? this.canvasManager.artboardHeight : (this.canvas.height / (this.canvas.getZoom() || 1));
     const orientation = w > h ? 'landscape' : 'portrait';
 
     const pdf = new jsPDF({
@@ -118,11 +118,18 @@ class PDFCraftTools {
     }
 
     // Single page export
+    const zoom = this.canvas.getZoom() || 1;
+    const guides = this.canvas.getObjects().filter(o => o.isGuide && o.visible);
+    guides.forEach(g => { g.visible = false; });
+
     const imgData = this.canvas.toDataURL({
       format: 'jpeg',
       quality: 0.95,
-      multiplier: 2
+      multiplier: (1 / zoom) * 2
     });
+
+    guides.forEach(g => { g.visible = true; });
+    this.canvas.renderAll();
 
     pdf.addImage(imgData, 'JPEG', 0, 0, w, h);
     // Embed searchable vector text overlay (Flaw 8 Fix)
@@ -220,13 +227,15 @@ class PDFCraftTools {
 
         // Add as Image to artboard
         fabric.Image.fromURL(dataUrl, (img) => {
-          const maxW = this.canvas.width * 0.85;
-          const maxH = this.canvas.height * 0.85;
+          const artW = this.canvasManager ? this.canvasManager.artboardWidth : (this.canvas.width / (this.canvas.getZoom() || 1));
+          const artH = this.canvasManager ? this.canvasManager.artboardHeight : (this.canvas.height / (this.canvas.getZoom() || 1));
+          const maxW = artW * 0.85;
+          const maxH = artH * 0.85;
           const scale = Math.min(maxW / img.width, maxH / img.height);
 
           img.set({
-            left: this.canvas.width / 2,
-            top: this.canvas.height / 2,
+            left: artW / 2,
+            top: artH / 2,
             originX: 'center',
             originY: 'center',
             scaleX: scale,
@@ -269,8 +278,8 @@ class PDFCraftTools {
   applyProofWatermark(text = 'CLIENT PROOF - DO NOT COPY', opacity = 0.16) {
     this.removeProofWatermark();
 
-    const w = this.canvas.width;
-    const h = this.canvas.height;
+    const w = this.canvasManager ? this.canvasManager.artboardWidth : (this.canvas.width / (this.canvas.getZoom() || 1));
+    const h = this.canvasManager ? this.canvasManager.artboardHeight : (this.canvas.height / (this.canvas.getZoom() || 1));
     const items = [];
 
     // Tiled repeating grid pattern of diagonal text
@@ -334,8 +343,8 @@ class PDFCraftTools {
   // 4. Official Vector Rubber Stamps & Verification Badges
   // =========================================================================
   addVectorStamp(type = 'approved') {
-    const cx = this.canvas.width / 2;
-    const cy = this.canvas.height / 2;
+    const cx = this.canvasManager ? this.canvasManager.artboardWidth / 2 : (this.canvas.width / (this.canvas.getZoom() || 1) / 2);
+    const cy = this.canvasManager ? this.canvasManager.artboardHeight / 2 : (this.canvas.height / (this.canvas.getZoom() || 1) / 2);
 
     let stampGroup = null;
 
