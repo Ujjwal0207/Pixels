@@ -113,6 +113,17 @@ class CollaborationEngine {
       this.startHeartbeat();
       this.startCursorCleanup();
 
+      // Restore cached room state if canvas is empty and previous session exists
+      try {
+        const cached = localStorage.getItem(`pixels_room_cache_${this.roomId}`);
+        if (cached && this.canvas && this.canvas.getObjects().length === 0) {
+          const parsed = JSON.parse(cached);
+          if (parsed && parsed.canvasData) {
+            this.applyFullState(parsed);
+          }
+        }
+      } catch (e) {}
+
       // Announce arrival to room
       this.broadcast({
         type: 'peer:joined',
@@ -128,38 +139,123 @@ class CollaborationEngine {
       if (window.showToast) {
         window.showToast(`Connected to live room: #${this.roomId}`, 'success');
       }
+
+      // Check if waiting alone in room after 3s
+      setTimeout(() => {
+        if (this.isConnected && this.peers.size === 0 && window.showToast) {
+          window.showToast(`Room #${this.roomId}: Waiting for teammates or host to join...`, 'info');
+        }
+      }, 3000);
     } catch (err) {
       console.warn('[CollaborationEngine] Connection error:', err);
     }
   }
 
-  // WebRTC P2P DataChannels
+  // WebRTC P2P DataChannels (Cross-Laptop & Remote Internet Synchronization)
   initWebRTC() {
     if (typeof Peer === 'undefined') return;
+    const cleanRoom = (this.roomId || 'default').replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+    const hostPeerId = `px_${cleanRoom}_host`;
+    this.isHost = false;
+
     try {
       if (this.peer) this.peer.destroy();
-      this.peer = new Peer(this.userId, {
-        debug: 0,
+
+      // First attempt: Try to claim the room host ID
+      this.peer = new Peer(hostPeerId, { debug: 0 });
+
+      this.peer.on('open', (id) => {
+        this.isHost = true;
       });
 
       this.peer.on('connection', (conn) => {
-        conn.on('open', () => {
-          this.peerConnections.set(conn.peer, conn);
-        });
-        conn.on('data', (data) => {
-          this.handleMessage(data);
-        });
-        conn.on('close', () => {
-          this.peerConnections.delete(conn.peer);
-        });
+        this.bindDataConnection(conn);
+        // If we are the room host, introduce this newcomer to all other peers in the room
+        if (this.isHost) {
+          this.peerConnections.forEach((existingConn, existingPeerId) => {
+            if (existingPeerId !== conn.peer && existingConn.open) {
+              existingConn.send({
+                type: 'peer:mesh_introduce',
+                peerId: conn.peer,
+              });
+            }
+          });
+
+          // Automatically send full artboard state to the new laptop
+          if (this.canvas && this.canvas.getObjects().length > 0) {
+            setTimeout(() => {
+              if (conn.open) {
+                this.sendFullState(conn.peer);
+              }
+            }, 300);
+          }
+        }
       });
 
-      this.peer.on('error', () => {
-        // Silently graceful fallback to BroadcastChannel
+      this.peer.on('error', (err) => {
+        // If host ID is already taken by another laptop, join as a client peer and connect to the host
+        if (err.type === 'unavailable-id') {
+          const clientPeerId = `px_${cleanRoom}_${Math.random().toString(36).substring(2, 7)}`;
+          this.peer = new Peer(clientPeerId, { debug: 0 });
+
+          this.peer.on('open', (id) => {
+            this.connectToPeer(hostPeerId);
+          });
+
+          this.peer.on('connection', (conn) => {
+            this.bindDataConnection(conn);
+          });
+        }
       });
     } catch (err) {
-      // Ignore WebRTC initialization errors
+      console.warn('[CollaborationEngine] WebRTC init error:', err);
     }
+  }
+
+  // Connect to a remote peer via WebRTC DataChannel
+  connectToPeer(targetPeerId) {
+    if (!this.peer || this.peer.destroyed || this.peerConnections.has(targetPeerId)) return;
+    try {
+      const conn = this.peer.connect(targetPeerId, { reliable: true });
+      this.bindDataConnection(conn);
+    } catch (e) {}
+  }
+
+  // Bind WebRTC DataConnection lifecycle
+  bindDataConnection(conn) {
+    if (!conn) return;
+
+    conn.on('open', () => {
+      this.peerConnections.set(conn.peer, conn);
+
+      // Announce our identity to the other laptop
+      conn.send({
+        type: 'peer:joined',
+        userId: this.userId,
+        userName: this.userName,
+        userColor: this.userColor,
+      });
+
+      // If our canvas is empty, request full state from this laptop
+      if (this.canvas && this.canvas.getObjects().length === 0) {
+        conn.send({
+          type: 'canvas:sync_request',
+          userId: this.userId,
+        });
+      }
+    });
+
+    conn.on('data', (data) => {
+      this.handleMessage(data);
+    });
+
+    conn.on('close', () => {
+      this.peerConnections.delete(conn.peer);
+    });
+
+    conn.on('error', () => {
+      this.peerConnections.delete(conn.peer);
+    });
   }
 
   disconnect() {
@@ -277,6 +373,13 @@ class CollaborationEngine {
 
       case 'canvas:full_state':
         this.applyFullState(msg);
+        break;
+
+      case 'peer:mesh_introduce':
+        // Connect to new peer introduced by room host
+        if (msg.peerId && msg.peerId !== (this.peer ? this.peer.id : null)) {
+          this.connectToPeer(msg.peerId);
+        }
         break;
 
       default:
@@ -602,6 +705,16 @@ class CollaborationEngine {
   applyFullState(msg) {
     if (msg.targetUserId && msg.targetUserId !== this.userId) return;
     if (!msg.canvasData || !this.canvas) return;
+
+    // Cache the room state locally so if user reopens this room when host is offline, it can be restored
+    try {
+      localStorage.setItem(`pixels_room_cache_${this.roomId}`, JSON.stringify({
+        artboardWidth: msg.artboardWidth,
+        artboardHeight: msg.artboardHeight,
+        canvasData: msg.canvasData,
+        timestamp: Date.now(),
+      }));
+    } catch (e) {}
 
     this.isRemoteUpdate = true;
     if (this.canvasManager) {
