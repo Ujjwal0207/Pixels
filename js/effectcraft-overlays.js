@@ -14,12 +14,17 @@ class EffectCraftOverlays {
     this.canvas = canvas;
   }
 
+  getArtboardDimensions() {
+    const width = this.canvasManager ? this.canvasManager.artboardWidth : (this.canvas.width / (this.canvas.getZoom() || 1));
+    const height = this.canvasManager ? this.canvasManager.artboardHeight : (this.canvas.height / (this.canvas.getZoom() || 1));
+    return { width, height };
+  }
+
   // =========================================================================
   // 1. Procedural 35mm Film Grain Texture Overlay
   // =========================================================================
   addFilmGrainOverlay(intensity = 0.18) {
-    const w = this.canvas.width;
-    const h = this.canvas.height;
+    const { width: w, height: h } = this.getArtboardDimensions();
 
     // Generate procedural noise canvas
     const noiseCanvas = document.createElement('canvas');
@@ -68,8 +73,7 @@ class EffectCraftOverlays {
   // 2. Cinematic Light Leak & Solar Flare Overlay
   // =========================================================================
   addLightLeakOverlay() {
-    const w = this.canvas.width;
-    const h = this.canvas.height;
+    const { width: w, height: h } = this.getArtboardDimensions();
 
     const rect = new fabric.Rect({
       left: 0,
@@ -111,8 +115,9 @@ class EffectCraftOverlays {
   // 3. Starlight Sparkle / Luxury Glimmer Burst
   // =========================================================================
   addStarlightSparkle(x, y, size = 120, color = '#fef08a') {
-    const cx = x || this.canvas.width / 2;
-    const cy = y || this.canvas.height / 2;
+    const { width: w, height: h } = this.getArtboardDimensions();
+    const cx = x !== undefined ? x : w / 2;
+    const cy = y !== undefined ? y : h / 2;
 
     // SVG 4-point diamond sparkle star
     const pathD = `M 0,-${size / 2} Q 0,0 ${size / 2},0 Q 0,0 0,${size / 2} Q 0,0 -${size / 2},0 Q 0,0 0,-${size / 2} Z`;
@@ -146,6 +151,7 @@ class EffectCraftOverlays {
   // 4. Vintage Comic Halftone Dot Screen Overlay
   // =========================================================================
   addHalftoneOverlay(intensity = 0.22) {
+    const { width: w, height: h } = this.getArtboardDimensions();
     const patternCanvas = document.createElement('canvas');
     patternCanvas.width = 24;
     patternCanvas.height = 24;
@@ -165,8 +171,8 @@ class EffectCraftOverlays {
     const rect = new fabric.Rect({
       left: 0,
       top: 0,
-      width: this.canvas.width,
-      height: this.canvas.height,
+      width: w,
+      height: h,
       fill: pattern,
       opacity: intensity,
       globalCompositeOperation: 'multiply',
@@ -189,9 +195,10 @@ class EffectCraftOverlays {
   // 5. Prism RGB Glitch Slice
   // =========================================================================
   addPrismGlitchBar() {
-    const cx = this.canvas.width / 2;
-    const cy = this.canvas.height / 2;
-    const w = this.canvas.width * 0.7;
+    const { width: artW, height: artH } = this.getArtboardDimensions();
+    const cx = artW / 2;
+    const cy = artH / 2;
+    const w = artW * 0.7;
 
     const group = new fabric.Group([], {
       left: cx,
