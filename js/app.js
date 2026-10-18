@@ -144,7 +144,11 @@ function showToast(message, type = 'info') {
 
   const toast = document.createElement('div');
   toast.className = `toast ${type}`;
-  toast.innerHTML = `<span>${type === 'success' ? '✓' : 'ℹ'}</span> <span>${message}</span>`;
+  const icon = document.createElement('span');
+  icon.textContent = type === 'success' ? '✓' : 'ℹ';
+  const label = document.createElement('span');
+  label.textContent = String(message);
+  toast.append(icon, document.createTextNode(' '), label);
   container.appendChild(toast);
 
   setTimeout(() => {
@@ -761,6 +765,10 @@ function setupElementsTab() {
   bindClick('btn-add-crown', () => window.app.elementsTool.addCrown());
   bindClick('btn-add-frame', () => window.app.elementsTool.addPolaroidFrame());
 
+  document.querySelectorAll('[data-shape]').forEach((button) => {
+    button.addEventListener('click', () => window.app.elementsTool.addPresetShape(button.dataset.shape));
+  });
+
   // Stickers & Badges
   document.querySelectorAll('.btn-add-sticker').forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -877,18 +885,91 @@ function setupPhotosTab() {
   const photosGrid = document.getElementById('photos-grid');
   if (!photosGrid) return;
 
-  const photos = window.app.imagesTool.getCuratedPhotos();
-  photos.forEach((photo) => {
-    const item = document.createElement('div');
-    item.className = 'photo-item';
-    item.title = `Click to add ${photo.name}`;
-    item.innerHTML = `<img src="${photo.url}" alt="${photo.name}" loading="lazy" />`;
-    item.addEventListener('click', () => {
-      window.app.imagesTool.addImageToCanvas(photo.url, photo.name);
-      showToast(`Added ${photo.name} to artboard`, 'info');
+  const searchInput = document.getElementById('photos-search-input');
+  const fileInput = document.getElementById('photos-file-input');
+  const importFilesButton = document.getElementById('btn-import-photo-files');
+  const urlInput = document.getElementById('photos-url-input');
+  const importUrlButton = document.getElementById('btn-import-photo-url');
+  let searchTimer;
+  let requestId = 0;
+  let lastRemotePhotos = [];
+
+  const renderPhotos = (photos) => {
+    photosGrid.replaceChildren();
+    if (!photos.length) {
+      const empty = document.createElement('div');
+      empty.className = 'photos-empty';
+      empty.textContent = 'No photos found. Try another search or import an image from your device or a URL.';
+      photosGrid.appendChild(empty);
+      return;
+    }
+
+    photos.forEach((photo) => {
+      const name = photo.title || photo.name || 'Photo';
+      const src = photo.dataUrl || photo.thumb || photo.url;
+      const item = document.createElement('button');
+      item.type = 'button';
+      item.className = 'photo-item';
+      const credit = [photo.author, photo.source].filter(Boolean).join(' · ');
+      item.title = [name, credit, 'Click to add'].filter(Boolean).join(' · ');
+      const image = document.createElement('img');
+      image.src = src;
+      image.alt = name;
+      image.loading = 'lazy';
+      item.appendChild(image);
+      item.addEventListener('click', () => {
+        window.app.imagesTool.addImageToCanvas(photo.dataUrl || photo.url || photo.thumb, name);
+        showToast(`Added ${name} to artboard`, 'info');
+      });
+      photosGrid.appendChild(item);
     });
-    photosGrid.appendChild(item);
+  };
+
+  const refreshPhotos = async (query = '') => {
+    const activeRequest = ++requestId;
+    photosGrid.innerHTML = '<div class="photos-empty">Loading photos…</div>';
+    const [remotePhotos] = await Promise.allSettled([window.app.contentHub.fetchPhotos(query)]);
+    if (activeRequest !== requestId) return;
+    const imported = window.app.contentHub.importedAssets.filter((asset) => asset.type === 'photo');
+    const matchedImports = query
+      ? imported.filter((asset) => asset.title.toLowerCase().includes(query.toLowerCase()))
+      : imported;
+    lastRemotePhotos = remotePhotos.status === 'fulfilled' ? remotePhotos.value : [];
+    const merged = [...matchedImports, ...lastRemotePhotos];
+    const unique = Array.from(new Map(merged.map((photo) => [photo.id || photo.url || photo.thumb, photo])).values());
+    renderPhotos(unique);
+  };
+
+  if (searchInput) {
+    searchInput.addEventListener('input', (event) => {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => refreshPhotos(event.target.value.trim()), 350);
+    });
+  }
+  if (importFilesButton && fileInput) importFilesButton.addEventListener('click', () => fileInput.click());
+  if (fileInput) fileInput.addEventListener('change', (event) => {
+    window.app.imagesTool.handleFileUpload(event.target.files);
+    fileInput.value = '';
   });
+  if (importUrlButton && urlInput) {
+    const importUrl = async () => {
+      const imported = await window.app.imagesTool.importFromUrl(urlInput.value);
+      if (imported) urlInput.value = '';
+    };
+    importUrlButton.addEventListener('click', importUrl);
+    urlInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') importUrl();
+    });
+  }
+  window.addEventListener('designpro:asset-imported', (event) => {
+    const asset = event.detail;
+    if (asset && asset.type === 'photo') {
+      const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
+      const imported = window.app.contentHub.importedAssets.filter((item) => item.type === 'photo' && (!query || item.title.toLowerCase().includes(query)));
+      renderPhotos([...imported, ...lastRemotePhotos]);
+    }
+  });
+  refreshPhotos();
 }
 
 // Draw Tab
@@ -896,6 +977,7 @@ function setupDrawTab() {
   const brushTypeSelect = document.getElementById('draw-brush-type');
   const brushSizeInput = document.getElementById('draw-brush-size');
   const brushColorPicker = document.getElementById('draw-brush-color');
+  const opacityInput = document.getElementById('draw-brush-opacity');
 
   brushTypeSelect.addEventListener('change', (e) => {
     window.app.drawingTool.setBrushType(e.target.value);
@@ -908,6 +990,13 @@ function setupDrawTab() {
     window.app.drawingTool.setBrushColor(e.target.value);
     document.getElementById('draw-brush-color-preview').style.background = e.target.value;
   });
+  if (opacityInput) {
+    opacityInput.addEventListener('input', (e) => {
+      const opacity = Number(e.target.value) / 100;
+      window.app.drawingTool.setBrushOpacity(opacity);
+      document.getElementById('draw-brush-opacity-label').textContent = `${e.target.value}%`;
+    });
+  }
 }
 
 // Background Tab
@@ -1685,6 +1774,10 @@ function setupPDFCraftTools() {
 function setupContentHubTab() {
   const searchInput = document.getElementById('content-hub-search-input');
   const filterPills = document.querySelectorAll('.hub-pill');
+  const fileInput = document.getElementById('content-hub-file-input');
+  const importFilesButton = document.getElementById('btn-content-hub-import-files');
+  const urlInput = document.getElementById('content-hub-url-input');
+  const importUrlButton = document.getElementById('btn-content-hub-import-url');
 
   if (searchInput) {
     let debounceTimer;
@@ -1709,6 +1802,22 @@ function setupContentHubTab() {
       }
     });
   });
+
+  if (importFilesButton && fileInput) importFilesButton.addEventListener('click', () => fileInput.click());
+  if (fileInput) fileInput.addEventListener('change', (event) => {
+    window.app.imagesTool.handleFileUpload(event.target.files);
+    fileInput.value = '';
+  });
+  if (importUrlButton && urlInput) {
+    const importUrl = async () => {
+      const imported = await window.app.imagesTool.importFromUrl(urlInput.value);
+      if (imported) urlInput.value = '';
+    };
+    importUrlButton.addEventListener('click', importUrl);
+    urlInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') importUrl();
+    });
+  }
 }
 
 // ===========================================================================
