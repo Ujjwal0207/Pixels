@@ -635,6 +635,18 @@
               <button id="btn-add-frame" class="element-item-btn" title="Photo Frame">
                 <svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="2" width="18" height="20" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="6" y="5" width="12" height="11" fill="currentColor"/></svg>
               </button>
+              <button class="element-item-btn" data-shape="ellipse" title="Ellipse"><svg viewBox="0 0 24 24" fill="currentColor"><ellipse cx="12" cy="12" rx="10" ry="7"></ellipse></svg></button>
+              <button class="element-item-btn" data-shape="pentagon" title="Pentagon"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 22,9 18,21 6,21 2,9"></polygon></svg></button>
+              <button class="element-item-btn" data-shape="octagon" title="Octagon"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="7,2 17,2 22,7 22,17 17,22 7,22 2,17 2,7"></polygon></svg></button>
+              <button class="element-item-btn" data-shape="parallelogram" title="Parallelogram"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="7,3 23,3 17,21 1,21"></polygon></svg></button>
+              <button class="element-item-btn" data-shape="trapezoid" title="Trapezoid"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6,3 18,3 23,21 1,21"></polygon></svg></button>
+              <button class="element-item-btn" data-shape="right-triangle" title="Right Triangle"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="3,3 21,21 3,21"></polygon></svg></button>
+              <button class="element-item-btn" data-shape="cross" title="Cross"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 2h6v7h7v6h-7v7H9v-7H2V9h7z"></path></svg></button>
+              <button class="element-item-btn" data-shape="chevron" title="Chevron"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="2,2 10,2 22,12 10,22 2,22 14,12"></polygon></svg></button>
+              <button class="element-item-btn" data-shape="right-arrow" title="Block Arrow"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="2,8 14,8 14,3 22,12 14,21 14,16 2,16"></polygon></svg></button>
+              <button class="element-item-btn" data-shape="pill" title="Pill"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="1" y="5" width="22" height="14" rx="7"></rect></svg></button>
+              <button class="element-item-btn" data-shape="cloud" title="Cloud"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19a5 5 0 0 1-.6-9.96A7 7 0 0 1 19 10a4.5 4.5 0 0 1-.5 9z"></path></svg></button>
+              <button class="element-item-btn" data-shape="teardrop" title="Teardrop"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9 7 4 12 4 16a8 8 0 0 0 16 0c0-4-5-9-8-14z"></path></svg></button>
             </div>
 
             <div class="section-label" style="margin-top: 10px;">Photo Frames & Masks</div>
@@ -860,7 +872,22 @@
 
           <!-- TAB 6: PHOTOS -->
           <div class="sidebar-panel-content" data-panel="photos" style="display: none; flex-direction: column; gap: 14px;">
-            <div class="section-label">Curated Free Stock Photos</div>
+            <div class="photo-library-tools">
+              <div class="content-hub-search-box">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="search" id="photos-search-input" placeholder="Search open-license photos..." />
+              </div>
+              <input type="file" id="photos-file-input" accept="image/*,.svg" multiple hidden />
+              <button id="btn-import-photo-files" class="btn-secondary asset-import-button">＋ Import photos from device</button>
+              <div class="asset-url-import">
+                <input type="url" id="photos-url-input" placeholder="Paste an image or SVG URL" aria-label="Photo or SVG URL" />
+                <button id="btn-import-photo-url" class="btn-secondary">Add</button>
+              </div>
+              <div class="asset-import-hint">Searches Openverse open-license photos. Imported files and links are also available in Content Hub.</div>
+            </div>
+            <div class="section-label">Photo Library</div>
             <div id="photos-grid" class="photos-grid"></div>
           </div>
 
@@ -871,7 +898,11 @@
             <div style="display: flex; flex-direction: column; gap: 6px;">
               <label style="font-size: 0.78rem; color: var(--text-secondary); font-weight: 600;">Brush Type</label>
               <select id="draw-brush-type" style="padding: 8px; font-size: 0.85rem;">
-                <option value="Pencil">Pencil (Smooth)</option>
+                <option value="Pencil">Pencil</option>
+                <option value="Pen">Pen (Fine)</option>
+                <option value="Marker">Marker</option>
+                <option value="Highlighter">Highlighter</option>
+                <option value="Calligraphy">Calligraphy</option>
                 <option value="Circle">Circle Brush</option>
                 <option value="Spray">Spray Paint</option>
               </select>
@@ -894,6 +925,14 @@
                 <span style="font-size: 0.82rem; color: var(--text-secondary); font-weight: 500;">Pick custom color</span>
               </div>
             </div>
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+              <div style="display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--text-secondary); font-weight: 600;">
+                <span>Stroke Opacity</span>
+                <span id="draw-brush-opacity-label">100%</span>
+              </div>
+              <input type="range" id="draw-brush-opacity" min="10" max="100" value="100" />
+            </div>
+            <div class="draw-tool-hint">Draw on the canvas while this tab is active. Calligraphy also responds to stylus pressure.</div>
           </div>
 
           <!-- TAB 8: BACKGROUND -->
@@ -1136,7 +1175,7 @@
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
               </svg>
-              <input type="text" id="content-hub-search-input" placeholder="Search 600M+ photos, vectors, icons..." />
+              <input type="text" id="content-hub-search-input" placeholder="Search photos, vectors, icons, shapes..." />
             </div>
 
             <div class="content-hub-filter-pills">
@@ -1144,6 +1183,17 @@
               <button class="hub-pill" data-filter="photos">Photos</button>
               <button class="hub-pill" data-filter="vectors">Vectors</button>
               <button class="hub-pill" data-filter="icons">Icons (200k+)</button>
+              <button class="hub-pill" data-filter="shapes">Shapes</button>
+              <button class="hub-pill" data-filter="imported">Imported</button>
+            </div>
+
+            <div class="hub-import-tools">
+              <input type="file" id="content-hub-file-input" accept="image/*,.svg" multiple hidden />
+              <button id="btn-content-hub-import-files" class="btn-secondary asset-import-button">＋ Import images or SVG</button>
+              <div class="asset-url-import">
+                <input type="url" id="content-hub-url-input" placeholder="Paste an image or SVG URL" aria-label="Image or SVG URL" />
+                <button id="btn-content-hub-import-url" class="btn-secondary">Add</button>
+              </div>
             </div>
 
             <!-- Extracted Photo Palette Box -->
@@ -1154,7 +1204,7 @@
               <div id="extracted-palette-swatches" class="extracted-palette-swatches"></div>
             </div>
 
-            <div class="section-label">Trending Open Media</div>
+            <div class="section-label">Search Results</div>
             <div id="content-hub-grid" class="content-hub-grid"></div>
           </div>
 
