@@ -35,6 +35,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const contentHub = new ContentHub(canvasManager);
   const brandKit = new BrandKitEngine(canvasManager);
 
+  // Next-Gen Creative Pro Studio Engines (CMYK Print, 3D Mockup, Video Timeline, Color Studio)
+  const cmykPrint = new CmykPrintStudio(canvasManager);
+  const mockupStudio = new MockupStudio3D(canvasManager);
+  const videoTimeline = new VideoTimelineEngine(canvasManager);
+  const colorStudio = new ColorStudio(canvasManager);
+
   // Global app reference for cross-component access
   window.app = {
     storage: storageEngine,
@@ -62,6 +68,10 @@ document.addEventListener('DOMContentLoaded', () => {
     rulers: rulersEngine,
     contentHub,
     brandKit,
+    cmykPrint,
+    mockupStudio,
+    videoTimeline,
+    colorStudio,
     activeTab: 'templates',
     selectedFormat: 'png',
   };
@@ -275,6 +285,47 @@ function setupHeaderEvents() {
       }
     });
   }
+
+  // Color Eyedropper Screen Sampling
+  const btnScreenEyedropper = document.getElementById('btn-screen-eyedropper');
+  if (btnScreenEyedropper) {
+    btnScreenEyedropper.addEventListener('click', () => {
+      if (window.app.colorStudio) {
+        window.app.colorStudio.pickScreenColor();
+      }
+    });
+  }
+
+  // 3D Product Mockup Studio
+  const btnOpenMockup = document.getElementById('btn-open-3d-mockup');
+  if (btnOpenMockup) {
+    btnOpenMockup.addEventListener('click', () => {
+      if (window.app.mockupStudio) {
+        window.app.mockupStudio.open();
+      }
+    });
+  }
+
+  // Multi-Track Video Timeline Toggle
+  const btnToggleTimeline = document.getElementById('btn-toggle-timeline');
+  if (btnToggleTimeline) {
+    btnToggleTimeline.addEventListener('click', () => {
+      if (window.app.videoTimeline) {
+        window.app.videoTimeline.toggle();
+        btnToggleTimeline.classList.toggle('active', window.app.videoTimeline.isOpen);
+      }
+    });
+  }
+
+  // CMYK Print Studio & 3mm Bleed Pre-Flight Modal
+  const btnOpenCmyk = document.getElementById('btn-open-cmyk-print');
+  const cmykModal = document.getElementById('cmyk-print-modal');
+  if (btnOpenCmyk && cmykModal) {
+    btnOpenCmyk.addEventListener('click', () => {
+      cmykModal.showModal();
+      if (window.updateCmykPreflightUI) window.updateCmykPreflightUI();
+    });
+  }
 }
 
 // Bottom Artboard Status Bar (Zoom & Fit & Snapping & Grid)
@@ -391,12 +442,14 @@ function setupContextToolbarEvents() {
   });
   document.getElementById('btn-font-size-dec').addEventListener('click', () => {
     const input = document.getElementById('text-font-size');
-    input.value = Math.max(8, parseInt(input.value || 40, 10) - 2);
+    const current = window.AppUtils ? window.AppUtils.safeParseInt(input.value, 40, 6, 500) : (parseInt(input.value || 40, 10) || 40);
+    input.value = Math.max(8, current - 2);
     window.app.textTool.setFontSize(input.value);
   });
   document.getElementById('btn-font-size-inc').addEventListener('click', () => {
     const input = document.getElementById('text-font-size');
-    input.value = parseInt(input.value || 40, 10) + 2;
+    const current = window.AppUtils ? window.AppUtils.safeParseInt(input.value, 40, 6, 500) : (parseInt(input.value || 40, 10) || 40);
+    input.value = Math.min(500, current + 2);
     window.app.textTool.setFontSize(input.value);
   });
   document.getElementById('text-color-picker').addEventListener('input', (e) => {
@@ -925,8 +978,10 @@ function setupModals() {
   });
 
   btnApplyResize.addEventListener('click', () => {
-    const w = parseInt(document.getElementById('custom-width-input').value, 10);
-    const h = parseInt(document.getElementById('custom-height-input').value, 10);
+    const wVal = document.getElementById('custom-width-input').value;
+    const hVal = document.getElementById('custom-height-input').value;
+    const w = window.AppUtils ? window.AppUtils.evalMathExpr(wVal, 1080, 50, 10000) : (parseInt(wVal, 10) || 1080);
+    const h = window.AppUtils ? window.AppUtils.evalMathExpr(hVal, 1080, 50, 10000) : (parseInt(hVal, 10) || 1080);
     const scaleContent = document.getElementById('resize-scale-content') ? document.getElementById('resize-scale-content').checked : false;
     if (w > 0 && h > 0) {
       if (window.app.advancedEffects && scaleContent) {
@@ -979,8 +1034,8 @@ function setupModals() {
     const filename = `${docTitle.replace(/\s+/g, '-').toLowerCase()}.${format}`;
 
     if (format === 'webm') {
-      const motionStyle = document.getElementById('video-motion-style') ? document.getElementById('video-motion-style').value : 'zoom';
-      const duration = parseInt(document.getElementById('video-duration-select') ? document.getElementById('video-duration-select').value : 3000, 10);
+      const durationEl = document.getElementById('video-duration-select');
+      const duration = window.AppUtils ? window.AppUtils.safeParseInt(durationEl ? durationEl.value : 3000, 3000, 500, 60000) : (parseInt(durationEl ? durationEl.value : 3000, 10) || 3000);
       window.app.videoExporter.recordAnimatedClip({ motionStyle, duration, filename });
       exportModal.close();
       return;
@@ -1160,9 +1215,9 @@ function setupModals() {
     });
 
     btnApplyShadow.addEventListener('click', () => {
-      const blur = parseInt(blurInput.value, 10) || 0;
-      const offsetX = parseInt(xInput.value, 10) || 0;
-      const offsetY = parseInt(yInput.value, 10) || 0;
+      const blur = window.AppUtils ? window.AppUtils.safeParseInt(blurInput.value, 0, 0, 100) : (parseInt(blurInput.value, 10) || 0);
+      const offsetX = window.AppUtils ? window.AppUtils.safeParseInt(xInput.value, 0, -200, 200) : (parseInt(xInput.value, 10) || 0);
+      const offsetY = window.AppUtils ? window.AppUtils.safeParseInt(yInput.value, 0, -200, 200) : (parseInt(yInput.value, 10) || 0);
       const color = colorInput.value;
       const ok = window.app.advancedEffects.applyShadow({ blur, offsetX, offsetY, color });
       if (ok) {
@@ -1198,7 +1253,7 @@ function setupModals() {
     }
 
     btnExecBgKnockout.addEventListener('click', async () => {
-      const tol = parseInt(tolSlider.value, 10) || 24;
+      const tol = window.AppUtils ? window.AppUtils.safeParseInt(tolSlider.value, 24, 1, 150) : (parseInt(tolSlider.value, 10) || 24);
       const color = targetColorInput ? targetColorInput.value : null;
       btnExecBgKnockout.textContent = '⏳ Processing Knockout...';
       btnExecBgKnockout.disabled = true;
@@ -1214,6 +1269,92 @@ function setupModals() {
         btnExecBgKnockout.disabled = false;
       }
     });
+  }
+
+  // CMYK Print Studio Modal & Pre-Flight Inspector
+  const cmykModal = document.getElementById('cmyk-print-modal');
+  const btnCloseCmyk = document.getElementById('btn-close-cmyk-modal');
+  const btnCancelCmyk = document.getElementById('btn-cancel-cmyk-modal');
+  const btnRefreshPreflight = document.getElementById('btn-refresh-preflight');
+  const btnToggleBleed = document.getElementById('btn-toggle-bleed-guides');
+  const btnFixPureBlack = document.getElementById('btn-fix-pure-black');
+  const btnExportCommercialPdf = document.getElementById('btn-export-commercial-pdf');
+
+  window.updateCmykPreflightUI = function () {
+    if (!window.app.cmykPrint) return;
+    const report = window.app.cmykPrint.runPreflightInspection();
+    const resultsContainer = document.getElementById('cmyk-preflight-results');
+    if (!resultsContainer) return;
+
+    if (report.passed) {
+      resultsContainer.innerHTML = `
+        <div style="color: #10b981; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+          <span>✓</span> <span>All checks passed! Design is 100% compliant for commercial printing.</span>
+        </div>
+        <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
+          Inspected ${report.totalObjects} canvas element(s). Zero Rich Black text or low-DPI issues detected.
+        </div>
+      `;
+    } else {
+      const issuesHtml = report.issues.map(issue => `
+        <li style="margin-bottom: 4px; color: ${issue.type === 'danger' ? '#ef4444' : '#f59e0b'};">
+          <strong>[${issue.category}]</strong> ${issue.message}
+        </li>
+      `).join('');
+
+      resultsContainer.innerHTML = `
+        <div style="color: #f59e0b; font-weight: 600; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+          <span>⚠</span> <span>Found ${report.issues.length} potential commercial printing issue(s):</span>
+        </div>
+        <ul style="padding-left: 18px; margin: 0; font-size: 11px; line-height: 1.4;">
+          ${issuesHtml}
+        </ul>
+      `;
+    }
+  };
+
+  if (cmykModal) {
+    if (btnCloseCmyk) btnCloseCmyk.addEventListener('click', () => cmykModal.close());
+    if (btnCancelCmyk) btnCancelCmyk.addEventListener('click', () => cmykModal.close());
+    cmykModal.addEventListener('click', (e) => {
+      const rect = cmykModal.getBoundingClientRect();
+      if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) {
+        cmykModal.close();
+      }
+    });
+
+    if (btnRefreshPreflight) {
+      btnRefreshPreflight.addEventListener('click', window.updateCmykPreflightUI);
+    }
+
+    if (btnToggleBleed) {
+      btnToggleBleed.addEventListener('click', () => {
+        if (window.app.cmykPrint) {
+          const active = window.app.cmykPrint.toggleBleedGuides();
+          btnToggleBleed.classList.toggle('active', active);
+        }
+      });
+    }
+
+    if (btnFixPureBlack) {
+      btnFixPureBlack.addEventListener('click', () => {
+        if (window.app.cmykPrint) {
+          window.app.cmykPrint.fixRichBlackText();
+          window.updateCmykPreflightUI();
+        }
+      });
+    }
+
+    if (btnExportCommercialPdf) {
+      btnExportCommercialPdf.addEventListener('click', () => {
+        if (window.app.cmykPrint) {
+          const docTitle = document.getElementById('doc-title-input').value.trim() || 'commercial-print';
+          const filename = `${docTitle.replace(/\s+/g, '-').toLowerCase()}-commercial-press.pdf`;
+          window.app.cmykPrint.exportPrintReadyPDF(filename);
+          cmykModal.close();
+        }
+      });
+    }
   }
 }
 
@@ -1326,7 +1467,7 @@ function setupPhotoCraftStudio() {
     document.querySelectorAll('.photo-adjust-slider').forEach((slider) => {
       slider.addEventListener('input', (e) => {
         const param = slider.getAttribute('data-param');
-        const val = parseFloat(e.target.value);
+        const val = window.AppUtils ? window.AppUtils.safeParseFloat(e.target.value, 0, -2, 2) : (parseFloat(e.target.value) || 0);
         const valLabel = document.getElementById(`val-${param}`);
         if (valLabel) valLabel.textContent = val.toFixed(2);
 
@@ -1438,7 +1579,7 @@ function setupPDFCraftTools() {
   if (btnToggleWatermark) {
     btnToggleWatermark.addEventListener('click', () => {
       const text = watermarkTextInput ? watermarkTextInput.value.trim() : 'CLIENT PROOF - DO NOT COPY';
-      const opacity = watermarkOpacitySlider ? parseFloat(watermarkOpacitySlider.value) : 0.16;
+      const opacity = watermarkOpacitySlider && window.AppUtils ? window.AppUtils.safeParseFloat(watermarkOpacitySlider.value, 0.16, 0.01, 1.0) : (watermarkOpacitySlider ? parseFloat(watermarkOpacitySlider.value) : 0.16);
       const isActive = window.app.pdfcraft.toggleProofWatermark(text, opacity);
       btnToggleWatermark.textContent = isActive ? '🔓 Remove Watermark' : '🔒 Apply Watermark';
       btnToggleWatermark.classList.toggle('active', isActive);
@@ -1447,7 +1588,7 @@ function setupPDFCraftTools() {
 
   if (watermarkOpacitySlider && watermarkOpacityLabel) {
     watermarkOpacitySlider.addEventListener('input', (e) => {
-      const val = parseFloat(e.target.value);
+      const val = window.AppUtils ? window.AppUtils.safeParseFloat(e.target.value, 0.16, 0.01, 1.0) : (parseFloat(e.target.value) || 0.16);
       watermarkOpacityLabel.textContent = `${Math.round(val * 100)}%`;
       if (window.app.pdfcraft.watermarkActive) {
         const text = watermarkTextInput ? watermarkTextInput.value.trim() : 'CLIENT PROOF - DO NOT COPY';
@@ -1459,7 +1600,7 @@ function setupPDFCraftTools() {
   if (watermarkTextInput) {
     watermarkTextInput.addEventListener('change', (e) => {
       if (window.app.pdfcraft.watermarkActive) {
-        const opacity = watermarkOpacitySlider ? parseFloat(watermarkOpacitySlider.value) : 0.16;
+        const opacity = watermarkOpacitySlider && window.AppUtils ? window.AppUtils.safeParseFloat(watermarkOpacitySlider.value, 0.16, 0.01, 1.0) : (watermarkOpacitySlider ? parseFloat(watermarkOpacitySlider.value) : 0.16);
         window.app.pdfcraft.applyProofWatermark(e.target.value.trim(), opacity);
       }
     });
