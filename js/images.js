@@ -131,22 +131,22 @@ class ImagesTool {
         break;
       case 'brightness':
         filterInstance = new fabric.Image.filters.Brightness({
-          brightness: parseFloat(value),
+          brightness: window.AppUtils ? window.AppUtils.safeParseFloat(value, 0, -1, 1) : (parseFloat(value) || 0),
         });
         break;
       case 'contrast':
         filterInstance = new fabric.Image.filters.Contrast({
-          contrast: parseFloat(value),
+          contrast: window.AppUtils ? window.AppUtils.safeParseFloat(value, 0, -1, 1) : (parseFloat(value) || 0),
         });
         break;
       case 'saturation':
         filterInstance = new fabric.Image.filters.Saturation({
-          saturation: parseFloat(value),
+          saturation: window.AppUtils ? window.AppUtils.safeParseFloat(value, 0, -1, 1) : (parseFloat(value) || 0),
         });
         break;
       case 'blur':
         filterInstance = new fabric.Image.filters.Blur({
-          blur: parseFloat(value),
+          blur: window.AppUtils ? window.AppUtils.safeParseFloat(value, 0, 0, 1) : (parseFloat(value) || 0),
         });
         break;
       default:
