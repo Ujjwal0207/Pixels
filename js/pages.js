@@ -28,11 +28,13 @@ class PagesManager {
   }
 
   init() {
-    // Initialize with first page
-    const initialJson = JSON.stringify(this.canvas.toJSON([
+    // Initialize with first page using complete lossless serialization
+    const properties = window.CANVAS_EXTENDED_PROPERTIES || [
       'id', 'name', 'selectable', 'lockMovementX', 'lockMovementY', 
-      'lockRotation', 'lockScalingX', 'lockScalingY', 'charSpacing', 'lineHeight'
-    ]));
+      'lockRotation', 'lockScalingX', 'lockScalingY', 'charSpacing', 'lineHeight',
+      'globalCompositeOperation', 'filters', 'clipPath', 'isStamp', 'isWatermark', 'isLocked', 'shadow'
+    ];
+    const initialJson = JSON.stringify(this.canvas.toJSON(properties));
 
     this.pages = [
       {
@@ -56,10 +58,12 @@ class PagesManager {
     const page = this.pages[this.currentPageIndex];
     page.width = this.canvasManager.artboardWidth;
     page.height = this.canvasManager.artboardHeight;
-    page.state = JSON.stringify(this.canvas.toJSON([
+    const properties = window.CANVAS_EXTENDED_PROPERTIES || [
       'id', 'name', 'selectable', 'lockMovementX', 'lockMovementY', 
-      'lockRotation', 'lockScalingX', 'lockScalingY', 'charSpacing', 'lineHeight'
-    ]));
+      'lockRotation', 'lockScalingX', 'lockScalingY', 'charSpacing', 'lineHeight',
+      'globalCompositeOperation', 'filters', 'clipPath', 'isStamp', 'isWatermark', 'isLocked', 'shadow'
+    ];
+    page.state = JSON.stringify(this.canvas.toJSON(properties));
     
     // Generate mini thumbnail
     try {
