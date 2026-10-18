@@ -949,11 +949,16 @@
 
           <!-- TAB 9: LAYERS -->
           <div class="sidebar-panel-content" data-panel="layers" style="display: none; flex-direction: column; gap: 14px;">
-            <div style="display: flex; align-items: center; justify-content: space-between;">
-              <div class="section-label" style="margin-bottom: 0;">Canvas Elements (Top to Bottom)</div>
-              <button id="btn-create-clip-mask" class="btn-secondary" style="font-size: 0.72rem; padding: 4px 8px;" title="Select 2 objects on canvas: top object clips into bottom shape">
-                ✂ Mask Clip
-              </button>
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px;">
+              <div class="section-label" style="margin-bottom: 0;">Canvas Elements</div>
+              <div style="display: flex; gap: 4px;">
+                <button id="btn-create-clip-mask" class="btn-secondary" style="font-size: 0.72rem; padding: 4px 7px;" title="Select 2 objects on canvas: top object clips into bottom shape">
+                  ✂ Mask Clip
+                </button>
+                <button id="btn-release-clip-mask" class="btn-secondary" style="font-size: 0.72rem; padding: 4px 7px;" title="Release clipping mask on active object">
+                  🔓 Release
+                </button>
+              </div>
             </div>
             <div id="layers-list" class="layers-list"></div>
           </div>
