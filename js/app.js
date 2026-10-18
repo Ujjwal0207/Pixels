@@ -35,11 +35,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const contentHub = new ContentHub(canvasManager);
   const brandKit = new BrandKitEngine(canvasManager);
 
-  // Next-Gen Creative Pro Studio Engines (CMYK Print, 3D Mockup, Video Timeline, Color Studio)
+  // Next-Gen Creative Pro Studio Engines (CMYK Print, 3D Mockup, Video Timeline, Color Studio, Smart Layout, Collaboration)
   const cmykPrint = new CmykPrintStudio(canvasManager);
   const mockupStudio = new MockupStudio3D(canvasManager);
   const videoTimeline = new VideoTimelineEngine(canvasManager);
   const colorStudio = new ColorStudio(canvasManager);
+  const smartLayout = new SmartLayoutEngine(canvasManager);
+  const collaboration = new CollaborationEngine(canvasManager);
 
   // Global app reference for cross-component access
   window.app = {
@@ -72,6 +74,8 @@ document.addEventListener('DOMContentLoaded', () => {
     mockupStudio,
     videoTimeline,
     colorStudio,
+    smartLayout,
+    collab: collaboration,
     activeTab: 'templates',
     selectedFormat: 'png',
   };
@@ -80,6 +84,8 @@ document.addEventListener('DOMContentLoaded', () => {
   storageEngine.init();
   rulersEngine.init();
   brandKit.init();
+  templatesEngine.initTemplateHub();
+  collaboration.init();
 
   // Setup UI components
   setupNavigationRail();
@@ -105,6 +111,8 @@ document.addEventListener('DOMContentLoaded', () => {
   setupClippingMaskEvents();
   setupCanvasDragAndDrop();
   setupGlobalPaste();
+  setupSmartLayoutEvents();
+  setupCollaborationEvents();
 
   // Auto-Restore Draft from IndexedDB if exists, else load default template
   storageEngine.loadDraft().then((draft) => {
@@ -665,29 +673,61 @@ function setupTemplatesTab() {
   const cards = document.querySelectorAll('.template-card');
   const pills = document.querySelectorAll('.category-pill');
 
-  // Filter pills
+  // Save to My Templates
+  const btnSaveCustom = document.getElementById('btn-save-as-custom-template');
+  if (btnSaveCustom) {
+    btnSaveCustom.addEventListener('click', async () => {
+      const docTitle = document.getElementById('doc-title-input')?.value.trim() || 'My Custom Template';
+      const name = prompt('Enter a name for this custom template:', docTitle);
+      if (name && name.trim()) {
+        if (window.app && window.app.templates) {
+          await window.app.templates.saveCurrentAsCustomTemplate(name.trim(), 'custom');
+        }
+      }
+    });
+  }
+
+  // Export & Import Template Packs (.designpro-pack)
+  const btnExportPack = document.getElementById('btn-export-template-pack');
+  if (btnExportPack) {
+    btnExportPack.addEventListener('click', () => {
+      if (window.app && window.app.templates) {
+        window.app.templates.exportTemplatePack();
+      }
+    });
+  }
+
+  const btnImportPack = document.getElementById('btn-import-template-pack');
+  const inputImportPack = document.getElementById('input-import-template-pack');
+  if (btnImportPack && inputImportPack) {
+    btnImportPack.addEventListener('click', () => inputImportPack.click());
+    inputImportPack.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files.length > 0 && window.app && window.app.templates) {
+        window.app.templates.importTemplatePack(e.target.files[0]);
+      }
+    });
+  }
+
+  // Category Filter pills delegated to TemplatesEngine
   pills.forEach((pill) => {
     pill.addEventListener('click', () => {
       pills.forEach((p) => p.classList.remove('active'));
       pill.classList.add('active');
-      const category = pill.getAttribute('data-category');
-
-      cards.forEach((card) => {
-        const cardCat = card.getAttribute('data-category');
-        if (category === 'all' || cardCat === category) {
-          card.style.display = 'flex';
-        } else {
-          card.style.display = 'none';
-        }
-      });
+      const category = pill.getAttribute('data-category') || 'all';
+      if (window.app && window.app.templates) {
+        window.app.templates.currentCategory = category;
+        window.app.templates.filterAllTemplates();
+      }
     });
   });
 
   cards.forEach((card) => {
     card.addEventListener('click', () => {
       const templateKey = card.getAttribute('data-template');
-      window.app.templates.loadTemplate(templateKey);
-      showToast(`Loaded "${card.querySelector('.template-name').textContent}" template!`, 'success');
+      if (templateKey && window.app && window.app.templates) {
+        window.app.templates.loadTemplate(templateKey);
+        showToast(`Loaded "${card.querySelector('.template-name').textContent}" template!`, 'success');
+      }
     });
   });
 }
@@ -1992,6 +2032,162 @@ function setupGlobalPaste() {
     }
   });
 }
+
+// ===========================================================================
+// Smart Layout Generator & Real-Time Collaboration Events
+// ===========================================================================
+
+function setupSmartLayoutEvents() {
+  const modal = document.getElementById('smart-layout-modal');
+  const btnOpen = document.getElementById('btn-open-smart-layout');
+  const btnClose = document.getElementById('btn-close-smart-layout-modal');
+  const btnGenerate = document.getElementById('btn-generate-smart-layouts');
+  const grid = document.getElementById('smart-layout-variations-grid');
+
+  function generateAndRenderVariations() {
+    if (!grid || !window.app || !window.app.smartLayout) return;
+    const headline = document.getElementById('smart-headline-input')?.value.trim() || 'SUMMER DISCOUNT';
+    const tag = document.getElementById('smart-tag-input')?.value.trim() || 'FLASH SALE 50%';
+    const subhead = document.getElementById('smart-subhead-input')?.value.trim() || 'Explore the limited collection.';
+    const cta = document.getElementById('smart-cta-input')?.value.trim() || 'SHOP NOW →';
+
+    let palette = ['#7c3aed', '#ec4899', '#06b6d4', '#0f172a', '#ffffff'];
+    if (window.app.brandKit && window.app.brandKit.currentKit && window.app.brandKit.currentKit.colors) {
+      palette = window.app.brandKit.currentKit.colors;
+    }
+
+    const variations = window.app.smartLayout.generateVariations({ headline, subhead, cta, tag, palette });
+    grid.innerHTML = '';
+
+    variations.forEach(v => {
+      const card = document.createElement('div');
+      card.className = 'template-card';
+      card.style.cssText = 'cursor: pointer; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; background: #ffffff;';
+      card.innerHTML = `
+        <div style="height: 110px; background: ${v.previewGradient || '#18181b'}; display: flex; align-items: center; justify-content: center; padding: 10px; text-align: center;">
+          <div style="font-weight: 800; font-size: 0.85rem; color: #ffffff; line-height: 1.2;">${v.name}</div>
+        </div>
+        <div style="padding: 8px 10px;">
+          <div style="font-weight: 600; font-size: 0.82rem;">${v.name}</div>
+          <div style="font-size: 0.7rem; color: var(--text-muted);">${v.style}</div>
+        </div>
+      `;
+      card.addEventListener('click', () => {
+        window.app.smartLayout.applyVariation(v);
+        modal.close();
+      });
+      grid.appendChild(card);
+    });
+  }
+
+  if (btnOpen && modal) {
+    btnOpen.addEventListener('click', () => {
+      modal.showModal();
+      generateAndRenderVariations();
+    });
+  }
+
+  if (btnClose && modal) {
+    btnClose.addEventListener('click', () => modal.close());
+    modal.addEventListener('click', (e) => {
+      const rect = modal.getBoundingClientRect();
+      if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) {
+        modal.close();
+      }
+    });
+  }
+
+  if (btnGenerate) {
+    btnGenerate.addEventListener('click', generateAndRenderVariations);
+  }
+}
+
+function setupCollaborationEvents() {
+  const modal = document.getElementById('collaboration-modal');
+  const btnOpen = document.getElementById('btn-open-collab');
+  const btnClose = document.getElementById('btn-close-collab-modal');
+  const btnDone = document.getElementById('btn-done-collab');
+  const btnCopy = document.getElementById('btn-copy-collab-link');
+  const btnSaveName = document.getElementById('btn-save-collab-name');
+  const btnJoin = document.getElementById('btn-switch-room');
+  const btnLeave = document.getElementById('btn-disconnect-collab');
+
+  const linkInput = document.getElementById('collab-room-link-input');
+  const nameInput = document.getElementById('collab-name-input');
+  const roomInput = document.getElementById('collab-room-input');
+
+  if (btnOpen && modal) {
+    btnOpen.addEventListener('click', () => {
+      if (window.app && window.app.collab) {
+        if (!window.app.collab.isConnected) {
+          window.app.collab.connect();
+        }
+        if (linkInput) linkInput.value = window.app.collab.getShareableLink();
+        if (nameInput) nameInput.value = window.app.collab.userName;
+        if (roomInput) roomInput.value = window.app.collab.roomId;
+        window.app.collab.updateCollabUI();
+      }
+      modal.showModal();
+    });
+  }
+
+  [btnClose, btnDone].forEach(btn => {
+    if (btn && modal) {
+      btn.addEventListener('click', () => modal.close());
+    }
+  });
+
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      const rect = modal.getBoundingClientRect();
+      if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) {
+        modal.close();
+      }
+    });
+  }
+
+  if (btnCopy && linkInput) {
+    btnCopy.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(linkInput.value);
+        showToast('Invite link copied to clipboard!', 'success');
+      } catch (e) {
+        linkInput.select();
+        document.execCommand('copy');
+        showToast('Invite link copied!', 'success');
+      }
+    });
+  }
+
+  if (btnSaveName && nameInput) {
+    btnSaveName.addEventListener('click', () => {
+      const newName = nameInput.value.trim();
+      if (newName && window.app && window.app.collab) {
+        window.app.collab.setUserName(newName);
+        showToast(`Display name updated to: ${newName}`, 'success');
+      }
+    });
+  }
+
+  if (btnJoin && roomInput) {
+    btnJoin.addEventListener('click', () => {
+      const newRoom = roomInput.value.trim();
+      if (newRoom && window.app && window.app.collab) {
+        window.app.collab.connect(newRoom);
+        if (linkInput) linkInput.value = window.app.collab.getShareableLink();
+      }
+    });
+  }
+
+  if (btnLeave) {
+    btnLeave.addEventListener('click', () => {
+      if (window.app && window.app.collab) {
+        window.app.collab.disconnect();
+      }
+    });
+  }
+}
+
 
 
 
