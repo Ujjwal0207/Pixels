@@ -176,6 +176,29 @@
         return `${prefix}_${crypto.randomUUID()}`;
       }
       return `${prefix}_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    },
+
+    /**
+     * Safely convert any color representation (hex, rgb, rgba, named) to valid 7-character #rrggbb hex
+     * Crucial for HTML5 <input type="color"> compatibility
+     */
+    colorToHex(color, fallback = '#000000') {
+      if (!color) return fallback;
+      if (typeof color === 'string') {
+        const trimmed = color.trim();
+        if (/^#[0-9a-fA-F]{6}$/.test(trimmed)) return trimmed.toLowerCase();
+        if (/^#[0-9a-fA-F]{3}$/.test(trimmed)) {
+          return ('#' + trimmed[1] + trimmed[1] + trimmed[2] + trimmed[2] + trimmed[3] + trimmed[3]).toLowerCase();
+        }
+      }
+      if (typeof fabric !== 'undefined' && fabric.Color) {
+        try {
+          const fc = new fabric.Color(color);
+          const hex = fc.toHex();
+          if (hex && hex.length === 6) return ('#' + hex).toLowerCase();
+        } catch (e) {}
+      }
+      return fallback;
     }
   };
 
