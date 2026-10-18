@@ -135,6 +135,9 @@
 
       this.canvas.renderAll();
       if (this.canvasManager) this.canvasManager.recordState();
+      if (window.app && window.app.updateContextToolbar) {
+        window.app.updateContextToolbar([active]);
+      }
     }
 
     /**
