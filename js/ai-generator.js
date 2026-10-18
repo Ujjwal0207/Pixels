@@ -83,13 +83,16 @@ class AIGenerator {
     }
 
     fabric.Image.fromURL(url, (img) => {
+      const artboardW = this.canvasManager ? this.canvasManager.artboardWidth : (this.canvas.width / (this.canvas.getZoom() || 1));
+      const artboardH = this.canvasManager ? this.canvasManager.artboardHeight : (this.canvas.height / (this.canvas.getZoom() || 1));
+
       // Scale to fit nicely on artboard
-      const maxArtboardDim = Math.min(this.canvas.width, this.canvas.height) * 0.75;
+      const maxArtboardDim = Math.min(artboardW, artboardH) * 0.75;
       const scale = maxArtboardDim / Math.max(img.width, img.height);
 
       img.set({
-        left: this.canvas.width / 2,
-        top: this.canvas.height / 2,
+        left: artboardW / 2,
+        top: artboardH / 2,
         originX: 'center',
         originY: 'center',
         scaleX: scale,
@@ -113,9 +116,12 @@ class AIGenerator {
     }
 
     fabric.Image.fromURL(url, (img) => {
+      const artboardW = this.canvasManager ? this.canvasManager.artboardWidth : (this.canvas.width / (this.canvas.getZoom() || 1));
+      const artboardH = this.canvasManager ? this.canvasManager.artboardHeight : (this.canvas.height / (this.canvas.getZoom() || 1));
+
       // Scale to cover artboard completely
-      const scaleX = this.canvas.width / img.width;
-      const scaleY = this.canvas.height / img.height;
+      const scaleX = artboardW / img.width;
+      const scaleY = artboardH / img.height;
       const scale = Math.max(scaleX, scaleY);
 
       this.canvas.setBackgroundImage(img, () => {
@@ -125,8 +131,8 @@ class AIGenerator {
       }, {
         originX: 'center',
         originY: 'center',
-        left: this.canvas.width / 2,
-        top: this.canvas.height / 2,
+        left: artboardW / 2,
+        top: artboardH / 2,
         scaleX: scale,
         scaleY: scale,
         crossOrigin: 'anonymous',
