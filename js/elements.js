@@ -14,9 +14,11 @@ class ElementsTool {
   }
 
   getCenter() {
+    const w = this.canvasManager ? this.canvasManager.artboardWidth : (this.canvas.width / (this.canvas.getZoom() || 1));
+    const h = this.canvasManager ? this.canvasManager.artboardHeight : (this.canvas.height / (this.canvas.getZoom() || 1));
     return {
-      x: this.canvas.width / 2,
-      y: this.canvas.height / 2,
+      x: w / 2,
+      y: h / 2,
     };
   }
 
