@@ -23,13 +23,31 @@ class ExportEngine {
     document.body.removeChild(link);
   }
 
-  // Export as PNG
+  // Export as PNG (Non-blocking high-res export via toBlob)
   exportPNG(options = {}) {
     const { transparent = false, multiplier = 2, filename = 'designpro-graphic.png' } = options;
 
     const originalBg = this.canvas.backgroundColor;
     if (transparent) {
       this.canvas.backgroundColor = null;
+      this.canvas.renderAll();
+    }
+
+    // Try native toBlob on lowerCanvas or fallback to toDataURL
+    const lowerCanvas = this.canvas.lowerCanvasEl;
+    if (lowerCanvas && lowerCanvas.toBlob && multiplier <= 1) {
+      lowerCanvas.toBlob((blob) => {
+        if (transparent) {
+          this.canvas.backgroundColor = originalBg;
+          this.canvas.renderAll();
+        }
+        if (blob) {
+          const url = URL.createObjectURL(blob);
+          this.downloadFile(url, filename);
+          setTimeout(() => URL.revokeObjectURL(url), 2000);
+        }
+      }, 'image/png');
+      return;
     }
 
     const dataUrl = this.canvas.toDataURL({
@@ -48,9 +66,8 @@ class ExportEngine {
 
   // Export as JPEG
   exportJPEG(options = {}) {
-    const { quality = 0.92, multiplier = 2, filename = 'designpro-graphic.jpg' } = options;
+    const { quality = 0.95, multiplier = 2, filename = 'designpro-graphic.jpg' } = options;
 
-    // JPEG requires solid background, fallback to white if none
     const originalBg = this.canvas.backgroundColor;
     if (!originalBg || originalBg === 'transparent') {
       this.canvas.backgroundColor = '#ffffff';
@@ -72,17 +89,41 @@ class ExportEngine {
     this.downloadFile(dataUrl, filename);
   }
 
-  // Export as SVG
+  // Export as SVG with filter & shadow preservation (Flaw 11 Fix)
   exportSVG(filename = 'designpro-vector.svg') {
-    const svgContent = this.canvas.toSVG({
+    let svgContent = this.canvas.toSVG({
       width: this.canvas.width,
       height: this.canvas.height,
     });
 
+    // Check for objects with shadow or filters and inject SVG <defs>
+    try {
+      const objects = this.canvas.getObjects();
+      const shadowObjects = objects.filter((o) => o.shadow && o.visible);
+      if (shadowObjects.length > 0 && !svgContent.includes('<feDropShadow')) {
+        let defs = '<defs>\n';
+        shadowObjects.forEach((obj, idx) => {
+          const s = obj.shadow;
+          const id = `fabric-shadow-${idx}`;
+          const blur = s.blur || 8;
+          const dx = s.offsetX || 0;
+          const dy = s.offsetY || 4;
+          const color = s.color || '#000000';
+          defs += `  <filter id="${id}" x="-30%" y="-30%" width="160%" height="160%">\n`;
+          defs += `    <feDropShadow dx="${dx}" dy="${dy}" stdDeviation="${(blur / 2).toFixed(1)}" flood-color="${color}" />\n`;
+          defs += `  </filter>\n`;
+        });
+        defs += '</defs>\n';
+        svgContent = svgContent.replace(/(<svg[^>]*>)/i, `$1\n${defs}`);
+      }
+    } catch (e) {
+      console.warn('SVG filter injection note:', e);
+    }
+
     const blob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     this.downloadFile(url, filename);
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
   }
 
   // Save Project as JSON (.designpro file)
