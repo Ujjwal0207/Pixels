@@ -3,6 +3,34 @@
  * Manages Fabric.js canvas instance, artboard sizing, viewport zoom, pan, history and shortcuts
  */
 
+// Canonical Extended Properties for Lossless Serialization across All Modules
+window.CANVAS_EXTENDED_PROPERTIES = [
+  'id',
+  'name',
+  'selectable',
+  'evented',
+  'lockMovementX',
+  'lockMovementY',
+  'lockRotation',
+  'lockScalingX',
+  'lockScalingY',
+  'charSpacing',
+  'lineHeight',
+  'globalCompositeOperation',
+  'filters',
+  'clipPath',
+  'isStamp',
+  'isWatermark',
+  'isLocked',
+  'layerType',
+  'shadow',
+  'opacity',
+  'strokeUniform',
+  'isGuide',
+  'guideOrientation',
+  'assetId'
+];
+
 class CanvasManager {
   constructor() {
     this.canvas = null;
@@ -17,6 +45,7 @@ class CanvasManager {
     this.historyIndex = -1;
     this.isHistoryProcessing = false;
     this.maxHistorySteps = 30;
+    this.assetCache = new Map(); // Memory optimization: deduplicate large Base64 images
 
     // Clipboard
     this.clipboard = null;
@@ -260,26 +289,43 @@ class CanvasManager {
     this.setZoom(bestScale);
   }
 
-  // History Management (Undo / Redo)
+  // History Management (Undo / Redo with Memory Optimization & Auto-Save)
   recordState() {
     if (!this.canvas || this.isBatchLoading || this.isHistoryProcessing) return;
 
-    // If we undo and then do something, discard newer states
+    // Discard any redo states ahead of current index
     if (this.historyIndex < this.history.length - 1) {
       this.history = this.history.slice(0, this.historyIndex + 1);
     }
 
-    const json = JSON.stringify(this.canvas.toJSON([
-      'id', 'name', 'selectable', 'lockMovementX', 'lockMovementY', 
-      'lockRotation', 'lockScalingX', 'lockScalingY', 'charSpacing', 'lineHeight',
-      'globalCompositeOperation', 'filters', 'clipPath', 'isStamp', 'isWatermark'
-    ]));
+    // Capture state with full lossless property schema
+    const rawJson = this.canvas.toJSON(window.CANVAS_EXTENDED_PROPERTIES);
 
-    this.history.push({
-      json: json,
+    // Filter out temporary guide lines from standard undo states
+    if (rawJson.objects) {
+      rawJson.objects = rawJson.objects.filter(obj => !obj.isGuide);
+
+      // Memory optimization: deduplicate large Base64 image payloads
+      rawJson.objects.forEach(obj => {
+        if (obj.type === 'image' && obj.src && obj.src.length > 2000) {
+          const hashId = obj.assetId || `asset_${obj.src.substring(0, 32).replace(/[^a-zA-Z0-9]/g, '')}_${obj.src.length}`;
+          obj.assetId = hashId;
+          if (!this.assetCache.has(hashId)) {
+            this.assetCache.set(hashId, obj.src);
+          }
+          // Store lightweight pointer in history snapshot
+          obj.src = `cache://${hashId}`;
+        }
+      });
+    }
+
+    const statePayload = {
+      json: JSON.stringify(rawJson),
       width: this.artboardWidth,
       height: this.artboardHeight,
-    });
+    };
+
+    this.history.push(statePayload);
 
     if (this.history.length > this.maxHistorySteps) {
       this.history.shift();
@@ -288,6 +334,11 @@ class CanvasManager {
     }
 
     this.updateUndoRedoUI();
+
+    // Trigger debounced persistent auto-save to IndexedDB
+    if (window.app && window.app.storage && typeof window.app.storage.scheduleAutoSave === 'function') {
+      window.app.storage.scheduleAutoSave(this, window.app.pages);
+    }
   }
 
   undo() {
@@ -311,13 +362,36 @@ class CanvasManager {
     this.artboardWidth = state.width;
     this.artboardHeight = state.height;
 
-    this.canvas.loadFromJSON(state.json, () => {
+    // Restore cached image payloads before feeding into Fabric parser
+    let parsedState;
+    try {
+      parsedState = JSON.parse(state.json);
+      if (parsedState.objects) {
+        parsedState.objects.forEach(obj => {
+          if (obj.src && obj.src.startsWith('cache://')) {
+            const hashId = obj.src.replace('cache://', '');
+            if (this.assetCache.has(hashId)) {
+              obj.src = this.assetCache.get(hashId);
+            }
+          }
+        });
+      }
+    } catch (e) {
+      parsedState = state.json;
+    }
+
+    this.canvas.loadFromJSON(parsedState, () => {
       this.canvas.setWidth(this.artboardWidth);
       this.canvas.setHeight(this.artboardHeight);
       this.canvas.renderAll();
       this.isHistoryProcessing = false;
       this.updateUndoRedoUI();
       this.notifyLayerUpdate();
+
+      // Trigger auto-save sync
+      if (window.app && window.app.storage) {
+        window.app.storage.scheduleAutoSave(this, window.app.pages);
+      }
     });
   }
 
