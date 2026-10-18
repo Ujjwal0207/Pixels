@@ -10,7 +10,7 @@
  */
 
 class StorageEngine {
-  constructor(dbName = 'DesignProDB', version = 1) {
+  constructor(dbName = 'DesignProDB', version = 2) {
     this.dbName = dbName;
     this.version = version;
     this.db = null;
@@ -42,6 +42,9 @@ class StorageEngine {
         }
         if (!db.objectStoreNames.contains('brandkits')) {
           db.createObjectStore('brandkits', { keyPath: 'id' });
+        }
+        if (!db.objectStoreNames.contains('templates')) {
+          db.createObjectStore('templates', { keyPath: 'id' });
         }
       };
 
@@ -158,6 +161,60 @@ class StorageEngine {
     } catch (e) {
       console.warn('[StorageEngine] Error clearing draft:', e);
     }
+  }
+
+  // =========================================================================
+  // Custom Templates Vault Persistence
+  // =========================================================================
+  async saveCustomTemplate(templateRecord) {
+    if (!this.db) await this.init();
+    if (!this.db) return null;
+
+    return new Promise((resolve, reject) => {
+      try {
+        const tx = this.db.transaction('templates', 'readwrite');
+        const store = tx.objectStore('templates');
+        const req = store.put(templateRecord);
+        req.onsuccess = () => resolve(templateRecord);
+        req.onerror = (e) => reject(e);
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  async getCustomTemplates() {
+    if (!this.db) await this.init();
+    if (!this.db) return [];
+
+    return new Promise((resolve) => {
+      try {
+        const tx = this.db.transaction('templates', 'readonly');
+        const store = tx.objectStore('templates');
+        const req = store.getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => resolve([]);
+      } catch (err) {
+        resolve([]);
+      }
+    });
+  }
+
+  async deleteCustomTemplate(templateId) {
+    if (!this.db) await this.init();
+    if (!this.db) return false;
+
+    return new Promise((resolve) => {
+      try {
+        const tx = this.db.transaction('templates', 'readwrite');
+        const store = tx.objectStore('templates');
+        const req = store.delete(templateId);
+        req.onsuccess = () => resolve(true);
+        req.onerror = () => resolve(false);
+      } catch (err) {
+        resolve(false);
+      }
+    });
   }
 }
 
