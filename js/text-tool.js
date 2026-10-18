@@ -15,9 +15,12 @@ class TextTool {
 
   // Add Headline
   addHeading() {
+    const artboardW = this.canvasManager ? this.canvasManager.artboardWidth : (this.canvas.width / (this.canvas.getZoom() || 1));
+    const artboardH = this.canvasManager ? this.canvasManager.artboardHeight : (this.canvas.height / (this.canvas.getZoom() || 1));
+
     const text = new fabric.IText('Add a heading', {
-      left: this.canvas.width / 2,
-      top: this.canvas.height / 3,
+      left: artboardW / 2,
+      top: artboardH / 3,
       originX: 'center',
       originY: 'center',
       fontFamily: 'Outfit',
@@ -36,9 +39,12 @@ class TextTool {
 
   // Add Subheading
   addSubheading() {
+    const artboardW = this.canvasManager ? this.canvasManager.artboardWidth : (this.canvas.width / (this.canvas.getZoom() || 1));
+    const artboardH = this.canvasManager ? this.canvasManager.artboardHeight : (this.canvas.height / (this.canvas.getZoom() || 1));
+
     const text = new fabric.IText('Add a subheading', {
-      left: this.canvas.width / 2,
-      top: this.canvas.height / 2,
+      left: artboardW / 2,
+      top: artboardH / 2,
       originX: 'center',
       originY: 'center',
       fontFamily: 'Inter',
@@ -56,9 +62,12 @@ class TextTool {
 
   // Add Body Paragraph
   addBody() {
+    const artboardW = this.canvasManager ? this.canvasManager.artboardWidth : (this.canvas.width / (this.canvas.getZoom() || 1));
+    const artboardH = this.canvasManager ? this.canvasManager.artboardHeight : (this.canvas.height / (this.canvas.getZoom() || 1));
+
     const text = new fabric.IText('Add a little bit of body text that tells your story clearly.', {
-      left: this.canvas.width / 2,
-      top: (this.canvas.height / 3) * 2,
+      left: artboardW / 2,
+      top: (artboardH / 3) * 2,
       originX: 'center',
       originY: 'center',
       fontFamily: 'Inter',
@@ -78,8 +87,10 @@ class TextTool {
 
   // Add Font Combinations
   addFontCombination(comboKey) {
-    const cx = this.canvas.width / 2;
-    const cy = this.canvas.height / 2;
+    const artboardW = this.canvasManager ? this.canvasManager.artboardWidth : (this.canvas.width / (this.canvas.getZoom() || 1));
+    const artboardH = this.canvasManager ? this.canvasManager.artboardHeight : (this.canvas.height / (this.canvas.getZoom() || 1));
+    const cx = artboardW / 2;
+    const cy = artboardH / 2;
 
     switch (comboKey) {
       case 'luxury-serif': {
