@@ -763,12 +763,30 @@ class ElementsTool {
     const active = this.canvas.getActiveObject();
     if (!active) return;
 
-    if (active.type === 'group') {
+    if (active.type === 'activeSelection' || active.type === 'group') {
       active.forEachObject((obj) => {
-        if (obj.type !== 'text') obj.set('fill', color);
+        if (obj.type === 'line') {
+          obj.set('stroke', color);
+        } else if (obj.type !== 'text') {
+          if (obj.fill === 'none' || obj.fill === null || obj.fill === '') {
+            obj.set('stroke', color);
+          } else {
+            obj.set('fill', color);
+          }
+        }
+        obj.dirty = true;
       });
+      active.dirty = true;
+    } else if (active.type === 'line') {
+      active.set('stroke', color);
+      active.dirty = true;
     } else {
-      active.set('fill', color);
+      if ((active.fill === 'none' || !active.fill) && active.stroke) {
+        active.set('stroke', color);
+      } else {
+        active.set('fill', color);
+      }
+      active.dirty = true;
     }
 
     this.canvas.renderAll();
@@ -778,8 +796,19 @@ class ElementsTool {
   setStrokeColor(color) {
     const active = this.canvas.getActiveObject();
     if (!active) return;
-    active.set('stroke', color);
-    if (!active.strokeWidth) active.set('strokeWidth', 2);
+
+    if (active.type === 'activeSelection' || active.type === 'group') {
+      active.forEachObject((obj) => {
+        obj.set('stroke', color);
+        if (!obj.strokeWidth) obj.set('strokeWidth', 2);
+        obj.dirty = true;
+      });
+      active.dirty = true;
+    } else {
+      active.set('stroke', color);
+      if (!active.strokeWidth) active.set('strokeWidth', 2);
+      active.dirty = true;
+    }
     this.canvas.renderAll();
     this.canvasManager.recordState();
   }
