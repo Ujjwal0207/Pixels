@@ -305,6 +305,7 @@ class StudioProSuite {
   // 4. Fullscreen Slide Presentation Mode ("Present")
   // =========================================================================
   enterPresentationMode() {
+    if (this.presentationActive) return;
     this.presentationActive = true;
     document.body.classList.add('presentation-mode-active');
 
@@ -332,7 +333,11 @@ class StudioProSuite {
 
     // Request native fullscreen
     if (document.documentElement.requestFullscreen) {
-      document.documentElement.requestFullscreen().catch(() => {});
+      document.documentElement.requestFullscreen().then(() => {
+        if (!this.presentationActive && document.fullscreenElement && document.exitFullscreen) {
+          document.exitFullscreen().catch(() => {});
+        }
+      }).catch(() => {});
     }
 
     // Bind presentation keyboard navigation
@@ -349,6 +354,10 @@ class StudioProSuite {
       }
     };
     window.addEventListener('keydown', this._presKeyHandler);
+    this._presFullscreenHandler = () => {
+      if (this.presentationActive && !document.fullscreenElement) this.exitPresentationMode();
+    };
+    document.addEventListener('fullscreenchange', this._presFullscreenHandler);
 
     // Zoom artboard to fit screen comfortably
     setTimeout(() => {
@@ -362,12 +371,27 @@ class StudioProSuite {
     this.presentationActive = false;
     document.body.classList.remove('presentation-mode-active');
 
+    const floatingBar = document.getElementById('presentation-floating-bar');
+    if (floatingBar) floatingBar.remove();
+
+    const presentButton = document.getElementById('btn-present-mode');
+    if (presentButton) {
+      presentButton.classList.add('presentation-hover-muted');
+      const clearMutedHover = () => presentButton.classList.remove('presentation-hover-muted');
+      window.addEventListener('pointermove', clearMutedHover, { once: true });
+    }
+
     if (document.fullscreenElement && document.exitFullscreen) {
       document.exitFullscreen().catch(() => {});
     }
 
     if (this._presKeyHandler) {
       window.removeEventListener('keydown', this._presKeyHandler);
+      this._presKeyHandler = null;
+    }
+    if (this._presFullscreenHandler) {
+      document.removeEventListener('fullscreenchange', this._presFullscreenHandler);
+      this._presFullscreenHandler = null;
     }
 
     setTimeout(() => {
