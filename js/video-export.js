@@ -33,19 +33,28 @@ class VideoExporter {
       return;
     }
 
+    // Deselect any active handles so selection box doesn't appear in video
+    const prevActive = this.canvas.getActiveObject();
+    this.canvas.discardActiveObject();
+    this.canvas.renderAll();
+
     this.isRecording = true;
     this.recordedChunks = [];
 
     // Capture at 30 FPS
     const stream = canvasEl.captureStream(30);
     let mimeType = 'video/webm;codecs=vp9';
-    if (!MediaRecorder.isTypeSupported(mimeType)) {
+    if (MediaRecorder.isTypeSupported('video/mp4')) {
+      mimeType = 'video/mp4';
+    } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {
+      mimeType = 'video/webm;codecs=vp9';
+    } else if (MediaRecorder.isTypeSupported('video/webm')) {
       mimeType = 'video/webm';
     }
 
     let mediaRecorder;
     try {
-      mediaRecorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 3000000 });
+      mediaRecorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 3500000 });
     } catch (e) {
       mediaRecorder = new MediaRecorder(stream);
     }
@@ -70,6 +79,10 @@ class VideoExporter {
       }, 100);
 
       this.isRecording = false;
+      if (prevActive) {
+        this.canvas.setActiveObject(prevActive);
+        this.canvas.requestRenderAll();
+      }
       if (window.showToast) {
         window.showToast(`Animated clip "${filename}" exported successfully!`, 'success');
       }
