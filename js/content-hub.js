@@ -240,10 +240,12 @@ class ContentHub {
       // Scale to friendly studio size (120px)
       const targetSize = 120;
       const scale = targetSize / Math.max(svgGroup.width, svgGroup.height);
+      const artboardW = this.canvasManager ? this.canvasManager.artboardWidth : (this.canvas.width / (this.canvas.getZoom() || 1));
+      const artboardH = this.canvasManager ? this.canvasManager.artboardHeight : (this.canvas.height / (this.canvas.getZoom() || 1));
 
       svgGroup.set({
-        left: this.canvas.width / 2,
-        top: this.canvas.height / 2,
+        left: artboardW / 2,
+        top: artboardH / 2,
         originX: 'center',
         originY: 'center',
         scaleX: scale,
@@ -272,16 +274,19 @@ class ContentHub {
           return;
         }
 
-        const maxW = this.canvas.width * 0.65;
-        const maxH = this.canvas.height * 0.65;
+        const artboardW = this.canvasManager ? this.canvasManager.artboardWidth : (this.canvas.width / (this.canvas.getZoom() || 1));
+        const artboardH = this.canvasManager ? this.canvasManager.artboardHeight : (this.canvas.height / (this.canvas.getZoom() || 1));
+
+        const maxW = artboardW * 0.65;
+        const maxH = artboardH * 0.65;
         let scale = 1;
         if (img.width > maxW || img.height > maxH) {
           scale = Math.min(maxW / img.width, maxH / img.height);
         }
 
         img.set({
-          left: this.canvas.width / 2,
-          top: this.canvas.height / 2,
+          left: artboardW / 2,
+          top: artboardH / 2,
           originX: 'center',
           originY: 'center',
           scaleX: scale,
